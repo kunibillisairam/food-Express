@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import API_BASE_URL from '../config';
 
 const MyOrders = ({ setView }) => {
     const [orders, setOrders] = useState([]);
@@ -16,7 +17,7 @@ const MyOrders = ({ setView }) => {
     const fetchOrders = async () => {
         setLoading(true);
         try {
-            const res = await axios.get(`http://localhost:5000/api/orders/user/${user.username}`);
+            const res = await axios.get(`${API_BASE_URL}/api/orders/user/${user.username}`);
             setOrders(res.data);
         } catch (err) {
             console.error(err);
@@ -30,7 +31,7 @@ const MyOrders = ({ setView }) => {
         if (!window.confirm('Are you sure you want to cancel this order? Amount will be refunded to your wallet.')) return;
 
         try {
-            await axios.put(`http://localhost:5000/api/orders/${orderId}/cancel`);
+            await axios.put(`${API_BASE_URL}/api/orders/${orderId}/cancel`);
 
             // Update local state
             setOrders(orders.map(o => o._id === orderId ? { ...o, status: 'Cancelled' } : o));

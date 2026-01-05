@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { CartContext } from '../context/CartContext';
 import { AuthContext } from '../context/AuthContext';
 import axios from 'axios';
+import API_BASE_URL from '../config';
 
 const Payment = ({ setView }) => {
     const { cart, clearCart, totalAmount } = useContext(CartContext);
@@ -121,7 +122,7 @@ const Payment = ({ setView }) => {
                 address: addressToUse // Send address to backend if needed
             };
 
-            await axios.post('http://localhost:5000/api/orders', orderData);
+            await axios.post(`${API_BASE_URL}/api/orders`, orderData);
 
             // Simulate payment processing delay
             setTimeout(() => {
