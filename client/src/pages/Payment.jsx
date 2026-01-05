@@ -164,36 +164,18 @@ const Payment = ({ setView }) => {
             <div className="cart-container" style={{ maxWidth: '800px', margin: '2rem auto' }}>
                 <h2 className="page-title">Payment & Offers</h2>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+                <div className="payment-grid">
                     {/* Left Col: Payment Methods */}
                     <div>
                         <h3 style={{ marginBottom: '1rem' }}>Select Payment Method</h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            <label className="payment-option" style={{
-                                padding: '1rem',
-                                border: method === 'cod' ? '2px solid #ff4757' : '2px solid #f1f2f6',
-                                borderRadius: '16px',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '15px',
-                                background: method === 'cod' ? '#fff0f1' : 'white'
-                            }}>
-                                <input type="radio" value="cod" checked={method === 'cod'} onChange={() => { setMethod('cod'); setWalletError(''); }} />
+                            <label className={`payment-option-card ${method === 'cod' ? 'selected' : ''}`} onClick={() => { setMethod('cod'); setWalletError(''); }}>
+                                <input type="radio" value="cod" checked={method === 'cod'} onChange={() => { }} />
                                 <span style={{ fontWeight: '600' }}>Cash on Delivery</span>
                             </label>
 
-                            <label className="payment-option" style={{
-                                padding: '1rem',
-                                border: method === 'wallet' ? '2px solid #ff4757' : '2px solid #f1f2f6',
-                                borderRadius: '16px',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '15px',
-                                background: method === 'wallet' ? '#fff0f1' : 'white'
-                            }}>
-                                <input type="radio" value="wallet" checked={method === 'wallet'} onChange={() => { setMethod('wallet'); setWalletError(''); }} />
+                            <label className={`payment-option-card ${method === 'wallet' ? 'selected' : ''}`} onClick={() => { setMethod('wallet'); setWalletError(''); }}>
+                                <input type="radio" value="wallet" checked={method === 'wallet'} onChange={() => { }} />
                                 <div>
                                     <div style={{ fontWeight: '600' }}>Pay via Wallet</div>
                                     <div style={{ fontSize: '0.8rem', color: '#777' }}>Balance: ₹{user.walletBalance || 0}</div>
@@ -201,31 +183,13 @@ const Payment = ({ setView }) => {
                                 </div>
                             </label>
 
-                            <label className="payment-option" style={{
-                                padding: '1rem',
-                                border: method === 'upi' ? '2px solid #ff4757' : '2px solid #f1f2f6',
-                                borderRadius: '16px',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '15px',
-                                background: method === 'upi' ? '#fff0f1' : 'white'
-                            }}>
-                                <input type="radio" value="upi" checked={method === 'upi'} onChange={() => { setMethod('upi'); setWalletError(''); }} />
+                            <label className={`payment-option-card ${method === 'upi' ? 'selected' : ''}`} onClick={() => { setMethod('upi'); setWalletError(''); }}>
+                                <input type="radio" value="upi" checked={method === 'upi'} onChange={() => { }} />
                                 <span style={{ fontWeight: '600' }}>UPI (GPay / PhonePe)</span>
                             </label>
 
-                            <label className="payment-option" style={{
-                                padding: '1rem',
-                                border: method === 'card' ? '2px solid #ff4757' : '2px solid #f1f2f6',
-                                borderRadius: '16px',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '15px',
-                                background: method === 'card' ? '#fff0f1' : 'white'
-                            }}>
-                                <input type="radio" value="card" checked={method === 'card'} onChange={() => { setMethod('card'); setWalletError(''); }} />
+                            <label className={`payment-option-card ${method === 'card' ? 'selected' : ''}`} onClick={() => { setMethod('card'); setWalletError(''); }}>
+                                <input type="radio" value="card" checked={method === 'card'} onChange={() => { }} />
                                 <span style={{ fontWeight: '600' }}>Debit / Credit Card</span>
                             </label>
                         </div>

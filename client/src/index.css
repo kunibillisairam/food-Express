@@ -1185,3 +1185,35 @@ body {
     transform: translateY(0);
   }
 }
+
+/* Payment Page Styles */
+.payment-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.payment-option-card {
+  padding: 1rem;
+  border: 2px solid #f1f2f6;
+  border-radius: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: white;
+  transition: all 0.3s ease;
+}
+
+.payment-option-card.selected {
+  border-color: #ff4757;
+  background: #fff0f1;
+}
+
+/* Update Media Query for Payment Page */
+@media (max-width: 900px) {
+  .payment-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
