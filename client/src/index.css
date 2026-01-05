@@ -820,6 +820,114 @@ body {
   }
 }
 
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .nav-links {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 5px;
+    justify-content: flex-start;
+    -webkit-overflow-scrolling: touch;
+    gap: 0.8rem;
+  }
+
+  .nav-brand {
+    font-size: 1.5rem;
+    align-self: flex-start;
+  }
+
+  /* Hide Cart Text on mobile */
+  .cart-icon span:first-of-type {
+    display: none;
+  }
+
+  .cart-icon {
+    font-size: 1.4rem;
+  }
+
+  /* Hide category buttons in navbar on mobile since they are on Home page */
+  .nav-links>button:not(:last-child):not(:nth-last-child(2)) {
+    /* This is a bit risky if order changes, better to rely on Home page categories */
+  }
+
+  /* Alternative: Just simplify the layout */
+  .food-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    /* Smaller cards on mobile */
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .food-card {
+    border-radius: 12px;
+  }
+
+  .food-img-container {
+    height: 150px;
+  }
+
+  .food-info {
+    padding: 1rem;
+  }
+
+  .food-title {
+    font-size: 1rem;
+    height: 2.8rem;
+  }
+
+  .food-price {
+    font-size: 1.1rem;
+  }
+
+  .add-btn {
+    padding: 0.6rem;
+    font-size: 0.9rem;
+  }
+
+  .cart-container {
+    padding: 1rem;
+  }
+
+  .cart-item {
+    grid-template-columns: 50px 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 0.5rem;
+  }
+
+  .cart-item img {
+    grid-row: 1 / 3;
+  }
+
+  .qty-controls {
+    grid-row: 2;
+    grid-column: 2;
+  }
+
+  .cart-item>div:last-child {
+    grid-row: 2;
+    grid-column: 2;
+    justify-self: end;
+  }
+
+  .checkout-section {
+    align-items: center;
+  }
+
+  .total-price {
+    font-size: 1.5rem;
+  }
+
+  .action-btn {
+    width: 100%;
+    padding: 1rem;
+  }
+}
+
 @media (max-width: 600px) {
   .footer-content {
     grid-template-columns: 1fr;
@@ -832,6 +940,25 @@ body {
 
   .social-links {
     justify-content: center;
+  }
+
+  .search-bar {
+    padding: 0.8rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .categories {
+    gap: 0.5rem;
+    justify-content: flex-start;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 5px;
+  }
+
+  .cat-btn {
+    flex: 0 0 auto;
+    padding: 0.5rem 1.2rem;
+    font-size: 0.9rem;
   }
 }
 
