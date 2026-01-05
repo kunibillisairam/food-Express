@@ -15,9 +15,16 @@ import QuantumTracker from './pages/QuantumTracker';
 import Fabricator from './pages/Fabricator';
 
 import Footer from './components/Footer';
+import { initGlobalSound } from './utils/soundEffects';
 
 const Main = () => {
   const { user } = useContext(AuthContext);
+
+  useEffect(() => {
+    const cleanup = initGlobalSound();
+    return cleanup;
+  }, []);
+
   const [view, setView] = useState('home');
   const [category, setCategory] = useState('All');
 

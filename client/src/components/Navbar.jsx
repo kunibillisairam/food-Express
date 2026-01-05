@@ -3,21 +3,27 @@ import { AuthContext } from '../context/AuthContext';
 import { CartContext } from '../context/CartContext';
 import { FaShoppingCart, FaUser, FaSignOutAlt } from 'react-icons/fa';
 import { categories } from '../data/foodData';
+import useSound from '../hooks/useSound';
 
 const Navbar = ({ setView, activeCategory, setCategory }) => {
     const { user, logout } = useContext(AuthContext);
     const { cart } = useContext(CartContext);
+    const { playSound } = useSound();
 
     const totalItems = cart.reduce((acc, item) => acc + item.qty, 0);
 
     const handleLogout = () => {
+        playSound('click');
         logout();
         setView('login');
     };
 
     return (
         <nav className="navbar fade-in">
-            <div className="nav-brand" onClick={() => setView('home')}>
+            <div className="nav-brand"
+                onClick={() => { playSound('click'); setView('home'); }}
+                onMouseEnter={() => playSound('hover')}
+            >
                 FoodExpress
             </div>
 
@@ -27,7 +33,9 @@ const Navbar = ({ setView, activeCategory, setCategory }) => {
                     <button
                         key={cat}
                         className={`nav-btn ${activeCategory === cat ? 'active' : ''}`}
+                        onMouseEnter={() => playSound('hover')}
                         onClick={() => {
+                            playSound('click');
                             setView('home');
                             setCategory(cat);
                         }}
@@ -38,7 +46,8 @@ const Navbar = ({ setView, activeCategory, setCategory }) => {
 
                 <button
                     className="nav-btn"
-                    onClick={() => setView('fabricator')}
+                    onClick={() => { playSound('scan'); setView('fabricator'); }}
+                    onMouseEnter={() => playSound('hover')}
                     style={{
                         background: 'linear-gradient(45deg, #000000, #434343)',
                         color: '#00ffff',

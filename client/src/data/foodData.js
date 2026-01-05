@@ -97,4 +97,4 @@ export const foodData = [
     }
 ];
 
-export const categories = ["All", "Burger", "Noodles", "Biryani", "Rice", "Mushroom", "Kebab", "Kavaabu"];
+export const categories = ["All", "Burger", "Noodles", "Biryani", "Rice", "Mushroom", "Kebab", "Kavaabu", "Pizza", "Starters", "Dessert"];

@@ -2,6 +2,7 @@ import React, { useContext, useRef, useState, useEffect } from 'react';
 import './Fabricator.css';
 import { foodData } from '../data/foodData';
 import { CartContext } from '../context/CartContext';
+import { useSound } from '../hooks/useSound';
 
 // Ingredients mapping
 const INGREDIENTS_DB = {
@@ -35,6 +36,7 @@ const getIngredients = (category) => {
 
 const HologramCard = ({ item, onCustomize, onQuickAdd }) => {
     const cardRef = useRef(null);
+    const { playSound } = useSound();
 
     const handleMouseMove = (e) => {
         const card = cardRef.current;
@@ -76,16 +78,22 @@ const HologramCard = ({ item, onCustomize, onQuickAdd }) => {
                     <p className="hologram-price">CR-{item.price}</p>
                 </div>
                 <div className="card-actions">
-                    <button className="action-btn customize-btn" onClick={(e) => {
-                        e.stopPropagation();
-                        onCustomize(item);
-                    }}>
+                    <button className="action-btn customize-btn"
+                        onMouseEnter={() => playSound('hover')}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            playSound('click');
+                            onCustomize(item);
+                        }}>
                         CUSTOMIZE
                     </button>
-                    <button className="action-btn quick-btn" onClick={(e) => {
-                        e.stopPropagation();
-                        onQuickAdd(item);
-                    }}>
+                    <button className="action-btn quick-btn"
+                        onMouseEnter={() => playSound('hover')}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            playSound('success');
+                            onQuickAdd(item);
+                        }}>
                         QUICK ADD
                     </button>
                 </div>
@@ -99,11 +107,13 @@ const FabricatorInterface = ({ item, onBack, onComplete }) => {
     const [isScanning, setIsScanning] = useState(false);
     const [scanMessage, setScanMessage] = useState("FABRICATOR READY. AWAITING INPUT.");
     const [scanProgress, setScanProgress] = useState(0);
+    const { playSound } = useSound();
 
     const availableIngredients = getIngredients(item.category);
 
     const handleAddIngredient = (ing) => {
         if (isScanning) return;
+        playSound('click');
 
         setIsScanning(true);
         setScanProgress(0);
@@ -139,6 +149,7 @@ const FabricatorInterface = ({ item, onBack, onComplete }) => {
     };
 
     const handleReplicate = () => {
+        playSound('scan');
         setScanMessage("INITIATING FINAL REPLICATION SEQUENCE...");
         setIsScanning(true);
         setScanProgress(0);
@@ -208,6 +219,7 @@ const FabricatorInterface = ({ item, onBack, onComplete }) => {
                             key={idx}
                             className="ingredient-btn"
                             disabled={isScanning}
+                            onMouseEnter={() => playSound('hover')}
                             onClick={() => handleAddIngredient(ing)}
                         >
                             <span className="ing-name">{ing.name}</span>
