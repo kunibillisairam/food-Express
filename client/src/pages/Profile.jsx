@@ -60,85 +60,109 @@ const Profile = ({ setView }) => {
         if (!activeModal) return null;
 
         return (
-            <div className="modal-overlay" onClick={() => setActiveModal(null)} style={modalOverlayStyle}>
-                <div className="modal-content fade-in" onClick={e => e.stopPropagation()} style={modalContentStyle}>
-                    <button onClick={() => setActiveModal(null)} style={closeBtnStyle}>&times;</button>
+            <div className="modal-overlay" onClick={() => setActiveModal(null)}>
+                <div className="modal-content fade-in" onClick={e => e.stopPropagation()}>
+                    <button className="modal-close-btn" onClick={() => setActiveModal(null)}>&times;</button>
 
                     {activeModal === 'refer' && (
-                        <div style={{ textAlign: 'center' }}>
-                            <FaGift style={{ fontSize: '3rem', color: '#ff4757', marginBottom: '1rem' }} />
+                        <div className="modal-body-centered">
+                            <FaGift className="modal-main-icon color-refer" />
                             <h2>Refer & Earn</h2>
                             <p>Share this code with your friends and earn ₹50 when they place their first order!</p>
-                            <div style={codeBoxStyle} onClick={copyReferral}>
-                                SAI100 <span style={{ fontSize: '0.8rem', color: '#777', marginLeft: '10px' }}>(Tap to copy)</span>
+                            <div className="referral-code-box" onClick={copyReferral}>
+                                SAI100 <span className="tap-to-copy">(Tap to copy)</span>
                             </div>
                             <button className="action-btn" onClick={copyReferral} style={{ marginTop: '1rem' }}>Share Now</button>
                         </div>
                     )}
 
                     {activeModal === 'wallet' && (
-                        <div>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
+                        <div className="modal-body">
+                            <div className="modal-header-flex">
                                 <h2>My Wallet</h2>
-                                <FaWallet style={{ fontSize: '2rem', color: '#2ed573' }} />
+                                <FaWallet className="icon-success" />
                             </div>
-                            <div style={balanceCardStyle}>
-                                <span style={{ fontSize: '0.9rem', opacity: 0.8 }}>Current Balance</span>
-                                <div style={{ fontSize: '2.5rem', fontWeight: 'bold' }}>₹{user.walletBalance || 0}</div>
+                            <div className="balance-card">
+                                <span className="balance-label">Current Balance</span>
+                                <div className="balance-amount">₹{user.walletBalance || 0}</div>
                             </div>
-                            <button className="action-btn" style={{ width: '100%', marginBottom: '2rem' }} onClick={addMoney}>+ Add ₹500 Money</button>
+                            <button className="action-btn w-full mb-8" onClick={addMoney}>+ Add ₹500 Money</button>
 
                             <h3>Transaction History</h3>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '300px', overflowY: 'auto' }}>
+                            <div className="transaction-history-list">
                                 {(user.transactions && user.transactions.length > 0) ? (
                                     user.transactions.map((txn, idx) => (
-                                        <div key={idx} style={transactionStyle}>
+                                        <div key={idx} className="transaction-item">
                                             <div>
-                                                <div style={{ fontWeight: 'bold' }}>{txn.description}</div>
-                                                <div style={{ fontSize: '0.8rem', color: '#777' }}>{new Date(txn.date).toLocaleString()}</div>
+                                                <div className="txn-desc">{txn.description}</div>
+                                                <div className="txn-date">{new Date(txn.date).toLocaleString()}</div>
                                             </div>
-                                            <div style={{
-                                                color: txn.type === 'Debit' ? '#ff4757' : '#2ed573',
-                                                fontWeight: 'bold'
-                                            }}>
+                                            <div className={`txn-amount ${txn.type === 'Debit' ? 'color-error' : 'color-success'}`}>
                                                 {txn.type === 'Debit' ? '-' : '+'} ₹{txn.amount}
                                             </div>
                                         </div>
                                     ))
                                 ) : (
-                                    <div style={{ textAlign: 'center', color: '#777', padding: '1rem' }}>No transactions yet.</div>
+                                    <div className="no-transactions">No transactions yet.</div>
                                 )}
                             </div>
                         </div>
                     )}
 
+                    {activeModal === 'history' && (
+                        <div className="modal-body">
+                            <div className="modal-header-flex">
+                                <h2>Order History</h2>
+                                <FaListAlt className="icon-primary" />
+                            </div>
+                            <div className="transaction-history-list" style={{ maxHeight: '400px' }}>
+                                {(user.transactions && user.transactions.length > 0) ? (
+                                    user.transactions.map((txn, idx) => (
+                                        <div key={idx} className="transaction-item">
+                                            <div>
+                                                <div className="txn-desc">{txn.description}</div>
+                                                <div className="txn-date">{new Date(txn.date).toLocaleString()}</div>
+                                            </div>
+                                            <div className={`txn-amount ${txn.type === 'Debit' ? 'color-error' : 'color-success'}`}>
+                                                {txn.type === 'Debit' ? '-' : '+'} ₹{txn.amount}
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="no-transactions">No transactions yet.</div>
+                                )}
+                            </div>
+                            <button className="nav-btn w-full mt-4" onClick={() => setView('my-orders')}>View My Orders</button>
+                        </div>
+                    )}
+
                     {activeModal === 'help' && (
-                        <div>
-                            <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-                                <FaQuestionCircle style={{ fontSize: '3rem', color: '#2f3542', marginBottom: '0.5rem' }} />
+                        <div className="modal-body">
+                            <div className="modal-body-centered mb-6">
+                                <FaQuestionCircle className="modal-main-icon color-dark" />
                                 <h2>Help & Support</h2>
                             </div>
 
-                            <div style={{ marginBottom: '2rem' }}>
-                                <h3 style={{ borderBottom: '1px solid #eee', paddingBottom: '0.5rem' }}>FAQs</h3>
-                                <details style={{ padding: '0.5rem 0', borderBottom: '1px solid #f1f2f6' }}>
-                                    <summary style={{ fontWeight: '600', cursor: 'pointer' }}>Where is my order?</summary>
-                                    <p style={{ marginTop: '0.5rem', color: '#555' }}>You can track your order status in real-time from the "My Orders" section.</p>
+                            <div className="faq-section mb-8">
+                                <h3 className="faq-title">FAQs</h3>
+                                <details className="faq-item">
+                                    <summary>Where is my order?</summary>
+                                    <p>You can track your order status in real-time from the "My Orders" section.</p>
                                 </details>
-                                <details style={{ padding: '0.5rem 0', borderBottom: '1px solid #f1f2f6' }}>
-                                    <summary style={{ fontWeight: '600', cursor: 'pointer' }}>How do I cancel?</summary>
-                                    <p style={{ marginTop: '0.5rem', color: '#555' }}>Orders can be cancelled within 2 minutes of placing them by contacting support.</p>
+                                <details className="faq-item">
+                                    <summary>How do I cancel?</summary>
+                                    <p>Orders can be cancelled within 2 minutes of placing them by contacting support.</p>
                                 </details>
-                                <details style={{ padding: '0.5rem 0', borderBottom: '1px solid #f1f2f6' }}>
-                                    <summary style={{ fontWeight: '600', cursor: 'pointer' }}>My payment failed</summary>
-                                    <p style={{ marginTop: '0.5rem', color: '#555' }}>If money was deducted, it will be refunded to your source account within 5-7 business days.</p>
+                                <details className="faq-item">
+                                    <summary>My payment failed</summary>
+                                    <p>If money was deducted, it will be refunded to your source account within 5-7 business days.</p>
                                 </details>
                             </div>
 
-                            <div style={{ background: '#f8f9fa', padding: '1rem', borderRadius: '12px' }}>
-                                <h4 style={{ margin: '0 0 1rem' }}>Contact Us</h4>
-                                <p style={{ margin: '0.5rem 0' }}><strong>Email:</strong> support@foodexpress.com</p>
-                                <p style={{ margin: '0.5rem 0' }}><strong>Phone:</strong> 1800-200-100</p>
+                            <div className="contact-card">
+                                <h4>Contact Us</h4>
+                                <p><strong>Email:</strong> support@foodexpress.com</p>
+                                <p><strong>Phone:</strong> 1800-200-100</p>
                             </div>
                         </div>
                     )}
@@ -224,7 +248,7 @@ const Profile = ({ setView }) => {
                         </div>
                     </div>
 
-                    <div className="profile-action-item icon-hover-card" onClick={() => setActiveModal('wallet')}>
+                    <div className="profile-action-item icon-hover-card" onClick={() => setActiveModal('history')}>
                         <div className="action-item-content">
                             <FaListAlt className="action-icon" />
                             <div>
