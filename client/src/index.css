@@ -776,6 +776,9 @@ body {
 
   .profile-action-item {
     padding: 1rem;
+    display: flex !important;
+    visibility: visible !important;
+    min-height: 70px;
   }
 
   .action-title {
@@ -1081,17 +1084,26 @@ body {
   background: var(--white);
   border: 1px solid var(--light-gray);
   border-radius: 15px;
-  display: flex;
+  display: flex !important;
   justify-content: space-between;
   align-items: center;
   cursor: pointer;
   transition: all 0.3s;
+  min-height: 80px;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .profile-action-item:hover {
   border-color: var(--primary);
   background: #fffcfd;
   transform: translateX(5px);
+}
+
+.action-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .action-item-content {

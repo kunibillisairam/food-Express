@@ -217,20 +217,20 @@ const Profile = ({ setView }) => {
                 </div>
 
                 <div className="profile-actions-grid">
-                    <div className="profile-action-item icon-hover-card" onClick={() => setView('my-orders')}>
+                    <div className="profile-action-item" onClick={() => setView('my-orders')}>
                         <div className="action-item-content">
                             <FaListAlt className="action-icon" />
-                            <div>
+                            <div className="action-text">
                                 <h4 className="action-title">My Orders</h4>
                                 <p className="action-desc">View past orders</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="profile-action-item icon-hover-card" onClick={() => setActiveModal('refer')}>
+                    <div className="profile-action-item" onClick={() => setActiveModal('refer')}>
                         <div className="action-item-content">
                             <FaGift className="action-icon" />
-                            <div>
+                            <div className="action-text">
                                 <h4 className="action-title">Refer & Earn</h4>
                                 <p className="action-desc">Invite friends and earn ₹50</p>
                             </div>
@@ -238,40 +238,40 @@ const Profile = ({ setView }) => {
                         <span className="referral-tag">code: SAI100</span>
                     </div>
 
-                    <div className="profile-action-item icon-hover-card" onClick={() => setActiveModal('wallet')}>
+                    <div className="profile-action-item" onClick={() => setActiveModal('wallet')}>
                         <div className="action-item-content">
                             <FaWallet className="action-icon" />
-                            <div>
+                            <div className="action-text">
                                 <h4 className="action-title">Wallet</h4>
                                 <p className="action-desc">Balance: ₹{user.walletBalance || 0}</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="profile-action-item icon-hover-card" onClick={() => setActiveModal('history')}>
+                    <div className="profile-action-item" onClick={() => setActiveModal('history')}>
                         <div className="action-item-content">
                             <FaListAlt className="action-icon" />
-                            <div>
+                            <div className="action-text">
                                 <h4 className="action-title">History</h4>
                                 <p className="action-desc">View Transactions</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="profile-action-item icon-hover-card" onClick={() => setActiveModal('help')}>
+                    <div className="profile-action-item" onClick={() => setActiveModal('help')}>
                         <div className="action-item-content">
                             <FaQuestionCircle className="action-icon" />
-                            <div>
+                            <div className="action-text">
                                 <h4 className="action-title">Help & Support</h4>
                                 <p className="action-desc">FAQs and Contact</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="profile-action-item icon-hover-card" onClick={() => setView('delivery-partner')}>
+                    <div className="profile-action-item" onClick={() => setView('delivery-partner')}>
                         <div className="action-item-content">
                             <FaMotorcycle className="action-icon" />
-                            <div>
+                            <div className="action-text">
                                 <h4 className="action-title">Drive with Us</h4>
                                 <p className="action-desc">Delivery Partner App</p>
                             </div>
