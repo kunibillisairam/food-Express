@@ -755,6 +755,31 @@ body {
     padding: 3rem 1rem;
   }
 
+  .about-content {
+    flex-direction: column !important;
+    gap: 2rem;
+  }
+
+  .about-image-container {
+    max-width: 300px !important;
+    margin: 0 auto;
+    flex: 1 !important;
+  }
+
+  .experience-badge {
+    padding: 0.6rem !important;
+    bottom: -10px !important;
+    left: -10px !important;
+  }
+
+  .experience-badge .years {
+    font-size: 1.2rem !important;
+  }
+
+  .experience-badge .text {
+    font-size: 0.6rem !important;
+  }
+
   /* Profile Scaling */
   .profile-card {
     margin: 1rem auto;
