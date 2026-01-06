@@ -17,6 +17,7 @@ import DeliveryDashboard from './pages/DeliveryDashboard';
 
 import Footer from './components/Footer';
 import StarfieldBackground from './components/StarfieldBackground';
+import VoiceCommander from './components/VoiceCommander';
 import { initGlobalSound } from './utils/soundEffects';
 
 const Main = () => {
@@ -35,6 +36,13 @@ const Main = () => {
 
   const handleViewChange = (targetView, orderId = null) => {
     if (orderId) setSelectedOrderId(orderId);
+
+    // Automatically reset searching/filtering when navigating
+    if (targetView !== 'home') {
+      setSearchTerm('');
+      setCategory('All');
+    }
+
     setView(targetView);
     window.scrollTo(0, 0);
   };
@@ -75,13 +83,29 @@ const Main = () => {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: mainBg, transition: 'background 0.3s' }}>
       <StarfieldBackground />
-      {showNavbar && <Navbar setView={handleViewChange} activeCategory={category} setCategory={setCategory} />}
+      {showNavbar && (
+        <Navbar
+          setView={handleViewChange}
+          activeCategory={category}
+          setCategory={setCategory}
+          setSearchTerm={setSearchTerm}
+        />
+      )}
       <div style={{ flex: 1 }}>
         {renderView()}
       </div>
 
       {/* Footer */}
       {showNavbar && <Footer />}
+
+      {/* Voice Commander */}
+      {showNavbar && (
+        <VoiceCommander
+          setView={handleViewChange}
+          setSearchTerm={setSearchTerm}
+          setCategory={setCategory}
+        />
+      )}
     </div>
   );
 };

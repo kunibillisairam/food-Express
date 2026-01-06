@@ -39,7 +39,10 @@ const Home = ({ activeCategory, setCategory, searchTerm, setSearchTerm }) => {
                     <button
                         key={cat}
                         className={`cat-btn ${activeCategory === cat ? 'active' : ''}`}
-                        onClick={() => setCategory(cat)}
+                        onClick={() => {
+                            setCategory(cat);
+                            setSearchTerm('');
+                        }}
                     >
                         {cat}
                     </button>
@@ -48,7 +51,7 @@ const Home = ({ activeCategory, setCategory, searchTerm, setSearchTerm }) => {
 
             {activeCategory !== 'All' && (
                 <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-                    <span className="link-text" onClick={() => setCategory('All')} style={{ fontSize: '0.9rem' }}>Currently viewing {activeCategory}. Click here to View All</span>
+                    <span className="link-text" onClick={() => { setCategory('All'); setSearchTerm(''); }} style={{ fontSize: '0.9rem' }}>Currently viewing {activeCategory}. Click here to View All</span>
                 </div>
             )}
 

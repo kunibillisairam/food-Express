@@ -5,7 +5,7 @@ import { FaShoppingCart, FaUser, FaSignOutAlt } from 'react-icons/fa';
 import { categories } from '../data/foodData';
 import useSound from '../hooks/useSound';
 
-const Navbar = ({ setView, activeCategory, setCategory }) => {
+const Navbar = ({ setView, activeCategory, setCategory, setSearchTerm }) => {
     const { user, logout } = useContext(AuthContext);
     const { cart } = useContext(CartContext);
     const { playSound } = useSound();
@@ -18,10 +18,17 @@ const Navbar = ({ setView, activeCategory, setCategory }) => {
         setView('login');
     };
 
+    const handleCategoryClick = (cat) => {
+        playSound('click');
+        setView('home');
+        setCategory(cat);
+        setSearchTerm(''); // Clear search when category is clicked
+    };
+
     return (
         <nav className="navbar fade-in">
             <div className="nav-brand"
-                onClick={() => { playSound('click'); setView('home'); }}
+                onClick={() => { playSound('click'); setView('home'); setSearchTerm(''); setCategory('All'); }}
                 onMouseEnter={() => playSound('hover')}
             >
                 FoodExpress
@@ -34,11 +41,7 @@ const Navbar = ({ setView, activeCategory, setCategory }) => {
                         key={cat}
                         className={`nav-btn ${activeCategory === cat ? 'active' : ''} ${cat !== 'All' ? 'desktop-only' : ''}`}
                         onMouseEnter={() => playSound('hover')}
-                        onClick={() => {
-                            playSound('click');
-                            setView('home');
-                            setCategory(cat);
-                        }}
+                        onClick={() => handleCategoryClick(cat)}
                     >
                         {cat}
                     </button>

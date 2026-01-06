@@ -733,18 +733,18 @@ body {
 /* About Us Section */
 .about-us-section {
   background: var(--white);
-  padding: 6rem 2rem;
-  margin-top: 4rem;
+  padding: 4rem 2rem;
+  margin-top: 2rem;
   position: relative;
   overflow: hidden;
 }
 
 .about-content {
-  max-width: 1200px;
+  max-width: 1000px;
   margin: 0 auto;
   display: flex;
   align-items: center;
-  gap: 4rem;
+  gap: 2.5rem;
 }
 
 .about-text {
@@ -752,10 +752,10 @@ body {
 }
 
 .section-title {
-  font-size: 2.5rem;
+  font-size: 1.8rem;
   font-weight: 800;
   color: var(--dark);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   position: relative;
   display: inline-block;
 }
@@ -772,10 +772,10 @@ body {
 }
 
 .about-description {
-  font-size: 1.1rem;
-  line-height: 1.8;
+  font-size: 0.95rem;
+  line-height: 1.6;
   color: var(--gray);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.2rem;
 }
 
 .read-more-btn {
@@ -797,8 +797,9 @@ body {
 }
 
 .about-image-container {
-  flex: 1;
+  flex: 0.8;
   position: relative;
+  max-width: 450px;
 }
 
 .about-image {
@@ -815,26 +816,26 @@ body {
 
 .experience-badge {
   position: absolute;
-  bottom: -20px;
-  left: -20px;
+  bottom: -15px;
+  left: -15px;
   background: var(--primary);
   color: var(--white);
-  padding: 1.5rem;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(255, 71, 87, 0.4);
+  padding: 1rem;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(255, 71, 87, 0.3);
   text-align: center;
   animation: float 3s ease-in-out infinite;
 }
 
 .experience-badge .years {
   display: block;
-  font-size: 2.5rem;
+  font-size: 1.8rem;
   font-weight: 800;
   line-height: 1;
 }
 
 .experience-badge .text {
-  font-size: 0.9rem;
+  font-size: 0.75rem;
   opacity: 0.9;
 }
 
