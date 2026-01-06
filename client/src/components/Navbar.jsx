@@ -70,7 +70,7 @@ const Navbar = ({ setView, activeCategory, setCategory, setSearchTerm }) => {
                     </>
                 ) : (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <button className="nav-btn" onClick={() => setView('my-orders')}>My Orders</button>
+                        <button className="nav-btn desktop-only" onClick={() => setView('my-orders')}>My Orders</button>
                         <div
                             onClick={() => setView('profile')}
                             className="nav-btn"
