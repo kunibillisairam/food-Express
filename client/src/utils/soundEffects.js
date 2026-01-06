@@ -67,6 +67,39 @@ export const playBoop = () => {
     osc.stop(t + 0.15);
 }
 
+export const playWarpSound = () => {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume().catch(console.warn);
+
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
+
+    osc.connect(filter);
+    filter.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    // Warp engine buildup
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(50, t);
+    osc.frequency.exponentialRampToValueAtTime(800, t + 0.5);
+
+    // Filter sweep (opening the wormhole)
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(100, t);
+    filter.frequency.exponentialRampToValueAtTime(5000, t + 0.4);
+
+    // Volume envelope
+    gainNode.gain.setValueAtTime(0, t);
+    gainNode.gain.linearRampToValueAtTime(0.3, t + 0.1);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
+
+    osc.start(t);
+    osc.stop(t + 0.6);
+}
+
 export const initGlobalSound = () => {
     const handleClick = (e) => {
         // Intercept clicks on interactive elements

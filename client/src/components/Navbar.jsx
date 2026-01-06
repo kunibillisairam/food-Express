@@ -32,7 +32,7 @@ const Navbar = ({ setView, activeCategory, setCategory }) => {
                 {categories.slice(0, 4).map(cat => (
                     <button
                         key={cat}
-                        className={`nav-btn ${activeCategory === cat ? 'active' : ''}`}
+                        className={`nav-btn ${activeCategory === cat ? 'active' : ''} ${cat !== 'All' ? 'desktop-only' : ''}`}
                         onMouseEnter={() => playSound('hover')}
                         onClick={() => {
                             playSound('click');
@@ -60,7 +60,7 @@ const Navbar = ({ setView, activeCategory, setCategory }) => {
 
                 <div className="cart-icon" onClick={() => setView('cart')} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                     <FaShoppingCart />
-                    <span style={{ fontSize: '1rem', fontWeight: '600' }}>Cart</span>
+                    <span className="desktop-only" style={{ fontSize: '1rem', fontWeight: '600' }}>Cart</span>
                     {totalItems > 0 && <span className="cart-badge">{totalItems}</span>}
                 </div>
 
@@ -73,16 +73,15 @@ const Navbar = ({ setView, activeCategory, setCategory }) => {
                     </>
                 ) : (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <button className="nav-btn" onClick={() => setView('my-orders')}>My Orders</button>
+                        <button className="nav-btn desktop-only" onClick={() => setView('my-orders')}>My Orders</button>
                         <div
                             onClick={() => setView('profile')}
                             className="nav-btn"
                             style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', background: '#fff0f1', color: '#ff4757' }}
                         >
                             <FaUser />
-                            <span style={{ fontWeight: 'bold' }}>{user.username}</span>
+                            <span className="desktop-only" style={{ fontWeight: 'bold' }}>{user.username}</span>
                         </div>
-                        {/* Removed Logout button from here as it is now in Profile, but keeping small icon just in case or we can remove it. User asked for logout at bottom of profile. I will keep it here too for convenience but cleaner look is desired. */}
                     </div>
                 )}
             </div>

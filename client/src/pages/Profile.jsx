@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { FaUser, FaMapMarkerAlt, FaSignOutAlt, FaGift, FaWallet, FaQuestionCircle, FaListAlt } from 'react-icons/fa';
+import { FaUser, FaMapMarkerAlt, FaSignOutAlt, FaGift, FaWallet, FaQuestionCircle, FaListAlt, FaMotorcycle } from 'react-icons/fa';
 
 const Profile = ({ setView }) => {
     const { user, logout, updateUser } = useContext(AuthContext);
@@ -244,6 +244,16 @@ const Profile = ({ setView }) => {
                             <div>
                                 <h4 style={{ margin: 0 }}>Help & Support</h4>
                                 <p style={{ margin: 0, fontSize: '0.8rem', color: '#777' }}>FAQs and Contact</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="profile-item icon-hover-card" style={itemStyle} onClick={() => setView('delivery-partner')}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                            <FaMotorcycle style={{ color: '#ff4757', fontSize: '1.2rem' }} />
+                            <div>
+                                <h4 style={{ margin: 0 }}>Drive with Us</h4>
+                                <p style={{ margin: 0, fontSize: '0.8rem', color: '#777' }}>Delivery Partner App</p>
                             </div>
                         </div>
                     </div>

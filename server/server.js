@@ -43,6 +43,20 @@ app.get('/api/orders/user/:username', async (req, res) => {
     }
 });
 
+// GET /api/orders/:id -> Fetch single order
+app.get('/api/orders/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const order = await Order.findById(id);
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+        res.json(order);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // DELETE /api/orders/:id -> Delete an order
 app.delete('/api/orders/:id', async (req, res) => {
     try {
@@ -70,6 +84,23 @@ app.put('/api/orders/:id/cancel', async (req, res) => {
     }
 });
 
+// PUT /api/orders/:id/status -> Update order status (Driver)
+app.put('/api/orders/:id/status', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+        const order = await Order.findById(id);
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+        order.status = status;
+        const updatedOrder = await order.save();
+        res.json(updatedOrder);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // POST /api/orders
 app.post('/api/orders', async (req, res) => {
     try {
@@ -81,6 +112,47 @@ app.post('/api/orders', async (req, res) => {
         });
         const savedOrder = await newOrder.save();
         res.status(201).json(savedOrder);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Review Routes
+const Review = require('./models/Review');
+
+// GET /api/reviews/:foodId
+app.get('/api/reviews/:foodId', async (req, res) => {
+    try {
+        const reviews = await Review.find({ foodId: req.params.foodId }).sort({ createdAt: -1 });
+        res.json(reviews);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// POST /api/reviews
+app.post('/api/reviews', async (req, res) => {
+    try {
+        const { foodId, userName, rating, comment } = req.body;
+        const newReview = new Review({
+            foodId,
+            userName,
+            rating,
+            comment,
+            isVerifiedPurchase: true
+        });
+        const savedReview = await newReview.save();
+        res.status(201).json(savedReview);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// GET /api/reviews -> Get all reviews (for averages)
+app.get('/api/reviews', async (req, res) => {
+    try {
+        const reviews = await Review.find();
+        res.json(reviews);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

@@ -94,6 +94,38 @@ export const foodData = [
         category: "Rice",
         image: "/images/veg_fried_rice.png",
         offer: "HEALTHY"
+    },
+    {
+        id: 13,
+        name: "Chocolate Cake",
+        price: 110,
+        category: "Dessert",
+        image: "/images/chocolate_cake.png",
+        offer: "SWEET"
+    },
+    {
+        id: 14,
+        name: "Vanilla Ice Cream",
+        price: 80,
+        category: "Dessert",
+        image: "/images/vanilla_ice_cream.png",
+        offer: ""
+    },
+    {
+        id: 15,
+        name: "Spring Rolls",
+        price: 130,
+        category: "Starters",
+        image: "/images/spring_rolls.png",
+        offer: "CRISPY"
+    },
+    {
+        id: 16,
+        name: "Veg Pizza",
+        price: 290,
+        category: "Pizza",
+        image: "/images/veg_pizza.png",
+        offer: "CHEESY"
     }
 ];
 

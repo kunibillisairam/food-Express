@@ -13,6 +13,7 @@ import MyOrders from './pages/MyOrders';
 import Profile from './pages/Profile';
 import QuantumTracker from './pages/QuantumTracker';
 import Fabricator from './pages/Fabricator';
+import DeliveryDashboard from './pages/DeliveryDashboard';
 
 import Footer from './components/Footer';
 import { initGlobalSound } from './utils/soundEffects';
@@ -21,27 +22,36 @@ const Main = () => {
   const { user } = useContext(AuthContext);
 
   useEffect(() => {
+    // Initialize global click sounds
     const cleanup = initGlobalSound();
     return cleanup;
   }, []);
 
   const [view, setView] = useState('home');
   const [category, setCategory] = useState('All');
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
+
+  const handleViewChange = (targetView, orderId = null) => {
+    if (orderId) setSelectedOrderId(orderId);
+    setView(targetView);
+    window.scrollTo(0, 0);
+  };
 
   const renderView = () => {
     switch (view) {
-      case 'home': return <Home activeCategory={category} setCategory={setCategory} setView={setView} />;
-      case 'cart': return <Cart setView={setView} />;
-      case 'payment': return <Payment setView={setView} />;
-      case 'success': return <Success setView={setView} />;
-      case 'admin-orders': return <AdminOrders setView={setView} />;
-      case 'my-orders': return <MyOrders setView={setView} />;
-      case 'profile': return <Profile setView={setView} />;
-      case 'login': return <Login setView={setView} />;
-      case 'signup': return <Signup setView={setView} />;
-      case 'quantum-tracker': return <QuantumTracker setView={setView} />;
-      case 'fabricator': return <Fabricator setView={setView} />;
-      default: return <Home activeCategory={category} setCategory={setCategory} setView={setView} />;
+      case 'home': return <Home activeCategory={category} setCategory={setCategory} setView={handleViewChange} />;
+      case 'cart': return <Cart setView={handleViewChange} />;
+      case 'payment': return <Payment setView={handleViewChange} />;
+      case 'success': return <Success setView={handleViewChange} />;
+      case 'admin-orders': return <AdminOrders setView={handleViewChange} />;
+      case 'my-orders': return <MyOrders setView={handleViewChange} />;
+      case 'profile': return <Profile setView={handleViewChange} />;
+      case 'login': return <Login setView={handleViewChange} />;
+      case 'signup': return <Signup setView={handleViewChange} />;
+      case 'quantum-tracker': return <QuantumTracker setView={handleViewChange} orderId={selectedOrderId} />;
+      case 'fabricator': return <Fabricator setView={handleViewChange} />;
+      case 'delivery-partner': return <DeliveryDashboard setView={handleViewChange} />;
+      default: return <Home activeCategory={category} setCategory={setCategory} setView={handleViewChange} />;
     }
   };
 
@@ -50,7 +60,7 @@ const Main = () => {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: isYellowBg ? '#fff9c4' : 'var(--bg)', transition: 'background 0.3s' }}>
-      {showNavbar && <Navbar setView={setView} activeCategory={category} setCategory={setCategory} />}
+      {showNavbar && <Navbar setView={handleViewChange} activeCategory={category} setCategory={setCategory} />}
       <div style={{ flex: 1 }}>
         {renderView()}
       </div>
