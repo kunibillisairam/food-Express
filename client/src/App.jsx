@@ -74,7 +74,7 @@ const Main = () => {
   };
 
   const showNavbar = view !== 'login' && view !== 'signup';
-  const isYellowBg = ['home', 'admin-orders', 'my-orders'].includes(view);
+  const isYellowBg = ['home', 'admin-orders', 'my-orders', 'profile'].includes(view);
 
   // For sci-fi feel, we use a semi-transparent overlay if yellow is needed, 
   // otherwise we let the Starfield shine through.

@@ -1571,3 +1571,30 @@ body {
 .mt-4 {
   margin-top: 1rem;
 }
+
+/* EMERGENCY VISIBILITY PATCH */
+.forced-visible-container {
+  display: flex !important;
+  flex-direction: column !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  overflow: visible !important;
+  margin-top: 2rem !important;
+}
+
+.forced-visible-container .profile-action-item {
+  display: flex !important;
+  background: #ffffff !important;
+  border: 2px solid #ff4757 !important;
+  margin-bottom: 10px !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 9999 !important;
+}
+
+.forced-visible-container .action-title,
+.forced-visible-container .action-desc {
+  color: #1a1a1a !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}

@@ -216,7 +216,7 @@ const Profile = ({ setView }) => {
                     )}
                 </div>
 
-                <div className="profile-items-list">
+                <div className="profile-items-list forced-visible-container">
                     <div className="profile-action-item" onClick={() => setView('my-orders')}>
                         <div className="action-item-content">
                             <FaListAlt className="action-icon" />
