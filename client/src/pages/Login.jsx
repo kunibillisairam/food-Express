@@ -18,17 +18,20 @@ const Login = ({ setView }) => {
     };
 
     return (
-        <div className="auth-wrapper fade-in">
-            <div className="auth-card">
-                <h2 className="auth-header">Welcome Back</h2>
-                <form onSubmit={handleLogin}>
-                    <input className="auth-input" placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} required />
-                    <input className="auth-input" type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
-                    {error && <p style={{ color: '#ff4757', fontWeight: 'bold' }}>{error}</p>}
-                    <button className="auth-submit-btn">Login</button>
-                </form>
-                <div className="switch-auth">
-                    New here? <span onClick={() => setView('signup')}>Create an account</span>
+        <div className="auth-split-wrapper fade-in">
+            <div className="auth-split-left"></div>
+            <div className="auth-split-right">
+                <div className="auth-card">
+                    <h2 className="auth-header">Welcome Back</h2>
+                    <form onSubmit={handleLogin}>
+                        <input className="auth-input" placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} required />
+                        <input className="auth-input" type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
+                        {error && <p style={{ color: '#ff4757', fontWeight: 'bold' }}>{error}</p>}
+                        <button className="auth-submit-btn">Login</button>
+                    </form>
+                    <div className="switch-auth">
+                        New here? <span onClick={() => setView('signup')}>Create an account</span>
+                    </div>
                 </div>
             </div>
         </div>
