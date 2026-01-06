@@ -216,15 +216,16 @@ const Profile = ({ setView }) => {
                     )}
                 </div>
 
-                <div className="profile-actions-grid">
+                <div className="profile-items-list">
                     <div className="profile-action-item" onClick={() => setView('my-orders')}>
                         <div className="action-item-content">
                             <FaListAlt className="action-icon" />
                             <div className="action-text">
                                 <h4 className="action-title">My Orders</h4>
-                                <p className="action-desc">View past orders</p>
+                                <p className="action-desc">Track and view past orders</p>
                             </div>
                         </div>
+                        <span className="arrow-icon">›</span>
                     </div>
 
                     <div className="profile-action-item" onClick={() => setActiveModal('refer')}>
@@ -242,20 +243,22 @@ const Profile = ({ setView }) => {
                         <div className="action-item-content">
                             <FaWallet className="action-icon" />
                             <div className="action-text">
-                                <h4 className="action-title">Wallet</h4>
-                                <p className="action-desc">Balance: ₹{user.walletBalance || 0}</p>
+                                <h4 className="action-title">Wallet Balance</h4>
+                                <p className="action-desc">Available: ₹{user.walletBalance || 0}</p>
                             </div>
                         </div>
+                        <span className="arrow-icon">›</span>
                     </div>
 
                     <div className="profile-action-item" onClick={() => setActiveModal('history')}>
                         <div className="action-item-content">
                             <FaListAlt className="action-icon" />
                             <div className="action-text">
-                                <h4 className="action-title">History</h4>
-                                <p className="action-desc">View Transactions</p>
+                                <h4 className="action-title">Transactions</h4>
+                                <p className="action-desc">View credit/debit history</p>
                             </div>
                         </div>
+                        <span className="arrow-icon">›</span>
                     </div>
 
                     <div className="profile-action-item" onClick={() => setActiveModal('help')}>
@@ -263,19 +266,21 @@ const Profile = ({ setView }) => {
                             <FaQuestionCircle className="action-icon" />
                             <div className="action-text">
                                 <h4 className="action-title">Help & Support</h4>
-                                <p className="action-desc">FAQs and Contact</p>
+                                <p className="action-desc">Contact us & FAQs</p>
                             </div>
                         </div>
+                        <span className="arrow-icon">›</span>
                     </div>
 
                     <div className="profile-action-item" onClick={() => setView('delivery-partner')}>
                         <div className="action-item-content">
                             <FaMotorcycle className="action-icon" />
                             <div className="action-text">
-                                <h4 className="action-title">Drive with Us</h4>
-                                <p className="action-desc">Delivery Partner App</p>
+                                <h4 className="action-title">Delivery Partner</h4>
+                                <p className="action-desc">Earn money by delivery</p>
                             </div>
                         </div>
+                        <span className="arrow-icon">›</span>
                     </div>
                 </div>
 

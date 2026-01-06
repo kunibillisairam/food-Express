@@ -71,7 +71,7 @@ const Payment = ({ setView }) => {
 
         // Validation: Wallet Balance
         if (method === 'wallet') {
-            const currentBalance = user.walletBalance || 0;
+            const currentBalance = user?.walletBalance || 0;
             if (currentBalance < finalAmount) {
                 setWalletError(`Insufficient balance. You need ₹${finalAmount - currentBalance} more.`);
                 return;
@@ -90,7 +90,7 @@ const Payment = ({ setView }) => {
             }
 
             // Deduct from Wallet if applicable
-            if (method === 'wallet') {
+            if (method === 'wallet' && user) {
                 const currentBalance = user.walletBalance || 0;
                 const newBalance = currentBalance - finalAmount;
 
@@ -174,14 +174,16 @@ const Payment = ({ setView }) => {
                                 <span style={{ fontWeight: '600' }}>Cash on Delivery</span>
                             </label>
 
-                            <label className={`payment-option-card ${method === 'wallet' ? 'selected' : ''}`} onClick={() => { setMethod('wallet'); setWalletError(''); }}>
-                                <input type="radio" value="wallet" checked={method === 'wallet'} onChange={() => { }} />
-                                <div>
-                                    <div style={{ fontWeight: '600' }}>Pay via Wallet</div>
-                                    <div style={{ fontSize: '0.8rem', color: '#777' }}>Balance: ₹{user.walletBalance || 0}</div>
-                                    {method === 'wallet' && walletError && <div style={{ color: 'red', fontSize: '0.8rem', marginTop: '5px' }}>{walletError}</div>}
-                                </div>
-                            </label>
+                            {user && (
+                                <label className={`payment-option-card ${method === 'wallet' ? 'selected' : ''}`} onClick={() => { setMethod('wallet'); setWalletError(''); }}>
+                                    <input type="radio" value="wallet" checked={method === 'wallet'} onChange={() => { }} />
+                                    <div>
+                                        <div style={{ fontWeight: '600' }}>Pay via Wallet</div>
+                                        <div style={{ fontSize: '0.8rem', color: '#777' }}>Balance: ₹{user?.walletBalance || 0}</div>
+                                        {method === 'wallet' && walletError && <div style={{ color: 'red', fontSize: '0.8rem', marginTop: '5px' }}>{walletError}</div>}
+                                    </div>
+                                </label>
+                            )}
 
                             <label className={`payment-option-card ${method === 'upi' ? 'selected' : ''}`} onClick={() => { setMethod('upi'); setWalletError(''); }}>
                                 <input type="radio" value="upi" checked={method === 'upi'} onChange={() => { }} />
