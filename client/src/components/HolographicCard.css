@@ -94,3 +94,26 @@
     transform: translateZ(60px);
     /* Highest pop */
 }
+
+@media (max-width: 768px) {
+    .holo-card .food-img-container {
+        height: 150px;
+    }
+
+    .holo-card .food-info {
+        padding: 0.8rem;
+    }
+
+    .holo-card .food-title {
+        font-size: 0.95rem;
+    }
+
+    .holo-card:hover .food-img {
+        transform: translateZ(20px) scale(1.05);
+        /* Reduced intensity for mobile */
+    }
+
+    .holo-card:hover .food-info {
+        transform: translateZ(10px);
+    }
+}

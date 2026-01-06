@@ -251,6 +251,7 @@ body {
   /* limit simple height */
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -494,6 +495,38 @@ body {
   text-decoration: underline;
 }
 
+/* Payment Page */
+.payment-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.payment-option-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 1.2rem;
+  background: var(--bg);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: 2px solid transparent;
+}
+
+.payment-option-card.selected {
+  background: var(--white);
+  border-color: var(--primary);
+  box-shadow: 0 4px 15px rgba(255, 71, 87, 0.1);
+}
+
+.payment-option-card input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--primary);
+}
+
 /* Admin Orders */
 .admin-orders-container {
   max-width: 1200px;
@@ -550,45 +583,150 @@ body {
   object-fit: cover;
 }
 
-/* Responsive */
+/* Responsive & Mobile Scaling */
 @media (max-width: 768px) {
+  :root {
+    --radius: 12px;
+  }
+
+  body {
+    font-size: 14px;
+  }
+
+  h2 {
+    font-size: 1.5rem !important;
+  }
+
+  h3 {
+    font-size: 1.2rem !important;
+  }
+
+  h4 {
+    font-size: 1rem !important;
+  }
+
+  .page-container {
+    padding: 1rem 0.5rem;
+  }
+
+  .page-title {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
   .food-grid {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
+    padding: 1rem 0.5rem;
+  }
+
+  .food-card {
+    border-radius: 12px;
+  }
+
+  .food-img-container {
+    height: 150px;
+  }
+
+  .food-info {
+    padding: 0.8rem;
+  }
+
+  .food-title {
+    font-size: 0.95rem;
+    height: 2.8rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .food-meta {
+    margin-bottom: 1rem;
+  }
+
+  .food-price {
+    font-size: 1rem;
+  }
+
+  .food-category {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+  }
+
+  .add-btn {
+    padding: 0.6rem;
+    font-size: 0.85rem;
+    border-radius: 8px;
   }
 
   .cart-item {
-    grid-template-columns: 60px 1fr;
+    grid-template-columns: 50px 1fr;
     grid-template-rows: auto auto;
-    gap: 1rem;
+    gap: 0.5rem;
+    padding: 0.6rem 0;
   }
-}
 
-/* Mobile Navbar Styles */
-@media (max-width: 768px) {
+  .cart-container {
+    padding: 1rem;
+    border-radius: 16px;
+  }
+
+  .total-price {
+    font-size: 1.4rem;
+  }
+
+  .action-btn {
+    padding: 0.8rem 2rem;
+    font-size: 1rem;
+    width: 100%;
+  }
+
   .desktop-only {
     display: none !important;
   }
 
   .navbar {
-    padding: 0.8rem 1rem;
-  }
-
-  .nav-links {
-    gap: 0.8rem;
-  }
-
-  .nav-btn {
-    padding: 0.5rem 0.8rem;
-    font-size: 0.85rem;
-  }
-
-  .cart-icon {
-    font-size: 1.4rem;
+    padding: 0.6rem 1rem;
   }
 
   .nav-brand {
-    font-size: 1.4rem;
+    font-size: 1.3rem;
+  }
+
+  .nav-links {
+    gap: 0.5rem;
+  }
+
+  .nav-btn {
+    padding: 0.4rem 0.7rem;
+    font-size: 0.8rem;
+  }
+
+  .cart-icon {
+    font-size: 1.3rem;
+  }
+
+  /* Payment Section Scaling */
+  .payment-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem;
+  }
+
+  .payment-option-card {
+    padding: 0.8rem !important;
+  }
+
+  .coupon-card {
+    padding: 0.5rem !important;
+    gap: 5px !important;
+  }
+
+  .coupon-card div {
+    font-size: 0.75rem !important;
+  }
+
+  /* About Us scaling */
+  .about-us-section {
+    padding: 3rem 1rem;
   }
 }
 

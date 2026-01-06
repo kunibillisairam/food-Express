@@ -254,6 +254,7 @@ const Payment = ({ setView }) => {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
                             {coupons.map((c, i) => (
                                 <div key={i}
+                                    className="coupon-card"
                                     onClick={() => { setCoupon(c.code); }}
                                     style={{
                                         border: '1px dashed #ff4757',
