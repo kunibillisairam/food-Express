@@ -179,8 +179,8 @@ const Profile = ({ setView }) => {
                     <div className="profile-avatar">
                         <FaUser />
                     </div>
-                    <h2 className="profile-name">{user.username}</h2>
-                    <p className="profile-phone">{user.phone || 'No phone number'}</p>
+                    <h2 className="profile-name">{user.username} - ACCOUNT</h2>
+                    <p style={{ color: 'red', fontWeight: 'bold' }}>VERSION 2.0 - LATEST</p>
                 </div>
 
                 <div className="profile-section">
@@ -217,16 +217,29 @@ const Profile = ({ setView }) => {
                 </div>
 
                 <div className="profile-items-list forced-visible-container">
-                    {/* Prioritize Wallet to test visibility */}
-                    <div id="wallet-item" className="profile-action-item debug-visible-item" onClick={() => setActiveModal('wallet')}>
-                        <div className="action-item-content">
-                            <FaWallet className="action-icon" />
-                            <div className="action-text">
-                                <h4 className="action-title">Wallet Balance (FORCED)</h4>
-                                <p className="action-desc">Available: ₹{user.walletBalance || 0}</p>
+                    <div
+                        id="wallet-item"
+                        style={{
+                            display: 'flex',
+                            background: '#fff3cd',
+                            border: '3px solid #ffc107',
+                            padding: '1.5rem',
+                            borderRadius: '12px',
+                            margin: '10px 0',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            cursor: 'pointer'
+                        }}
+                        onClick={() => setActiveModal('wallet')}
+                    >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                            <FaWallet style={{ color: '#ff4757', fontSize: '1.8rem' }} />
+                            <div>
+                                <h4 style={{ margin: 0, fontSize: '1.1rem', color: '#000' }}>WALLET (VER-2)</h4>
+                                <p style={{ margin: 0, fontSize: '0.9rem', color: '#666' }}>Balance: ₹{user.walletBalance || 0}</p>
                             </div>
                         </div>
-                        <span className="arrow-icon">›</span>
+                        <span style={{ fontSize: '1.5rem' }}>›</span>
                     </div>
 
                     <div className="profile-action-item" onClick={() => setView('my-orders')}>
@@ -240,26 +253,52 @@ const Profile = ({ setView }) => {
                         <span className="arrow-icon">›</span>
                     </div>
 
-                    <div id="history-item" className="profile-action-item debug-visible-item" onClick={() => setActiveModal('history')}>
-                        <div className="action-item-content">
-                            <FaListAlt className="action-icon" />
-                            <div className="action-text">
-                                <h4 className="action-title">Transactions (FORCED)</h4>
-                                <p className="action-desc">View credit/debit history</p>
+                    <div
+                        style={{
+                            display: 'flex',
+                            background: '#e2f3f5',
+                            border: '3px solid #22d1ee',
+                            padding: '1.5rem',
+                            borderRadius: '12px',
+                            margin: '10px 0',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            cursor: 'pointer'
+                        }}
+                        onClick={() => setActiveModal('history')}
+                    >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                            <FaListAlt style={{ color: '#22d1ee', fontSize: '1.8rem' }} />
+                            <div>
+                                <h4 style={{ margin: 0, fontSize: '1.1rem', color: '#000' }}>HISTORY (VER-2)</h4>
+                                <p style={{ margin: 0, fontSize: '0.9rem', color: '#666' }}>Transaction logs</p>
                             </div>
                         </div>
-                        <span className="arrow-icon">›</span>
+                        <span style={{ fontSize: '1.5rem' }}>›</span>
                     </div>
 
-                    <div id="help-item" className="profile-action-item debug-visible-item" onClick={() => setActiveModal('help')}>
-                        <div className="action-item-content">
-                            <FaQuestionCircle className="action-icon" />
-                            <div className="action-text">
-                                <h4 className="action-title">Help & Support (FORCED)</h4>
-                                <p className="action-desc">Contact us & FAQs</p>
+                    <div
+                        style={{
+                            display: 'flex',
+                            background: '#f8e6ff',
+                            border: '3px solid #a855f7',
+                            padding: '1.5rem',
+                            borderRadius: '12px',
+                            margin: '10px 0',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            cursor: 'pointer'
+                        }}
+                        onClick={() => setActiveModal('help')}
+                    >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                            <FaQuestionCircle style={{ color: '#a855f7', fontSize: '1.8rem' }} />
+                            <div>
+                                <h4 style={{ margin: 0, fontSize: '1.1rem', color: '#000' }}>HELP & SUPPORT (V2)</h4>
+                                <p style={{ margin: 0, fontSize: '0.9rem', color: '#666' }}>Help center</p>
                             </div>
                         </div>
-                        <span className="arrow-icon">›</span>
+                        <span style={{ fontSize: '1.5rem' }}>›</span>
                     </div>
 
                     <div className="profile-action-item" onClick={() => setActiveModal('refer')}>
