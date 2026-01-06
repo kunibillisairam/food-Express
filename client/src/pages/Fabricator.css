@@ -545,4 +545,12 @@
         width: 180px;
         height: 180px;
     }
+
+    .hologram-name {
+        font-size: 1.1rem;
+    }
+
+    .item-specs h2 {
+        font-size: 1.4rem;
+    }
 }
