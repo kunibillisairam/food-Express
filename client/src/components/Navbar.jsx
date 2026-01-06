@@ -48,15 +48,9 @@ const Navbar = ({ setView, activeCategory, setCategory, setSearchTerm }) => {
                 ))}
 
                 <button
-                    className="nav-btn"
+                    className="nav-btn fabricator-btn"
                     onClick={() => { playSound('scan'); setView('fabricator'); }}
                     onMouseEnter={() => playSound('hover')}
-                    style={{
-                        background: 'linear-gradient(45deg, #000000, #434343)',
-                        color: '#00ffff',
-                        border: '1px solid #00ffff',
-                        boxShadow: '0 0 5px #00ffff'
-                    }}
                 >
                     🔮 FABRICATOR
                 </button>
