@@ -150,45 +150,41 @@ const Profile = ({ setView }) => {
     return (
         <div className="page-container fade-in">
             {renderModal()}
-            <div style={{ maxWidth: '600px', margin: '2rem auto', background: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
-                <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-                    <div style={{
-                        width: '80px', height: '80px', background: '#f1f2f6', borderRadius: '50%',
-                        margin: '0 auto 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: '2rem', color: '#2f3542'
-                    }}>
+            <div className="profile-card">
+                <div className="profile-header">
+                    <div className="profile-avatar">
                         <FaUser />
                     </div>
-                    <h2 style={{ margin: 0 }}>{user.username}</h2>
-                    <p style={{ color: '#777', marginTop: '0.5rem' }}>{user.phone || 'No phone number'}</p>
+                    <h2 className="profile-name">{user.username}</h2>
+                    <p className="profile-phone">{user.phone || 'No phone number'}</p>
                 </div>
 
-                <div className="profile-section" style={{ marginBottom: '2rem' }}>
-                    <h3 style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1rem', color: '#ff4757' }}>
+                <div className="profile-section">
+                    <h3 className="section-subtitle">
                         <FaMapMarkerAlt /> Delivery Address
                     </h3>
 
                     {isEditingAddress ? (
-                        <div style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}>
+                        <div className="edit-address-form">
                             <textarea
                                 value={address}
                                 onChange={(e) => setAddress(e.target.value)}
                                 placeholder="Enter your full delivery address..."
-                                style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', minHeight: '80px' }}
+                                className="address-textarea"
                             />
-                            <div style={{ display: 'flex', gap: '10px' }}>
+                            <div className="address-actions">
                                 <button className="action-btn" onClick={handleSaveAddress}>Save Address</button>
-                                <button className="nav-btn" onClick={() => setIsEditingAddress(false)} style={{ border: '1px solid #ddd' }}>Cancel</button>
+                                <button className="nav-btn cancel-btn" onClick={() => setIsEditingAddress(false)}>Cancel</button>
                             </div>
                         </div>
                     ) : (
-                        <div style={{ background: '#f8f9fa', padding: '1rem', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <p style={{ margin: 0, color: address ? '#333' : '#999' }}>
+                        <div className="address-display">
+                            <p className="address-text">
                                 {address || 'No address saved yet.'}
                             </p>
                             <button
                                 onClick={() => setIsEditingAddress(true)}
-                                style={{ background: 'none', border: 'none', color: '#ff4757', fontWeight: 'bold', cursor: 'pointer' }}
+                                className="edit-address-btn"
                             >
                                 Edit
                             </button>
@@ -196,64 +192,64 @@ const Profile = ({ setView }) => {
                     )}
                 </div>
 
-                <div className="profile-actions" style={{ display: 'grid', gap: '1rem' }}>
-                    <div className="profile-item icon-hover-card" style={itemStyle} onClick={() => setView('my-orders')}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                            <FaListAlt style={{ color: '#ff4757', fontSize: '1.2rem' }} />
+                <div className="profile-actions-grid">
+                    <div className="profile-action-item icon-hover-card" onClick={() => setView('my-orders')}>
+                        <div className="action-item-content">
+                            <FaListAlt className="action-icon" />
                             <div>
-                                <h4 style={{ margin: 0 }}>My Orders</h4>
-                                <p style={{ margin: 0, fontSize: '0.8rem', color: '#777' }}>View past orders</p>
+                                <h4 className="action-title">My Orders</h4>
+                                <p className="action-desc">View past orders</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="profile-item icon-hover-card" style={itemStyle} onClick={() => setActiveModal('refer')}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                            <FaGift style={{ color: '#ff4757', fontSize: '1.2rem' }} />
+                    <div className="profile-action-item icon-hover-card" onClick={() => setActiveModal('refer')}>
+                        <div className="action-item-content">
+                            <FaGift className="action-icon" />
                             <div>
-                                <h4 style={{ margin: 0 }}>Refer & Earn</h4>
-                                <p style={{ margin: 0, fontSize: '0.8rem', color: '#777' }}>Invite friends and earn ₹50</p>
+                                <h4 className="action-title">Refer & Earn</h4>
+                                <p className="action-desc">Invite friends and earn ₹50</p>
                             </div>
                         </div>
-                        <span style={{ fontWeight: 'bold', color: '#2ed573' }}>code: SAI100</span>
+                        <span className="referral-tag">code: SAI100</span>
                     </div>
 
-                    <div className="profile-item icon-hover-card" style={itemStyle} onClick={() => setActiveModal('wallet')}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                            <FaWallet style={{ color: '#ff4757', fontSize: '1.2rem' }} />
+                    <div className="profile-action-item icon-hover-card" onClick={() => setActiveModal('wallet')}>
+                        <div className="action-item-content">
+                            <FaWallet className="action-icon" />
                             <div>
-                                <h4 style={{ margin: 0 }}>Wallet</h4>
-                                <p style={{ margin: 0, fontSize: '0.8rem', color: '#777' }}>Balance: ₹{user.walletBalance || 0}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="profile-item icon-hover-card" style={itemStyle} onClick={() => setActiveModal('wallet')}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                            <FaListAlt style={{ color: '#ff4757', fontSize: '1.2rem' }} />
-                            <div>
-                                <h4 style={{ margin: 0 }}>History</h4>
-                                <p style={{ margin: 0, fontSize: '0.8rem', color: '#777' }}>View Transactions</p>
+                                <h4 className="action-title">Wallet</h4>
+                                <p className="action-desc">Balance: ₹{user.walletBalance || 0}</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="profile-item icon-hover-card" style={itemStyle} onClick={() => setActiveModal('help')}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                            <FaQuestionCircle style={{ color: '#ff4757', fontSize: '1.2rem' }} />
+                    <div className="profile-action-item icon-hover-card" onClick={() => setActiveModal('wallet')}>
+                        <div className="action-item-content">
+                            <FaListAlt className="action-icon" />
                             <div>
-                                <h4 style={{ margin: 0 }}>Help & Support</h4>
-                                <p style={{ margin: 0, fontSize: '0.8rem', color: '#777' }}>FAQs and Contact</p>
+                                <h4 className="action-title">History</h4>
+                                <p className="action-desc">View Transactions</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="profile-item icon-hover-card" style={itemStyle} onClick={() => setView('delivery-partner')}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                            <FaMotorcycle style={{ color: '#ff4757', fontSize: '1.2rem' }} />
+                    <div className="profile-action-item icon-hover-card" onClick={() => setActiveModal('help')}>
+                        <div className="action-item-content">
+                            <FaQuestionCircle className="action-icon" />
                             <div>
-                                <h4 style={{ margin: 0 }}>Drive with Us</h4>
-                                <p style={{ margin: 0, fontSize: '0.8rem', color: '#777' }}>Delivery Partner App</p>
+                                <h4 className="action-title">Help & Support</h4>
+                                <p className="action-desc">FAQs and Contact</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="profile-action-item icon-hover-card" onClick={() => setView('delivery-partner')}>
+                        <div className="action-item-content">
+                            <FaMotorcycle className="action-icon" />
+                            <div>
+                                <h4 className="action-title">Drive with Us</h4>
+                                <p className="action-desc">Delivery Partner App</p>
                             </div>
                         </div>
                     </div>
@@ -261,63 +257,13 @@ const Profile = ({ setView }) => {
 
                 <button
                     onClick={handleLogout}
-                    style={{
-                        width: '100%', marginTop: '3rem', padding: '1rem',
-                        background: '#f1f2f6', color: '#2f3542', border: 'none',
-                        borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px'
-                    }}
+                    className="logout-btn"
                 >
                     <FaSignOutAlt /> Log Out
                 </button>
             </div>
         </div>
     );
-};
-
-const itemStyle = {
-    padding: '1rem',
-    background: '#fff',
-    border: '1px solid #f1f2f6',
-    borderRadius: '12px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    cursor: 'pointer',
-    transition: '0.2s'
-};
-
-const modalOverlayStyle = {
-    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-    background: 'rgba(0,0,0,0.5)', zIndex: 1000,
-    display: 'flex', justifyContent: 'center', alignItems: 'center', pointerEvents: 'auto'
-};
-
-const modalContentStyle = {
-    background: 'white', width: '90%', maxWidth: '400px',
-    padding: '2rem', borderRadius: '16px', position: 'relative'
-};
-
-const closeBtnStyle = {
-    position: 'absolute', top: '10px', right: '15px',
-    background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer'
-};
-
-const codeBoxStyle = {
-    background: '#f1f2f6', padding: '1rem', borderRadius: '8px',
-    fontWeight: 'bold', fontSize: '1.2rem', letterSpacing: '2px',
-    cursor: 'pointer', margin: '1rem 0', border: '2px dashed #ccc'
-};
-
-const balanceCardStyle = {
-    background: 'linear-gradient(135deg, #2f3542 0%, #57606f 100%)',
-    color: 'white', padding: '1.5rem', borderRadius: '16px',
-    marginBottom: '1.5rem', textAlign: 'center'
-};
-
-const transactionStyle = {
-    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-    padding: '0.8rem', borderBottom: '1px solid #f1f2f6'
 };
 
 export default Profile;
