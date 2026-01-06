@@ -172,165 +172,108 @@ const Profile = ({ setView }) => {
     };
 
     return (
-        <div className="page-container fade-in">
+        <div style={{ padding: '20px', minHeight: '100vh', background: '#fffbeb', width: '100%' }}>
             {renderModal()}
-            <div className="profile-card">
-                <div className="profile-header">
-                    <div className="profile-avatar">
+
+            {/* DEBUG INDICATOR */}
+            <div style={{ background: 'black', color: 'yellow', padding: '15px', textAlign: 'center', fontWeight: 'bold', borderRadius: '10px', marginBottom: '20px' }}>
+                LATEST UPDATE: V3.0 (BRIGHT NEON)
+            </div>
+
+            <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+                <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+                    <div style={{ width: '80px', height: '80px', background: '#eee', borderRadius: '50%', margin: '0 auto 10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem' }}>
                         <FaUser />
                     </div>
-                    <h2 className="profile-name">{user.username} - ACCOUNT</h2>
-                    <p style={{ color: 'red', fontWeight: 'bold' }}>VERSION 2.0 - LATEST</p>
+                    <h2 style={{ fontSize: '1.8rem', margin: 0 }}>{user.username}</h2>
+                    <p style={{ color: 'red', fontWeight: '800', fontSize: '1.2rem' }}>VER 3.0: ALL BUTTONS LISTED BELOW</p>
                 </div>
 
-                <div className="profile-section">
-                    <h3 className="section-subtitle">
-                        <FaMapMarkerAlt /> Delivery Address
-                    </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-                    {isEditingAddress ? (
-                        <div className="edit-address-form">
-                            <textarea
-                                value={address}
-                                onChange={(e) => setAddress(e.target.value)}
-                                placeholder="Enter your full delivery address..."
-                                className="address-textarea"
-                            />
-                            <div className="address-actions">
-                                <button className="action-btn" onClick={handleSaveAddress}>Save Address</button>
-                                <button className="nav-btn cancel-btn" onClick={() => setIsEditingAddress(false)}>Cancel</button>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="address-display">
-                            <p className="address-text">
-                                {address || 'No address saved yet.'}
-                            </p>
-                            <button
-                                onClick={() => setIsEditingAddress(true)}
-                                className="edit-address-btn"
-                            >
-                                Edit
-                            </button>
-                        </div>
-                    )}
-                </div>
-
-                <div className="profile-items-list forced-visible-container">
+                    {/* 1. WALLET (NEON YELLOW) */}
                     <div
-                        id="wallet-item"
-                        style={{
-                            display: 'flex',
-                            background: '#fff3cd',
-                            border: '3px solid #ffc107',
-                            padding: '1.5rem',
-                            borderRadius: '12px',
-                            margin: '10px 0',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            cursor: 'pointer'
-                        }}
+                        style={{ display: 'flex', background: '#ffff00', padding: '25px', borderRadius: '20px', border: '6px solid black', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', color: 'black' }}
                         onClick={() => setActiveModal('wallet')}
                     >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                            <FaWallet style={{ color: '#ff4757', fontSize: '1.8rem' }} />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                            <FaWallet style={{ fontSize: '2.5rem' }} />
                             <div>
-                                <h4 style={{ margin: 0, fontSize: '1.1rem', color: '#000' }}>WALLET (VER-2)</h4>
-                                <p style={{ margin: 0, fontSize: '0.9rem', color: '#666' }}>Balance: ₹{user.walletBalance || 0}</p>
+                                <h4 style={{ margin: 0, fontSize: '1.4rem', fontWeight: '900' }}>1. WALLET balance</h4>
+                                <p style={{ margin: 0, fontWeight: 'bold' }}>Balance: ₹{user.walletBalance || 0}</p>
                             </div>
                         </div>
-                        <span style={{ fontSize: '1.5rem' }}>›</span>
+                        <span style={{ fontSize: '2.5rem' }}>›</span>
                     </div>
 
-                    <div className="profile-action-item" onClick={() => setView('my-orders')}>
-                        <div className="action-item-content">
-                            <FaListAlt className="action-icon" />
-                            <div className="action-text">
-                                <h4 className="action-title">My Orders</h4>
-                                <p className="action-desc">Track and view past orders</p>
-                            </div>
-                        </div>
-                        <span className="arrow-icon">›</span>
-                    </div>
-
+                    {/* 2. HISTORY (POWDER BLUE) */}
                     <div
-                        style={{
-                            display: 'flex',
-                            background: '#e2f3f5',
-                            border: '3px solid #22d1ee',
-                            padding: '1.5rem',
-                            borderRadius: '12px',
-                            margin: '10px 0',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            cursor: 'pointer'
-                        }}
+                        style={{ display: 'flex', background: '#b3e5fc', padding: '25px', borderRadius: '20px', border: '6px solid black', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', color: 'black' }}
                         onClick={() => setActiveModal('history')}
                     >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                            <FaListAlt style={{ color: '#22d1ee', fontSize: '1.8rem' }} />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                            <FaListAlt style={{ fontSize: '2.5rem' }} />
                             <div>
-                                <h4 style={{ margin: 0, fontSize: '1.1rem', color: '#000' }}>HISTORY (VER-2)</h4>
-                                <p style={{ margin: 0, fontSize: '0.9rem', color: '#666' }}>Transaction logs</p>
+                                <h4 style={{ margin: 0, fontSize: '1.4rem', fontWeight: '900' }}>2. ORDER HISTORY</h4>
+                                <p style={{ margin: 0, fontWeight: 'bold' }}>Transaction Logs</p>
                             </div>
                         </div>
-                        <span style={{ fontSize: '1.5rem' }}>›</span>
+                        <span style={{ fontSize: '2.5rem' }}>›</span>
                     </div>
 
+                    {/* 3. HELP (PINK) */}
                     <div
-                        style={{
-                            display: 'flex',
-                            background: '#f8e6ff',
-                            border: '3px solid #a855f7',
-                            padding: '1.5rem',
-                            borderRadius: '12px',
-                            margin: '10px 0',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            cursor: 'pointer'
-                        }}
+                        style={{ display: 'flex', background: '#f8bbd0', padding: '25px', borderRadius: '20px', border: '6px solid black', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', color: 'black' }}
                         onClick={() => setActiveModal('help')}
                     >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                            <FaQuestionCircle style={{ color: '#a855f7', fontSize: '1.8rem' }} />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                            <FaQuestionCircle style={{ fontSize: '2.5rem' }} />
                             <div>
-                                <h4 style={{ margin: 0, fontSize: '1.1rem', color: '#000' }}>HELP & SUPPORT (V2)</h4>
-                                <p style={{ margin: 0, fontSize: '0.9rem', color: '#666' }}>Help center</p>
+                                <h4 style={{ margin: 0, fontSize: '1.4rem', fontWeight: '900' }}>3. HELP SUPPORT</h4>
+                                <p style={{ margin: 0, fontWeight: 'bold' }}>Customer Help</p>
                             </div>
                         </div>
-                        <span style={{ fontSize: '1.5rem' }}>›</span>
+                        <span style={{ fontSize: '2.5rem' }}>›</span>
                     </div>
 
-                    <div className="profile-action-item" onClick={() => setActiveModal('refer')}>
-                        <div className="action-item-content">
-                            <FaGift className="action-icon" />
-                            <div className="action-text">
-                                <h4 className="action-title">Refer & Earn</h4>
-                                <p className="action-desc">Invite friends and earn ₹50</p>
-                            </div>
+                    {/* 4. MY ORDERS */}
+                    <div
+                        style={{ display: 'flex', background: 'white', padding: '20px', borderRadius: '15px', border: '1px solid #000', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
+                        onClick={() => setView('my-orders')}
+                    >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                            <FaListAlt style={{ color: '#ff4757' }} />
+                            <h4 style={{ margin: 0 }}>My Active Orders</h4>
                         </div>
-                        <span className="referral-tag">code: SAI100</span>
+                        <span>›</span>
                     </div>
 
-                    <div className="profile-action-item" onClick={() => setView('delivery-partner')}>
-                        <div className="action-item-content">
-                            <FaMotorcycle className="action-icon" />
-                            <div className="action-text">
-                                <h4 className="action-title">Delivery Partner</h4>
-                                <p className="action-desc">Earn money by delivery</p>
+                    {/* 5. ADDRESS SECTION */}
+                    <div style={{ background: 'white', padding: '20px', borderRadius: '15px', border: '1px solid #ddd' }}>
+                        <h4 style={{ marginTop: 0, color: '#ff4757' }}><FaMapMarkerAlt /> Address</h4>
+                        {isEditingAddress ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                <textarea value={address} onChange={(e) => setAddress(e.target.value)} style={{ width: '100%', padding: '10px' }} />
+                                <button onClick={handleSaveAddress} style={{ background: '#ff4757', color: 'white', padding: '10px' }}>Save</button>
                             </div>
-                        </div>
-                        <span className="arrow-icon">›</span>
+                        ) : (
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <p>{address || 'No address.'}</p>
+                                <button onClick={() => setIsEditingAddress(true)} style={{ color: '#ff4757' }}>Edit</button>
+                            </div>
+                        )}
                     </div>
+
+                    {/* 6. LOGOUT */}
+                    <button
+                        onClick={handleLogout}
+                        style={{ width: '100%', padding: '20px', background: '#333', color: 'white', border: 'none', borderRadius: '15px', fontWeight: 'bold', fontSize: '1.2rem' }}
+                    >
+                        LOG OUT NOW
+                    </button>
                 </div>
-
-                <button
-                    onClick={handleLogout}
-                    className="logout-btn"
-                >
-                    <FaSignOutAlt /> Log Out
-                </button>
             </div>
+            <div style={{ height: '100px' }}></div>
         </div>
     );
 };
