@@ -5,8 +5,7 @@ import { CartContext } from '../context/CartContext';
 import AboutUs from '../components/AboutUs';
 import HolographicCard from '../components/HolographicCard';
 
-const Home = ({ activeCategory, setCategory }) => {
-    const [searchTerm, setSearchTerm] = useState('');
+const Home = ({ activeCategory, setCategory, searchTerm, setSearchTerm }) => {
     const { addToCart } = useContext(CartContext);
     const [toast, setToast] = useState(null);
 

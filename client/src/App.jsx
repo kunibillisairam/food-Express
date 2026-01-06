@@ -16,6 +16,7 @@ import Fabricator from './pages/Fabricator';
 import DeliveryDashboard from './pages/DeliveryDashboard';
 
 import Footer from './components/Footer';
+import StarfieldBackground from './components/StarfieldBackground';
 import { initGlobalSound } from './utils/soundEffects';
 
 const Main = () => {
@@ -29,6 +30,7 @@ const Main = () => {
 
   const [view, setView] = useState('home');
   const [category, setCategory] = useState('All');
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedOrderId, setSelectedOrderId] = useState(null);
 
   const handleViewChange = (targetView, orderId = null) => {
@@ -39,7 +41,15 @@ const Main = () => {
 
   const renderView = () => {
     switch (view) {
-      case 'home': return <Home activeCategory={category} setCategory={setCategory} setView={handleViewChange} />;
+      case 'home': return (
+        <Home
+          activeCategory={category}
+          setCategory={setCategory}
+          setView={handleViewChange}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+        />
+      );
       case 'cart': return <Cart setView={handleViewChange} />;
       case 'payment': return <Payment setView={handleViewChange} />;
       case 'success': return <Success setView={handleViewChange} />;
@@ -58,8 +68,13 @@ const Main = () => {
   const showNavbar = view !== 'login' && view !== 'signup';
   const isYellowBg = ['home', 'admin-orders', 'my-orders'].includes(view);
 
+  // For sci-fi feel, we use a semi-transparent overlay if yellow is needed, 
+  // otherwise we let the Starfield shine through.
+  const mainBg = isYellowBg ? 'rgba(255, 249, 196, 0.5)' : 'transparent';
+
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: isYellowBg ? '#fff9c4' : 'var(--bg)', transition: 'background 0.3s' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: mainBg, transition: 'background 0.3s' }}>
+      <StarfieldBackground />
       {showNavbar && <Navbar setView={handleViewChange} activeCategory={category} setCategory={setCategory} />}
       <div style={{ flex: 1 }}>
         {renderView()}
