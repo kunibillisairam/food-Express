@@ -1777,3 +1777,100 @@ body {
     margin-right: auto;
   }
 }
+
+/* Radar Animation */
+.radar-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 400px;
+  position: relative;
+  overflow: hidden;
+  color: #00ffff;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.radar-scope {
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 255, 255, 0.3);
+  position: relative;
+  background:
+    radial-gradient(transparent 30%, rgba(0, 255, 255, 0.1) 31%, transparent 32%),
+    radial-gradient(transparent 60%, rgba(0, 255, 255, 0.1) 61%, transparent 62%);
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.1), inset 0 0 30px rgba(0, 255, 255, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transform: scale(0.8);
+}
+
+.radar-sweep-cone {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 270deg, rgba(0, 255, 255, 0.4) 360deg);
+  animation: radar-spin 2s infinite linear;
+}
+
+.radar-dot {
+  width: 12px;
+  height: 12px;
+  background: #ff4757;
+  border-radius: 50%;
+  position: absolute;
+  box-shadow: 0 0 15px #ff4757;
+  opacity: 0;
+  transition: opacity 0.5s ease-in;
+}
+
+.radar-dot.found {
+  opacity: 1;
+  animation: radar-pulse 0.8s infinite alternate;
+}
+
+@keyframes radar-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes radar-pulse {
+  from {
+    transform: scale(1);
+    opacity: 0.8;
+    box-shadow: 0 0 10px #ff4757;
+  }
+
+  to {
+    transform: scale(1.6);
+    opacity: 1;
+    box-shadow: 0 0 20px #ff4757;
+  }
+}
+
+.scanning-text {
+  margin-top: 2rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  letter-spacing: 3px;
+  animation: blink 1s infinite;
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+  text-transform: uppercase;
+  text-align: center;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.5;
+  }
+}

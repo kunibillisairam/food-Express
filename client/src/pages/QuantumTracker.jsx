@@ -7,6 +7,8 @@ const QuantumTracker = ({ setView, orderId }) => {
     const [step, setStep] = useState(0);
     const [status, setStatus] = useState('Pending');
     const [error, setError] = useState(null);
+    const [searching, setSearching] = useState(true);
+    const [scanText, setScanText] = useState("Initializing Scanner...");
 
     // Map backend statuses to sci-fi steps
     // Pending -> Preparing -> Picked Up -> On the Way -> Delivered
@@ -33,6 +35,17 @@ const QuantumTracker = ({ setView, orderId }) => {
             return;
         }
 
+        // Simulate Searching Phase
+        if (searching) {
+            const timeouts = [];
+            timeouts.push(setTimeout(() => setScanText("Scanning Sector 7..."), 1000));
+            timeouts.push(setTimeout(() => setScanText("Triangulating Delivery Partner..."), 2500));
+            timeouts.push(setTimeout(() => setScanText("Signal Locking..."), 4000));
+            timeouts.push(setTimeout(() => setSearching(false), 5500)); // End search after 5.5s
+
+            return () => timeouts.forEach(t => clearTimeout(t));
+        }
+
         const fetchStatus = async () => {
             try {
                 // We need an endpoint to get a single order by ID
@@ -57,7 +70,7 @@ const QuantumTracker = ({ setView, orderId }) => {
         const interval = setInterval(fetchStatus, 3000);
 
         return () => clearInterval(interval);
-    }, [orderId]);
+    }, [orderId, searching]);
 
     const getIcon = (s) => {
         switch (s) {
@@ -76,12 +89,23 @@ const QuantumTracker = ({ setView, orderId }) => {
             <div className="twinkling"></div>
 
             <div className="tracker-content">
-                <h1 className="quantum-title">Quantum Delivery</h1>
+                <h1 className="quantum-title">{searching ? "SEARCHING..." : "Quantum Delivery"}</h1>
 
                 {error ? (
                     <div style={{ color: '#ff4757', background: 'rgba(0,0,0,0.5)', padding: '1rem', borderRadius: '10px' }}>
                         {error}
                         <button className="quantum-btn" onClick={() => setView('my-orders')} style={{ marginTop: '1rem' }}>Back</button>
+                    </div>
+                ) : searching ? (
+                    <div className="radar-container fade-in">
+                        <div className="radar-scope">
+                            <div className="radar-sweep-cone"></div>
+                            {/* Simulated Dots */}
+                            <div className="radar-dot" style={{ top: '20%', left: '30%', animationDelay: '0.5s', opacity: 0.5 }}></div>
+                            <div className="radar-dot" style={{ top: '60%', left: '80%', animationDelay: '1.2s', opacity: 0.3 }}></div>
+                            <div className="radar-dot found" style={{ top: '40%', left: '60%', animationDelay: '3.5s' }}></div>
+                        </div>
+                        <div className="scanning-text">{scanText}</div>
                     </div>
                 ) : step === -1 ? (
                     <div style={{ textAlign: 'center' }}>
