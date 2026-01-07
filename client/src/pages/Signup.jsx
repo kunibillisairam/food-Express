@@ -55,8 +55,8 @@ const Signup = ({ setView }) => {
                         />
                         <input className="auth-input" type="password" placeholder="Password" value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })} required />
                         <input className="auth-input" type="password" placeholder="Re-enter Password" value={formData.confirmPassword} onChange={e => setFormData({ ...formData, confirmPassword: e.target.value })} required />
-                        {error && <p style={{ color: '#ff4757', fontWeight: 'bold' }}>{error}</p>}
                         <button className="auth-submit-btn">Sign Up</button>
+                        {error && <p style={{ color: 'red', fontSize: '0.8rem', marginTop: '10px', textAlign: 'center', marginBottom: 0 }}>{error}</p>}
                     </form>
                     <div className="switch-auth">
                         Already have an account? <span onClick={() => setView('login')}>Login</span>
