@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../config';
 import '../index.css';
 
 const QuantumTracker = ({ setView, orderId }) => {
@@ -35,7 +36,7 @@ const QuantumTracker = ({ setView, orderId }) => {
         const fetchStatus = async () => {
             try {
                 // We need an endpoint to get a single order by ID
-                const res = await axios.get(`http://localhost:5000/api/orders/${orderId}`);
+                const res = await axios.get(`${API_BASE_URL}/api/orders/${orderId}`);
                 if (res.data) {
                     const currentStatus = res.data.status;
                     setStatus(currentStatus);

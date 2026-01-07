@@ -171,7 +171,7 @@ const MyOrders = ({ setView }) => {
                             <div style={{ marginTop: '0.5rem', fontWeight: 'bold', fontSize: '1.2rem' }}>₹{order.totalAmount}</div>
                         </div>
 
-                        {order.status === 'Pending' && (
+                        {(order.status !== 'Cancelled' && order.status !== 'Delivered') && (
                             <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem', justifyContent: 'flex-end', borderTop: '1px dashed #eee', paddingTop: '1rem' }}>
                                 <button
                                     onClick={() => setView('quantum-tracker', order._id)}
@@ -187,20 +187,23 @@ const MyOrders = ({ setView }) => {
                                     }}>
                                     🚀 Track
                                 </button>
-                                <button
-                                    onClick={() => handleCancel(order._id, order.totalAmount)}
-                                    style={{
-                                        background: '#ff4757',
-                                        color: 'white',
-                                        border: 'none',
-                                        padding: '0.6rem 1.2rem',
-                                        borderRadius: '8px',
-                                        cursor: 'pointer',
-                                        fontWeight: 'bold',
-                                        fontSize: '0.9rem'
-                                    }}>
-                                    Cancel Order
-                                </button>
+
+                                {order.status === 'Pending' && (
+                                    <button
+                                        onClick={() => handleCancel(order._id, order.totalAmount)}
+                                        style={{
+                                            background: '#ff4757',
+                                            color: 'white',
+                                            border: 'none',
+                                            padding: '0.6rem 1.2rem',
+                                            borderRadius: '8px',
+                                            cursor: 'pointer',
+                                            fontWeight: 'bold',
+                                            fontSize: '0.9rem'
+                                        }}>
+                                        Cancel Order
+                                    </button>
+                                )}
                             </div>
                         )}
                     </div>
