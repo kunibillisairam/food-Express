@@ -93,7 +93,7 @@ app.put('/api/orders/:id/status', async (req, res) => {
         if (!order) {
             return res.status(404).json({ message: 'Order not found' });
         }
-        order.status = 'Cancelled';
+        order.status = status;
         const updatedOrder = await order.save();
         res.json(updatedOrder);
     } catch (err) {
@@ -143,6 +143,67 @@ app.post('/api/reviews', async (req, res) => {
         });
         const savedReview = await newReview.save();
         res.status(201).json(savedReview);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Auth Routes
+const User = require('./models/User');
+
+// POST /api/auth/signup
+app.post('/api/auth/signup', async (req, res) => {
+    try {
+        const { username, password, phone } = req.body;
+
+        // Check if user exists
+        const existingUser = await User.findOne({ username });
+        if (existingUser) {
+            return res.status(400).json({ message: 'User already exists' });
+        }
+
+        const newUser = new User({ username, password, phone });
+        await newUser.save();
+        res.status(201).json({ success: true, message: 'User registered successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// POST /api/auth/login
+app.post('/api/auth/login', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+
+        // Admin hardcoded check (optional, or move to DB)
+        if (username === 'admin' && password === 'admin') {
+            return res.json({
+                success: true,
+                user: { username: 'admin', role: 'admin', walletBalance: 999999 }
+            });
+        }
+
+        const user = await User.findOne({ username, password });
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid credentials' });
+        }
+
+        res.json({ success: true, user });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// PUT /api/users/:username -> Update User (Address, Wallet)
+app.put('/api/users/:username', async (req, res) => {
+    try {
+        const { username } = req.params;
+        const updates = req.body;
+        const user = await User.findOneAndUpdate({ username }, updates, { new: true });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json(user);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

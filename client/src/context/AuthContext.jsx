@@ -24,7 +24,9 @@ export const AuthProvider = ({ children }) => {
                 return { success: true, role: loggedInUser.role };
             }
         } catch (err) {
-            return { success: false, message: err.response?.data?.message || 'Login failed' };
+            console.error("Login Error:", err);
+            const msg = err.response?.data?.message || err.response?.data?.error || 'Login failed';
+            return { success: false, message: msg };
         }
     };
 
@@ -33,7 +35,9 @@ export const AuthProvider = ({ children }) => {
             const res = await axios.post(`${API_BASE_URL}/api/auth/signup`, userData);
             return { success: true };
         } catch (err) {
-            return { success: false, message: err.response?.data?.message || 'Signup failed' };
+            console.error("Signup Error:", err);
+            const msg = err.response?.data?.message || err.response?.data?.error || 'Signup failed';
+            return { success: false, message: msg };
         }
     };
 
