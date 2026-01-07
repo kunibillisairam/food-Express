@@ -7,9 +7,9 @@ const Login = ({ setView }) => {
     const { login } = useContext(AuthContext);
     const [error, setError] = useState('');
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
-        const res = login(username, password);
+        const res = await login(username, password);
         if (res.success) {
             setView('home');
         } else {

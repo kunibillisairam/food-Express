@@ -43,7 +43,16 @@ const Signup = ({ setView }) => {
                     <h2 className="auth-header">Create Account</h2>
                     <form onSubmit={handleSignup}>
                         <input className="auth-input" placeholder="Username" value={formData.username} onChange={e => setFormData({ ...formData, username: e.target.value })} required />
-                        <input className="auth-input" placeholder="Phone Number" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} required />
+                        <input
+                            className="auth-input"
+                            placeholder="Phone Number"
+                            value={formData.phone}
+                            onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                            style={{
+                                borderBottom: formData.phone && formData.phone.length !== 10 ? '2px solid red' : '1px solid rgba(0, 255, 255, 0.2)'
+                            }}
+                            required
+                        />
                         <input className="auth-input" type="password" placeholder="Password" value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })} required />
                         <input className="auth-input" type="password" placeholder="Re-enter Password" value={formData.confirmPassword} onChange={e => setFormData({ ...formData, confirmPassword: e.target.value })} required />
                         {error && <p style={{ color: '#ff4757', fontWeight: 'bold' }}>{error}</p>}
