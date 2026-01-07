@@ -186,6 +186,7 @@ const Profile = ({ setView }) => {
                         <FaUser />
                     </div>
                     <h2 style={{ fontSize: '1.5rem', margin: 0 }}>{user.username}</h2>
+                    <p style={{ margin: '5px 0 0', color: '#666', fontSize: '0.9rem' }}>+91 {user.phone}</p>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>

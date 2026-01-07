@@ -6,7 +6,7 @@ const Signup = ({ setView }) => {
     const { signup } = useContext(AuthContext);
     const [error, setError] = useState('');
 
-    const handleSignup = (e) => {
+    const handleSignup = async (e) => {
         e.preventDefault();
 
         if (formData.password !== formData.confirmPassword) {
@@ -14,8 +14,13 @@ const Signup = ({ setView }) => {
             return;
         }
 
+        if (formData.phone.length !== 10) {
+            setError("Phone number must be exactly 10 digits");
+            return;
+        }
+
         if (formData.username && formData.phone && formData.password) {
-            const res = signup({
+            const res = await signup({// added await
                 username: formData.username,
                 phone: formData.phone,
                 password: formData.password

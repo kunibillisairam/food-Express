@@ -1,4 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
+import axios from 'axios';
+import API_BASE_URL from '../config';
 
 export const AuthContext = createContext();
 
@@ -12,37 +14,27 @@ export const AuthProvider = ({ children }) => {
         }
     }, []);
 
-    const login = (username, password) => {
-        // Admin check logic
-        if (username === 'admin' && password === 'admin') {
-            const adminUser = { username: 'admin', role: 'admin' };
-            setUser(adminUser);
-            localStorage.setItem('user', JSON.stringify(adminUser));
-            return { success: true, role: 'admin' };
+    const login = async (username, password) => {
+        try {
+            const res = await axios.post(`${API_BASE_URL}/api/auth/login`, { username, password });
+            if (res.data.success) {
+                const loggedInUser = res.data.user;
+                setUser(loggedInUser);
+                localStorage.setItem('user', JSON.stringify(loggedInUser));
+                return { success: true, role: loggedInUser.role };
+            }
+        } catch (err) {
+            return { success: false, message: err.response?.data?.message || 'Login failed' };
         }
-
-        // Normal User Check
-        const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-        const foundUser = users.find(u => u.username === username && u.password === password);
-
-        if (foundUser) {
-            const userObj = { ...foundUser, role: 'user' }; // Keep all properties like address
-            setUser(userObj);
-            localStorage.setItem('user', JSON.stringify(userObj));
-            return { success: true, role: 'user' };
-        }
-
-        return { success: false, message: 'Invalid Request credentials' };
     };
 
-    const signup = (userData) => {
-        const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-        if (users.find(u => u.username === userData.username)) {
-            return { success: false, message: 'User already exists' };
+    const signup = async (userData) => {
+        try {
+            const res = await axios.post(`${API_BASE_URL}/api/auth/signup`, userData);
+            return { success: true };
+        } catch (err) {
+            return { success: false, message: err.response?.data?.message || 'Signup failed' };
         }
-        users.push(userData);
-        localStorage.setItem('registeredUsers', JSON.stringify(users));
-        return { success: true };
     };
 
     const logout = () => {
@@ -50,21 +42,20 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('user');
     };
 
-    const updateUser = (updates) => {
+    const updateUser = async (updates) => {
         if (!user) return;
-        const updatedUser = { ...user, ...updates };
-        setUser(updatedUser);
-        localStorage.setItem('user', JSON.stringify(updatedUser)); // Update current session
 
-        if (user.role === 'user') {
-            // Update persistent storage
-            const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-            const index = users.findIndex(u => u.username === user.username);
-            if (index !== -1) {
-                // Merge updates into the stored user record
-                users[index] = { ...users[index], ...updates };
-                localStorage.setItem('registeredUsers', JSON.stringify(users));
-            }
+        try {
+            // Optimistic update locally
+            const updatedLocalUser = { ...user, ...updates };
+            setUser(updatedLocalUser);
+            localStorage.setItem('user', JSON.stringify(updatedLocalUser));
+
+            // Sync with DB
+            await axios.put(`${API_BASE_URL}/api/users/${user.username}`, updates);
+        } catch (err) {
+            console.error("Failed to update user", err);
+            // Optionally revert local state here if strict consistency is needed
         }
     };
 
