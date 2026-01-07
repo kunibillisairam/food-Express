@@ -47,9 +47,15 @@ const MyOrders = ({ setView }) => {
     const [reviewItem, setReviewItem] = useState(null); // Item being reviewed
 
     useEffect(() => {
+        let intervalId;
         if (user) {
-            fetchOrders();
+            fetchOrders(); // Initial fetch
+            // Poll for updates every 5 seconds
+            intervalId = setInterval(fetchOrders, 5000);
         }
+        return () => {
+            if (intervalId) clearInterval(intervalId);
+        };
     }, [user]);
 
     const handleRate = (item) => {
@@ -85,15 +91,13 @@ const MyOrders = ({ setView }) => {
 
 
     const fetchOrders = async () => {
-        setLoading(true);
+        // Don't set loading=true here to avoid flickering on every poll
         try {
             const res = await axios.get(`${API_BASE_URL}/api/orders/user/${user.username}`);
             setOrders(res.data);
         } catch (err) {
-            console.error(err);
-            alert('Error fetching your orders.');
-        } finally {
-            setLoading(false);
+            console.error("Polling Error:", err);
+            // Don't alert on polling error to avoid annoying popups
         }
     };
 
