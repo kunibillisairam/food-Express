@@ -64,7 +64,7 @@ const Payment = ({ setView }) => {
 
     const handleConfirm = async () => {
         // Validation: Check Address
-        if (!user.address && !missingAddress) {
+        if ((!user || !user.address) && !missingAddress) {
             setShowAddressPrompt(true);
             return;
         }
@@ -83,7 +83,7 @@ const Payment = ({ setView }) => {
 
         try {
             // Save address if we just collected it
-            let addressToUse = user.address;
+            let addressToUse = user?.address;
             if (!addressToUse && missingAddress) {
                 updateUser({ address: missingAddress });
                 addressToUse = missingAddress;
