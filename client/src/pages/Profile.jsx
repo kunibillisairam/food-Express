@@ -190,13 +190,13 @@ const Profile = ({ setView }) => {
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-                    {/* 1. WALLET (NEON YELLOW) */}
+                    {/* 1. WALLET (WHITE) */}
                     <div
-                        style={{ display: 'flex', background: '#ffff00', padding: '15px', borderRadius: '12px', border: '3px solid black', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', color: 'black' }}
+                        style={{ display: 'flex', background: 'white', padding: '15px', borderRadius: '12px', border: '1px solid #ddd', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', color: 'black' }}
                         onClick={() => setActiveModal('wallet')}
                     >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                            <FaWallet style={{ fontSize: '1.5rem' }} />
+                            <FaWallet style={{ fontSize: '1.5rem', color: '#ff4757' }} />
                             <div>
                                 <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '800' }}>Wallet Balance</h4>
                                 <p style={{ margin: 0, fontSize: '0.9rem' }}>₹{user.walletBalance || 0}</p>
@@ -205,13 +205,13 @@ const Profile = ({ setView }) => {
                         <span style={{ fontSize: '1.5rem' }}>›</span>
                     </div>
 
-                    {/* 2. HISTORY (POWDER BLUE) */}
+                    {/* 2. HISTORY (WHITE) */}
                     <div
-                        style={{ display: 'flex', background: '#b3e5fc', padding: '15px', borderRadius: '12px', border: '3px solid black', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', color: 'black' }}
+                        style={{ display: 'flex', background: 'white', padding: '15px', borderRadius: '12px', border: '1px solid #ddd', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', color: 'black' }}
                         onClick={() => setActiveModal('history')}
                     >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                            <FaListAlt style={{ fontSize: '1.5rem' }} />
+                            <FaListAlt style={{ fontSize: '1.5rem', color: '#ff4757' }} />
                             <div>
                                 <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '800' }}>Order History</h4>
                                 <p style={{ margin: 0, fontSize: '0.9rem' }}>Check Logs</p>
@@ -220,13 +220,13 @@ const Profile = ({ setView }) => {
                         <span style={{ fontSize: '1.5rem' }}>›</span>
                     </div>
 
-                    {/* 3. HELP (PINK) */}
+                    {/* 3. HELP (WHITE) */}
                     <div
-                        style={{ display: 'flex', background: '#f8bbd0', padding: '15px', borderRadius: '12px', border: '3px solid black', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', color: 'black' }}
+                        style={{ display: 'flex', background: 'white', padding: '15px', borderRadius: '12px', border: '1px solid #ddd', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', color: 'black' }}
                         onClick={() => setActiveModal('help')}
                     >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                            <FaQuestionCircle style={{ fontSize: '1.5rem' }} />
+                            <FaQuestionCircle style={{ fontSize: '1.5rem', color: '#ff4757' }} />
                             <div>
                                 <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '800' }}>Help & Support</h4>
                                 <p style={{ margin: 0, fontSize: '0.9rem' }}>Get Assistance</p>
