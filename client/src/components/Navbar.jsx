@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { CartContext } from '../context/CartContext';
-import { FaShoppingCart, FaUser, FaSignOutAlt } from 'react-icons/fa';
+import { FaShoppingCart, FaUser, FaSignOutAlt, FaListAlt } from 'react-icons/fa';
 import { categories } from '../data/foodData';
 import useSound from '../hooks/useSound';
 
@@ -70,7 +70,9 @@ const Navbar = ({ setView, activeCategory, setCategory, setSearchTerm }) => {
                     </>
                 ) : (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <button className="nav-btn desktop-only" onClick={() => setView('my-orders')}>My Orders</button>
+                        <button className="nav-btn" onClick={() => setView('my-orders')} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <FaListAlt /> <span className="desktop-only">My Orders</span>
+                        </button>
                         <div
                             onClick={() => setView('profile')}
                             className="nav-btn"
