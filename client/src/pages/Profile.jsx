@@ -1,14 +1,23 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { FaUser, FaMapMarkerAlt, FaSignOutAlt, FaGift, FaWallet, FaQuestionCircle, FaListAlt, FaMotorcycle } from 'react-icons/fa';
+import axios from 'axios';
+import API_BASE_URL from '../config';
 
 const Profile = ({ setView }) => {
     const { user, logout, updateUser } = useContext(AuthContext);
     const [address, setAddress] = useState(user?.address || '');
     const [isEditingAddress, setIsEditingAddress] = useState(false);
+    const [orders, setOrders] = useState([]);
 
-    // If we want to force asking for address on first load if missing, we could trigger editing here,
-    // but the user prompt implies 'when I click on my account'.
+    // Fetch orders for history
+    useEffect(() => {
+        if (user?.username) {
+            axios.get(`${API_BASE_URL}/api/orders/user/${user.username}`)
+                .then(res => setOrders(res.data))
+                .catch(err => console.error(err));
+        }
+    }, [user?.username]);
 
     useEffect(() => {
         if (user?.address) {
@@ -116,23 +125,24 @@ const Profile = ({ setView }) => {
                                 <FaListAlt className="icon-primary" />
                             </div>
                             <div className="transaction-history-list" style={{ maxHeight: '400px' }}>
-                                {(user.transactions && user.transactions.length > 0) ? (
-                                    user.transactions.map((txn, idx) => (
+                                {orders.length > 0 ? (
+                                    orders.map((order, idx) => (
                                         <div key={idx} className="transaction-item">
                                             <div>
-                                                <div className="txn-desc">{txn.description}</div>
-                                                <div className="txn-date">{new Date(txn.date).toLocaleString()}</div>
+                                                <div className="txn-desc">Order #{order._id.substring(order._id.length - 6)}</div>
+                                                <div className="txn-date">{new Date(order.createdAt).toLocaleString()}</div>
+                                                <div style={{ fontSize: '0.8rem', color: order.status === 'Delivered' ? 'green' : '#ff4757' }}>{order.status}</div>
                                             </div>
-                                            <div className={`txn-amount ${txn.type === 'Debit' ? 'color-error' : 'color-success'}`}>
-                                                {txn.type === 'Debit' ? '-' : '+'} ₹{txn.amount}
+                                            <div className="txn-amount">
+                                                ₹{order.totalAmount}
                                             </div>
                                         </div>
                                     ))
-                                ) : (
-                                    <div className="no-transactions">No transactions yet.</div>
+                                ) : ( // No orders
+                                    <div className="no-transactions">No orders placed yet.</div>
                                 )}
                             </div>
-                            <button className="nav-btn w-full mt-4" onClick={() => setView('my-orders')}>View My Orders</button>
+                            <button className="nav-btn w-full mt-4" onClick={() => setView('my-orders')}>View Details</button>
                         </div>
                     )}
 
