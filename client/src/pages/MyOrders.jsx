@@ -45,6 +45,7 @@ const MyOrders = ({ setView }) => {
     const [loading, setLoading] = useState(false);
     const { user, updateUser } = useContext(AuthContext);
     const [reviewItem, setReviewItem] = useState(null); // Item being reviewed
+    const [cancellingId, setCancellingId] = useState(null);
 
     useEffect(() => {
         let intervalId;
@@ -104,13 +105,14 @@ const MyOrders = ({ setView }) => {
     const handleCancel = async (orderId, amount) => {
         if (!window.confirm('Are you sure you want to cancel this order? Amount will be refunded to your wallet.')) return;
 
+        setCancellingId(orderId);
         try {
             console.log(`Attempting to cancel order: ${orderId} at ${API_BASE_URL}`);
             const response = await axios.put(`${API_BASE_URL}/api/orders/${orderId}/cancel`);
 
             if (response.status === 200) {
-                // Update local state
-                setOrders(orders.map(o => o._id === orderId ? { ...o, status: 'Cancelled' } : o));
+                // Update local state immediately
+                setOrders(prev => prev.map(o => o._id === orderId ? { ...o, status: 'Cancelled' } : o));
 
                 // Process Refund to Wallet
                 const currentBalance = user.walletBalance || 0;
@@ -123,20 +125,28 @@ const MyOrders = ({ setView }) => {
                     date: new Date()
                 };
 
-                const currentTransactions = user.transactions || [];
+                // Optimistically update user wallet
+                const updatedTransactions = [newTransaction, ...(user.transactions || [])];
+                const updatedBalance = currentBalance + refundAmount;
 
                 updateUser({
-                    walletBalance: currentBalance + refundAmount,
-                    transactions: [newTransaction, ...currentTransactions]
+                    walletBalance: updatedBalance,
+                    transactions: updatedTransactions
                 });
 
                 alert('✅ Order cancelled successfully! Amount refunded to wallet.');
             }
         } catch (err) {
             console.error("Cancel Error:", err);
-            // Show the actual error message to the user for debugging
             const errorMsg = err.response ? err.response.data.message || err.response.statusText : err.message;
-            alert(`❌ Failed to cancel order. Error: ${errorMsg}`);
+            alert(`❌ Failed to cancel order. \nReason: ${errorMsg}`);
+
+            // If the error suggests status changed, force a refresh
+            if (err.response && (err.response.status === 400 || err.response.status === 404)) {
+                fetchOrders();
+            }
+        } finally {
+            setCancellingId(null);
         }
     };
 
@@ -191,17 +201,21 @@ const MyOrders = ({ setView }) => {
                                 {order.status === 'Pending' && (
                                     <button
                                         onClick={() => handleCancel(order._id, order.totalAmount)}
+                                        disabled={cancellingId === order._id}
                                         style={{
-                                            background: '#ff4757',
+                                            background: cancellingId === order._id ? '#7f8c8d' : '#ff4757',
                                             color: 'white',
                                             border: 'none',
                                             padding: '0.6rem 1.2rem',
                                             borderRadius: '8px',
-                                            cursor: 'pointer',
+                                            cursor: cancellingId === order._id ? 'not-allowed' : 'pointer',
                                             fontWeight: 'bold',
-                                            fontSize: '0.9rem'
+                                            fontSize: '0.9rem',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '5px'
                                         }}>
-                                        Cancel Order
+                                        {cancellingId === order._id ? 'Cancelling...' : 'Cancel Order'}
                                     </button>
                                 )}
                             </div>

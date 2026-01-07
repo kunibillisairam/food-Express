@@ -76,6 +76,11 @@ app.put('/api/orders/:id/cancel', async (req, res) => {
         if (!order) {
             return res.status(404).json({ message: 'Order not found' });
         }
+
+        if (order.status !== 'Pending') {
+            return res.status(400).json({ message: 'Cannot cancel order. It is already being prepared or delivered.' });
+        }
+
         order.status = 'Cancelled';
         const updatedOrder = await order.save();
         res.json(updatedOrder);
