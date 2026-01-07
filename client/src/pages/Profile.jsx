@@ -181,59 +181,58 @@ const Profile = ({ setView }) => {
             </div>
 
             <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-                <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-                    <div style={{ width: '80px', height: '80px', background: '#eee', borderRadius: '50%', margin: '0 auto 10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem' }}>
+                <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                    <div style={{ width: '60px', height: '60px', background: '#eee', borderRadius: '50%', margin: '0 auto 10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem' }}>
                         <FaUser />
                     </div>
-                    <h2 style={{ fontSize: '1.8rem', margin: 0 }}>{user.username}</h2>
-                    <p style={{ color: 'red', fontWeight: '800', fontSize: '1.2rem' }}>VER 3.0: ALL BUTTONS LISTED BELOW</p>
+                    <h2 style={{ fontSize: '1.5rem', margin: 0 }}>{user.username}</h2>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
                     {/* 1. WALLET (NEON YELLOW) */}
                     <div
-                        style={{ display: 'flex', background: '#ffff00', padding: '25px', borderRadius: '20px', border: '6px solid black', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', color: 'black' }}
+                        style={{ display: 'flex', background: '#ffff00', padding: '15px', borderRadius: '12px', border: '3px solid black', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', color: 'black' }}
                         onClick={() => setActiveModal('wallet')}
                     >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                            <FaWallet style={{ fontSize: '2.5rem' }} />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                            <FaWallet style={{ fontSize: '1.5rem' }} />
                             <div>
-                                <h4 style={{ margin: 0, fontSize: '1.4rem', fontWeight: '900' }}>1. WALLET balance</h4>
-                                <p style={{ margin: 0, fontWeight: 'bold' }}>Balance: ₹{user.walletBalance || 0}</p>
+                                <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '800' }}>Wallet Balance</h4>
+                                <p style={{ margin: 0, fontSize: '0.9rem' }}>₹{user.walletBalance || 0}</p>
                             </div>
                         </div>
-                        <span style={{ fontSize: '2.5rem' }}>›</span>
+                        <span style={{ fontSize: '1.5rem' }}>›</span>
                     </div>
 
                     {/* 2. HISTORY (POWDER BLUE) */}
                     <div
-                        style={{ display: 'flex', background: '#b3e5fc', padding: '25px', borderRadius: '20px', border: '6px solid black', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', color: 'black' }}
+                        style={{ display: 'flex', background: '#b3e5fc', padding: '15px', borderRadius: '12px', border: '3px solid black', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', color: 'black' }}
                         onClick={() => setActiveModal('history')}
                     >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                            <FaListAlt style={{ fontSize: '2.5rem' }} />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                            <FaListAlt style={{ fontSize: '1.5rem' }} />
                             <div>
-                                <h4 style={{ margin: 0, fontSize: '1.4rem', fontWeight: '900' }}>2. ORDER HISTORY</h4>
-                                <p style={{ margin: 0, fontWeight: 'bold' }}>Transaction Logs</p>
+                                <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '800' }}>Order History</h4>
+                                <p style={{ margin: 0, fontSize: '0.9rem' }}>Check Logs</p>
                             </div>
                         </div>
-                        <span style={{ fontSize: '2.5rem' }}>›</span>
+                        <span style={{ fontSize: '1.5rem' }}>›</span>
                     </div>
 
                     {/* 3. HELP (PINK) */}
                     <div
-                        style={{ display: 'flex', background: '#f8bbd0', padding: '25px', borderRadius: '20px', border: '6px solid black', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', color: 'black' }}
+                        style={{ display: 'flex', background: '#f8bbd0', padding: '15px', borderRadius: '12px', border: '3px solid black', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', color: 'black' }}
                         onClick={() => setActiveModal('help')}
                     >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                            <FaQuestionCircle style={{ fontSize: '2.5rem' }} />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                            <FaQuestionCircle style={{ fontSize: '1.5rem' }} />
                             <div>
-                                <h4 style={{ margin: 0, fontSize: '1.4rem', fontWeight: '900' }}>3. HELP SUPPORT</h4>
-                                <p style={{ margin: 0, fontWeight: 'bold' }}>Customer Help</p>
+                                <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '800' }}>Help & Support</h4>
+                                <p style={{ margin: 0, fontSize: '0.9rem' }}>Get Assistance</p>
                             </div>
                         </div>
-                        <span style={{ fontSize: '2.5rem' }}>›</span>
+                        <span style={{ fontSize: '1.5rem' }}>›</span>
                     </div>
 
                     {/* 4. MY ORDERS */}
@@ -267,9 +266,9 @@ const Profile = ({ setView }) => {
                     {/* 6. LOGOUT */}
                     <button
                         onClick={handleLogout}
-                        style={{ width: '100%', padding: '20px', background: '#333', color: 'white', border: 'none', borderRadius: '15px', fontWeight: 'bold', fontSize: '1.2rem' }}
+                        style={{ width: '100%', padding: '15px', background: '#333', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '1rem' }}
                     >
-                        LOG OUT NOW
+                        Log Out
                     </button>
                 </div>
             </div>
