@@ -157,9 +157,14 @@ app.post('/api/auth/signup', async (req, res) => {
         const { username, password, phone } = req.body;
 
         // Check if user exists
-        const existingUser = await User.findOne({ username });
-        if (existingUser) {
-            return res.status(400).json({ message: 'User already exists' });
+        const existingUsername = await User.findOne({ username });
+        if (existingUsername) {
+            return res.status(400).json({ message: 'Username already exists' });
+        }
+
+        const existingPhone = await User.findOne({ phone });
+        if (existingPhone) {
+            return res.status(400).json({ message: 'Phone number already exists' });
         }
 
         const newUser = new User({ username, password, phone });

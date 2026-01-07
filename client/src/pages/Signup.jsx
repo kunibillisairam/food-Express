@@ -109,12 +109,28 @@ const Signup = ({ setView }) => {
                             </span>
                         </div>
                         <button className="auth-submit-btn">Sign Up</button>
-                        {error && <p style={{ color: 'red', fontSize: '0.8rem', marginTop: '10px', textAlign: 'center', marginBottom: 0 }}>{error}</p>}
+
                     </form>
                     <div className="switch-auth">
                         Already have an account? <span onClick={() => setView('login')}>Login</span>
                     </div>
                 </div>
+                {error && <div style={{
+                    marginTop: '15px',
+                    padding: '10px',
+                    background: 'rgba(255, 0, 0, 0.1)',
+                    border: '1px solid red',
+                    borderRadius: '5px',
+                    color: '#ff4444',
+                    textAlign: 'center',
+                    fontWeight: 'bold',
+                    fontSize: '0.9rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '1px',
+                    boxShadow: '0 0 10px rgba(255, 0, 0, 0.2)'
+                }}>
+                    {error}
+                </div>}
             </div>
         </div>
     );
