@@ -124,7 +124,8 @@
     }
 
     .computer-btn {
-        padding: 8px 15px;
-        font-size: 0.8rem;
+        padding: 5px 10px;
+        font-size: 0.65rem;
+        letter-spacing: 1px;
     }
 }

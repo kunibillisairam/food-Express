@@ -427,8 +427,28 @@ body {
 }
 
 .action-btn:hover {
-  transform: translateY(-3px);
   box-shadow: 0 15px 35px rgba(255, 71, 87, 0.4);
+}
+
+.cart-actions {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.cart-back-btn {
+  border: 1px solid #ccc !important;
+  padding: 0.5rem 1rem !important;
+  /* Smaller padding */
+  font-size: 0.9rem !important;
+  /* Smaller than 1rem */
+}
+
+.cart-proceed-btn {
+  padding: 0.5rem 1.5rem !important;
+  /* Smaller padding */
+  font-size: 0.9rem !important;
+  /* Smaller than 1rem */
 }
 
 /* Auth Pages */
@@ -672,7 +692,7 @@ body {
   }
 
   h2 {
-    font-size: 1.5rem !important;
+    font-size: 1.2rem !important;
   }
 
   h3 {
@@ -699,6 +719,32 @@ body {
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 1rem;
     padding: 1rem 0.5rem;
+  }
+
+  /* Horizontal Scroll Categories for Mobile */
+  .categories {
+    display: flex !important;
+    justify-content: flex-start !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    gap: 0.8rem !important;
+    padding: 0.5rem 1rem !important;
+    margin: 0.5rem 0 1.5rem 0 !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    /* Hide scrollbar Firefox */
+  }
+
+  .categories::-webkit-scrollbar {
+    display: none;
+    /* Hide scrollbar Chrome/Safari */
+  }
+
+  .cat-btn {
+    flex: 0 0 auto !important;
+    /* Prevent shrinking */
+    padding: 0.5rem 1.2rem !important;
+    font-size: 0.85rem !important;
   }
 
   .food-card {
@@ -751,13 +797,40 @@ body {
   }
 
   .total-price {
-    font-size: 1.4rem;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
   }
 
   .action-btn {
-    padding: 0.8rem 2rem;
-    font-size: 1rem;
+    padding: 0.6rem 1.5rem;
+    font-size: 0.9rem;
     width: 100%;
+  }
+
+  /* Cart Actions Mobile Scaling */
+  .cart-actions {
+    width: 100%;
+    justify-content: center;
+    gap: 0.4rem;
+  }
+
+  .cart-back-btn {
+    padding: 0.4rem 0.6rem !important;
+    font-size: 0.75rem !important;
+    /* Reduced */
+    white-space: nowrap !important;
+    border-radius: 20px !important;
+    min-width: fit-content;
+  }
+
+  .cart-proceed-btn {
+    padding: 0.4rem 0.8rem !important;
+    font-size: 0.75rem !important;
+    /* Reduced */
+    width: auto !important;
+    flex: 1;
+    white-space: nowrap !important;
+    min-width: fit-content;
   }
 
   .desktop-only {
@@ -816,7 +889,8 @@ body {
 
   /* About Us scaling */
   .about-us-section {
-    padding: 3rem 1rem;
+    padding: 1.5rem 0.5rem !important;
+    margin-top: 0 !important;
   }
 
   .about-content {
@@ -880,55 +954,111 @@ body {
 
   /* Footer Mobile Scaling */
   .footer-content {
-    grid-template-columns: 1fr !important;
-    gap: 2rem;
-    text-align: center;
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    grid-template-areas:
+      "logo logo logo"
+      "links contact news";
+    gap: 0.5rem !important;
+    text-align: left;
+    padding: 0 0.5rem;
   }
 
-  .footer-col {
+  .footer-col:nth-child(1) {
+    grid-area: logo;
+    text-align: center;
+    margin-bottom: 1rem;
     display: flex;
     flex-direction: column;
     align-items: center;
   }
 
+  .footer-col:nth-child(2) {
+    grid-area: links;
+  }
+
+  .footer-col:nth-child(3) {
+    grid-area: contact;
+  }
+
+  .footer-col:nth-child(4) {
+    grid-area: news;
+  }
+
+  .footer-col {
+    padding: 0 0.2rem;
+    overflow: hidden;
+    /* Prevent spill */
+  }
+
   .social-links {
     justify-content: center;
+    margin-top: 0.5rem;
+    gap: 0.5rem;
   }
 
   .newsletter-form {
+    display: flex;
     flex-direction: column;
+    width: 100%;
+    gap: 5px;
+  }
+
+  .newsletter-form input {
+    width: 100%;
+    padding: 0.4rem;
+    font-size: 0.7rem;
+    border-radius: 4px;
+    /* Save space */
+  }
+
+  .newsletter-form button {
+    padding: 0.4rem;
+    font-size: 0.65rem;
+    border-radius: 4px;
     width: 100%;
   }
 
-  /* Footer Font Resizing */
+  /* Footer Font Resizing - Compact */
   .footer-logo {
-    font-size: 1.5rem !important;
+    font-size: 1.3rem !important;
+    margin-bottom: 0.5rem !important;
   }
 
   .footer-text {
-    font-size: 0.85rem !important;
+    font-size: 0.75rem !important;
+    line-height: 1.3;
   }
 
   .footer-col h4 {
-    font-size: 0.95rem !important;
-    margin-bottom: 1rem !important;
+    font-size: 0.7rem !important;
+    /* Small header */
+    margin-bottom: 0.4rem !important;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
   .footer-col ul li {
-    margin-bottom: 0.6rem !important;
+    margin-bottom: 0.3rem !important;
+    font-size: 0.6rem !important;
+    /* Very small text */
+    line-height: 1.2;
+    word-break: break-word;
+    /* Prevent overflow */
   }
 
   .footer-col ul li a {
-    font-size: 0.85rem !important;
+    font-size: 0.6rem !important;
   }
 
   .social-icon {
-    font-size: 0.75rem !important;
-    padding: 0.4rem 0.8rem !important;
+    font-size: 0.7rem !important;
+    padding: 0.3rem 0.5rem !important;
   }
 
   .footer-bottom p {
-    font-size: 0.8rem !important;
+    font-size: 0.65rem !important;
   }
 
   /* Orders Scaling */
@@ -975,8 +1105,8 @@ body {
 /* About Us Section */
 .about-us-section {
   background: var(--white);
-  padding: 4rem 2rem;
-  margin-top: 2rem;
+  padding: 2rem 1rem;
+  margin-top: 0;
   position: relative;
   overflow: hidden;
 }

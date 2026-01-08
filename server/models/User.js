@@ -14,6 +14,7 @@ const userSchema = new mongoose.Schema({
     address: { type: String, default: '' },
     walletBalance: { type: Number, default: 0 },
     transactions: [transactionSchema],
+    usedCoupons: { type: [String], default: [] },
     role: { type: String, default: 'user' }
 }, { timestamps: true });
 

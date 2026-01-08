@@ -109,7 +109,38 @@ app.put('/api/orders/:id/status', async (req, res) => {
 // POST /api/orders
 app.post('/api/orders', async (req, res) => {
     try {
-        const { userName, items, totalAmount } = req.body;
+        const { userName, items, totalAmount, couponCode } = req.body;
+        console.log(`[Order] Received order from ${userName}, Coupon: ${couponCode}, Amount: ${totalAmount}`);
+
+        // Handle Coupon Usage (Server-Side Verification)
+        if (couponCode === 'SAI100') {
+            console.log(`[Order] Processing SAI100 for ${userName} (Atomic Check)`);
+
+            // Atomic Operation: Find user AND ensure coupon not used. 
+            const user = await User.findOneAndUpdate(
+                {
+                    username: userName,
+                    usedCoupons: { $ne: 'SAI100' }
+                },
+                {
+                    $addToSet: { usedCoupons: 'SAI100' }
+                },
+                { new: true }
+            );
+
+            if (!user) {
+                const userExists = await User.findOne({ username: userName });
+                if (userExists) {
+                    console.log(`[Order] SAI100 already used by ${userName} (Blocked by Atomic Check)`);
+                    return res.status(400).json({ message: 'Coupon SAI100 already used' });
+                } else {
+                    console.log(`[Order] User NOT found: ${userName}`);
+                }
+            } else {
+                console.log(`[Order] SAI100 successfully applied and marked for ${userName}`);
+            }
+        }
+
         const newOrder = new Order({
             userName,
             items,
@@ -118,6 +149,7 @@ app.post('/api/orders', async (req, res) => {
         const savedOrder = await newOrder.save();
         res.status(201).json(savedOrder);
     } catch (err) {
+        console.error(`[Order] Error: ${err.message}`);
         res.status(500).json({ error: err.message });
     }
 });
