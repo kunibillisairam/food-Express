@@ -1,0 +1,114 @@
+.admin-page {
+  padding: 40px;
+  background: #f4f6f8;
+  min-height: 100vh;
+}
+
+.admin-title {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 30px;
+}
+
+.no-orders {
+  text-align: center;
+  font-size: 18px;
+  color: #555;
+}
+
+.orders-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 25px;
+}
+
+.order-card {
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  transition: transform 0.3s;
+}
+
+.order-card:hover {
+  transform: translateY(-5px);
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.status {
+  background: orange;
+  color: white;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+}
+
+.items ul {
+  margin-top: 8px;
+  padding-left: 20px;
+}
+
+.items li {
+  margin-bottom: 4px;
+}
+
+/* FOOTER BUTTON */
+.admin-footer {
+  margin-top: 40px;
+  display: flex;
+  justify-content: center;
+}
+
+.back-btn {
+  border: none;
+  cursor: pointer;
+}
+
+.back-btn.small {
+  padding: 6px 14px;
+  font-size: 13px;
+  border-radius: 18px;
+  background: #444;
+  color: white;
+  transition: 0.3s;
+}
+
+.back-btn.small:hover {
+  background: #ff9800;
+}
+.order-item {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  background: #f9f9f9;
+  padding: 8px;
+  border-radius: 10px;
+}
+
+.order-img {
+  width: 55px;
+  height: 55px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-right: 10px;
+}
+
+.order-item-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.item-name {
+  font-weight: 600;
+}
+
+.item-qty {
+  font-size: 13px;
+  color: #555;
+}
