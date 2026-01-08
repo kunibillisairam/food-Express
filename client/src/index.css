@@ -808,7 +808,8 @@ body {
 
   /* About Us scaling */
   .about-us-section {
-    padding: 3rem 1rem;
+    padding: 1.5rem 0.5rem !important;
+    margin-top: 0 !important;
   }
 
   .about-content {
