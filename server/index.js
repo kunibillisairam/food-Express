@@ -114,20 +114,30 @@ app.post('/api/orders', async (req, res) => {
 
         // Handle Coupon Usage (Server-Side Verification)
         if (couponCode === 'SAI100') {
-            console.log(`[Order] Processing SAI100 for ${userName}`);
-            const user = await User.findOne({ username: userName });
-            if (user) {
-                console.log(`[Order] User found: ${user.username}, UsedCoupons: ${user.usedCoupons}`);
-                if (user.usedCoupons && user.usedCoupons.includes('SAI100')) {
-                    console.log(`[Order] Coupon already used! Blocking.`);
+            console.log(`[Order] Processing SAI100 for ${userName} (Atomic Check)`);
+
+            // Atomic Operation: Find user AND ensure coupon not used. 
+            const user = await User.findOneAndUpdate(
+                {
+                    username: userName,
+                    usedCoupons: { $ne: 'SAI100' }
+                },
+                {
+                    $addToSet: { usedCoupons: 'SAI100' }
+                },
+                { new: true }
+            );
+
+            if (!user) {
+                const userExists = await User.findOne({ username: userName });
+                if (userExists) {
+                    console.log(`[Order] SAI100 already used by ${userName} (Blocked by Atomic Check)`);
                     return res.status(400).json({ message: 'Coupon SAI100 already used' });
+                } else {
+                    console.log(`[Order] User NOT found: ${userName}`);
                 }
-                // Mark as used
-                user.usedCoupons.push('SAI100');
-                await user.save();
-                console.log(`[Order] Marked SAI100 as used for ${user.username}`);
             } else {
-                console.log(`[Order] User NOT found: ${userName} - allowing order but NOT marking coupon!`);
+                console.log(`[Order] SAI100 successfully applied and marked for ${userName}`);
             }
         }
 
