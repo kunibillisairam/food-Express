@@ -40,16 +40,16 @@ const Cart = ({ setView }) => {
 
                 <div className="checkout-section">
                     <div className="total-price">Total: ₹{totalAmount}</div>
-                    <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
-                        <button className="nav-btn" onClick={() => setView('home')} style={{ border: '1px solid #ccc', padding: '0.8rem 1.5rem', fontSize: '1rem' }}>Back to Home</button>
-                        <button className="action-btn" onClick={() => {
+                    <div className="cart-actions">
+                        <button className="nav-btn cart-back-btn" onClick={() => setView('home')}>Back to Home</button>
+                        <button className="action-btn cart-proceed-btn" onClick={() => {
                             if (!localStorage.getItem('user')) {
                                 alert("Please login to place an order!");
                                 setView('login');
                             } else {
                                 setView('payment');
                             }
-                        }} style={{ padding: '0.8rem 2rem', fontSize: '1rem' }}>Proceed to Payment</button>
+                        }}>Proceed to Payment</button>
                     </div>
                 </div>
             </div>
