@@ -109,7 +109,21 @@ app.put('/api/orders/:id/status', async (req, res) => {
 // POST /api/orders
 app.post('/api/orders', async (req, res) => {
     try {
-        const { userName, items, totalAmount } = req.body;
+        const { userName, items, totalAmount, couponCode } = req.body;
+
+        // Handle Coupon Usage (Server-Side Verification)
+        if (couponCode === 'SAI100') {
+            const user = await User.findOne({ username: userName });
+            if (user) {
+                if (user.usedCoupons && user.usedCoupons.includes('SAI100')) {
+                    return res.status(400).json({ message: 'Coupon SAI100 already used' });
+                }
+                // Mark as used
+                user.usedCoupons.push('SAI100');
+                await user.save();
+            }
+        }
+
         const newOrder = new Order({
             userName,
             items,

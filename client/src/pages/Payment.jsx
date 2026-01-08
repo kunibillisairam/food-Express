@@ -43,6 +43,15 @@ const Payment = ({ setView }) => {
             // or if it's ZOMATO20, calculate 20%.
 
             let discAmt = found.discount;
+
+            // Check if coupon is one-time use for user
+            if (found.code === 'SAI100') {
+                if (user && user.usedCoupons && user.usedCoupons.includes('SAI100')) {
+                    setCouponMsg('Only one time for new user');
+                    return;
+                }
+            }
+
             if (found.code === 'ZOMATO20') {
                 discAmt = Math.round(totalAmount * 0.2);
                 if (discAmt > 100) discAmt = 100;
@@ -157,7 +166,8 @@ const Payment = ({ setView }) => {
                 totalAmount: finalAmount,
                 status: 'Pending',
                 paymentMethod: method,
-                address: addressToUse // Send address to backend if needed
+                address: addressToUse, // Send address to backend if needed
+                couponCode: appliedCoupon // Pass coupon to backend for verification/marketing
             };
 
             await axios.post(`${API_BASE_URL}/api/orders`, orderData);
@@ -171,7 +181,8 @@ const Payment = ({ setView }) => {
 
         } catch (err) {
             console.error(err);
-            alert('Failed to place order. Ensure server is running.');
+            const msg = err.response?.data?.message || 'Failed to place order. Ensure server is running.';
+            alert(msg);
             setLoading(false);
         }
     };
