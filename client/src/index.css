@@ -872,55 +872,111 @@ body {
 
   /* Footer Mobile Scaling */
   .footer-content {
-    grid-template-columns: 1fr !important;
-    gap: 2rem;
-    text-align: center;
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    grid-template-areas:
+      "logo logo logo"
+      "links contact news";
+    gap: 0.5rem !important;
+    text-align: left;
+    padding: 0 0.5rem;
   }
 
-  .footer-col {
+  .footer-col:nth-child(1) {
+    grid-area: logo;
+    text-align: center;
+    margin-bottom: 1rem;
     display: flex;
     flex-direction: column;
     align-items: center;
   }
 
+  .footer-col:nth-child(2) {
+    grid-area: links;
+  }
+
+  .footer-col:nth-child(3) {
+    grid-area: contact;
+  }
+
+  .footer-col:nth-child(4) {
+    grid-area: news;
+  }
+
+  .footer-col {
+    padding: 0 0.2rem;
+    overflow: hidden;
+    /* Prevent spill */
+  }
+
   .social-links {
     justify-content: center;
+    margin-top: 0.5rem;
+    gap: 0.5rem;
   }
 
   .newsletter-form {
+    display: flex;
     flex-direction: column;
+    width: 100%;
+    gap: 5px;
+  }
+
+  .newsletter-form input {
+    width: 100%;
+    padding: 0.4rem;
+    font-size: 0.7rem;
+    border-radius: 4px;
+    /* Save space */
+  }
+
+  .newsletter-form button {
+    padding: 0.4rem;
+    font-size: 0.65rem;
+    border-radius: 4px;
     width: 100%;
   }
 
-  /* Footer Font Resizing */
+  /* Footer Font Resizing - Compact */
   .footer-logo {
-    font-size: 1.5rem !important;
+    font-size: 1.3rem !important;
+    margin-bottom: 0.5rem !important;
   }
 
   .footer-text {
-    font-size: 0.85rem !important;
+    font-size: 0.75rem !important;
+    line-height: 1.3;
   }
 
   .footer-col h4 {
-    font-size: 0.95rem !important;
-    margin-bottom: 1rem !important;
+    font-size: 0.7rem !important;
+    /* Small header */
+    margin-bottom: 0.4rem !important;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
   .footer-col ul li {
-    margin-bottom: 0.6rem !important;
+    margin-bottom: 0.3rem !important;
+    font-size: 0.6rem !important;
+    /* Very small text */
+    line-height: 1.2;
+    word-break: break-word;
+    /* Prevent overflow */
   }
 
   .footer-col ul li a {
-    font-size: 0.85rem !important;
+    font-size: 0.6rem !important;
   }
 
   .social-icon {
-    font-size: 0.75rem !important;
-    padding: 0.4rem 0.8rem !important;
+    font-size: 0.7rem !important;
+    padding: 0.3rem 0.5rem !important;
   }
 
   .footer-bottom p {
-    font-size: 0.8rem !important;
+    font-size: 0.65rem !important;
   }
 
   /* Orders Scaling */
