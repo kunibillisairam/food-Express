@@ -15,6 +15,16 @@ const Payment = ({ setView }) => {
     const [appliedCoupon, setAppliedCoupon] = useState(null);
     const [couponMsg, setCouponMsg] = useState('');
 
+    // Payment Details State
+    const [upiId, setUpiId] = useState('');
+    const [cardDetails, setCardDetails] = useState({
+        number: '',
+        expiry: '',
+        cvv: '',
+        name: ''
+    });
+    const [errors, setErrors] = useState({});
+
     const coupons = [
         { code: 'WELCOME50', discount: 50, desc: 'Flat ₹50 off on first order' },
         { code: 'ZOMATO20', discount: 20, desc: '20% off up to ₹100' }, // Logic implemented as flat for simplicity or percentage
@@ -69,7 +79,6 @@ const Payment = ({ setView }) => {
             return;
         }
 
-        // Validation: Wallet Balance
         if (method === 'wallet') {
             const currentBalance = user?.walletBalance || 0;
             if (currentBalance < finalAmount) {
@@ -78,8 +87,37 @@ const Payment = ({ setView }) => {
             }
         }
 
+        // Validation: UPI and Card
+        let newErrors = {};
+        if (method === 'upi') {
+            if (!upiId) {
+                newErrors.upiId = 'UPI ID is required';
+            } else if (!/^[a-zA-Z0-9.\-_]{2,}@[a-zA-Z]{3,}$/.test(upiId)) {
+                newErrors.upiId = 'Invalid UPI ID format';
+            }
+        } else if (method === 'card') {
+            if (!cardDetails.number || cardDetails.number.length !== 16) {
+                newErrors.cardNumber = 'Card number must be 16 digits';
+            }
+            if (!cardDetails.expiry || !/^(0[1-9]|1[0-2])\/\d{2}$/.test(cardDetails.expiry)) {
+                newErrors.cardExpiry = 'Invalid expiry (MM/YY)';
+            }
+            if (!cardDetails.cvv || cardDetails.cvv.length !== 3) {
+                newErrors.cardCvv = 'CVV must be 3 digits';
+            }
+            if (!cardDetails.name) {
+                newErrors.cardName = 'Cardholder name is required';
+            }
+        }
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
+        }
+
         setLoading(true);
         setWalletError('');
+        setErrors({});
 
         try {
             // Save address if we just collected it
@@ -169,13 +207,13 @@ const Payment = ({ setView }) => {
                     <div>
                         <h3 style={{ marginBottom: '1rem' }}>Select Payment Method</h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            <label className={`payment-option-card ${method === 'cod' ? 'selected' : ''}`} onClick={() => { setMethod('cod'); setWalletError(''); }}>
+                            <label className={`payment-option-card ${method === 'cod' ? 'selected' : ''}`} onClick={() => { setMethod('cod'); setWalletError(''); setErrors({}); }}>
                                 <input type="radio" value="cod" checked={method === 'cod'} onChange={() => { }} />
                                 <span style={{ fontWeight: '600' }}>Cash on Delivery</span>
                             </label>
 
                             {user && (
-                                <label className={`payment-option-card ${method === 'wallet' ? 'selected' : ''}`} onClick={() => { setMethod('wallet'); setWalletError(''); }}>
+                                <label className={`payment-option-card ${method === 'wallet' ? 'selected' : ''}`} onClick={() => { setMethod('wallet'); setWalletError(''); setErrors({}); }}>
                                     <input type="radio" value="wallet" checked={method === 'wallet'} onChange={() => { }} />
                                     <div>
                                         <div style={{ fontWeight: '600' }}>Pay via Wallet</div>
@@ -185,15 +223,104 @@ const Payment = ({ setView }) => {
                                 </label>
                             )}
 
-                            <label className={`payment-option-card ${method === 'upi' ? 'selected' : ''}`} onClick={() => { setMethod('upi'); setWalletError(''); }}>
+                            <label className={`payment-option-card ${method === 'upi' ? 'selected' : ''}`} onClick={() => { setMethod('upi'); setWalletError(''); setErrors({}); }}>
                                 <input type="radio" value="upi" checked={method === 'upi'} onChange={() => { }} />
                                 <span style={{ fontWeight: '600' }}>UPI (GPay / PhonePe)</span>
                             </label>
 
-                            <label className={`payment-option-card ${method === 'card' ? 'selected' : ''}`} onClick={() => { setMethod('card'); setWalletError(''); }}>
+                            {method === 'upi' && (
+                                <div style={{ padding: '0.5rem 0 0.5rem 2rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    <input
+                                        type="text"
+                                        placeholder="Enter UPI ID (e.g. user@upi)"
+                                        value={upiId}
+                                        onChange={(e) => setUpiId(e.target.value)}
+                                        style={{
+                                            padding: '0.8rem',
+                                            borderRadius: '8px',
+                                            border: errors.upiId ? '1px solid red' : '1px solid #ddd',
+                                            width: '100%'
+                                        }}
+                                    />
+                                    {errors.upiId && <div style={{ color: 'red', fontSize: '0.8rem' }}>{errors.upiId}</div>}
+                                </div>
+                            )}
+
+                            <label className={`payment-option-card ${method === 'card' ? 'selected' : ''}`} onClick={() => { setMethod('card'); setWalletError(''); setErrors({}); }}>
                                 <input type="radio" value="card" checked={method === 'card'} onChange={() => { }} />
                                 <span style={{ fontWeight: '600' }}>Debit / Credit Card</span>
                             </label>
+
+                            {method === 'card' && (
+                                <div style={{ padding: '0.5rem 0 0.5rem 2rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    <input
+                                        type="text"
+                                        placeholder="Card Number (16 digits)"
+                                        value={cardDetails.number}
+                                        maxLength="16"
+                                        onChange={(e) => setCardDetails({ ...cardDetails, number: e.target.value.replace(/\D/g, '') })}
+                                        style={{
+                                            padding: '0.8rem',
+                                            borderRadius: '8px',
+                                            border: errors.cardNumber ? '1px solid red' : '1px solid #ddd',
+                                            width: '100%'
+                                        }}
+                                    />
+                                    {errors.cardNumber && <div style={{ color: 'red', fontSize: '0.8rem' }}>{errors.cardNumber}</div>}
+
+                                    <div style={{ display: 'flex', gap: '10px' }}>
+                                        <div style={{ flex: 1 }}>
+                                            <input
+                                                type="text"
+                                                placeholder="MM/YY"
+                                                value={cardDetails.expiry}
+                                                maxLength="5"
+                                                onChange={(e) => {
+                                                    let val = e.target.value.replace(/[^\d/]/g, '');
+                                                    if (val.length === 2 && !val.includes('/')) val += '/';
+                                                    setCardDetails({ ...cardDetails, expiry: val });
+                                                }}
+                                                style={{
+                                                    padding: '0.8rem',
+                                                    borderRadius: '8px',
+                                                    border: errors.cardExpiry ? '1px solid red' : '1px solid #ddd',
+                                                    width: '100%'
+                                                }}
+                                            />
+                                            {errors.cardExpiry && <div style={{ color: 'red', fontSize: '0.8rem' }}>{errors.cardExpiry}</div>}
+                                        </div>
+                                        <div style={{ flex: 1 }}>
+                                            <input
+                                                type="text"
+                                                placeholder="CVV"
+                                                value={cardDetails.cvv}
+                                                maxLength="3"
+                                                onChange={(e) => setCardDetails({ ...cardDetails, cvv: e.target.value.replace(/\D/g, '') })}
+                                                style={{
+                                                    padding: '0.8rem',
+                                                    borderRadius: '8px',
+                                                    border: errors.cardCvv ? '1px solid red' : '1px solid #ddd',
+                                                    width: '100%'
+                                                }}
+                                            />
+                                            {errors.cardCvv && <div style={{ color: 'red', fontSize: '0.8rem' }}>{errors.cardCvv}</div>}
+                                        </div>
+                                    </div>
+                                    <input
+                                        type="text"
+                                        placeholder="Cardholder Name"
+                                        value={cardDetails.name}
+                                        onChange={(e) => setCardDetails({ ...cardDetails, name: e.target.value })}
+                                        style={{
+                                            padding: '0.8rem',
+                                            borderRadius: '8px',
+                                            border: errors.cardName ? '1px solid red' : '1px solid #ddd',
+                                            width: '100%'
+                                        }}
+                                    />
+                                    {errors.cardName && <div style={{ color: 'red', fontSize: '0.8rem' }}>{errors.cardName}</div>}
+                                </div>
+                            )}
                         </div>
                     </div>
 
