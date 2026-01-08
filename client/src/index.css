@@ -658,6 +658,14 @@ body {
     --radius: 12px;
   }
 
+  .footer-section {
+    display: none;
+  }
+
+  .view-home .footer-section {
+    display: block;
+  }
+
   body {
     font-size: 14px;
     width: 100%;

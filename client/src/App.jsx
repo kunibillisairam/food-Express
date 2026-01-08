@@ -81,7 +81,7 @@ const Main = () => {
   const mainBg = isYellowBg ? 'rgba(255, 249, 196, 0.5)' : 'transparent';
 
   return (
-    <div style={{ minHeight: '100vh', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'stretch', background: mainBg, transition: 'background 0.3s' }}>
+    <div className={`app-container view-${view}`} style={{ minHeight: '100vh', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'stretch', background: mainBg, transition: 'background 0.3s' }}>
       <StarfieldBackground />
       {showNavbar && (
         <Navbar
