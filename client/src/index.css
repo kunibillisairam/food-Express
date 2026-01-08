@@ -317,7 +317,7 @@ body {
   transform: translateX(-50%);
   background: rgba(47, 53, 66, 0.95);
   color: var(--white);
-  padding: 1rem 2.5rem;
+  padding: 0.7rem 1.5rem;
   border-radius: 50px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
   z-index: 2000;
@@ -326,6 +326,7 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
+  font-size: 0.9rem;
 }
 
 @keyframes slideUp {
@@ -835,6 +836,13 @@ body {
 
   .desktop-only {
     display: none !important;
+  }
+
+  .toast {
+    padding: 0.5rem 1rem !important;
+    font-size: 0.75rem !important;
+    bottom: 20px !important;
+    gap: 5px !important;
   }
 
   .navbar {
