@@ -1,0 +1,119 @@
+.holo-card-container {
+    perspective: 1000px;
+    /* Ensure the perspective is set on the container */
+    display: inline-block;
+    /* Or block, depending on layout */
+}
+
+.holo-card {
+    width: 100%;
+    background: var(--white);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    transition: transform 0.1s ease-out, box-shadow 0.3s ease;
+    transform-style: preserve-3d;
+    cursor: pointer;
+    position: relative;
+    backface-visibility: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+.holo-card:hover {
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+}
+
+/* Shine Effect */
+.holo-card::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(125deg,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.05) 40%,
+            rgba(255, 255, 255, 0.2) 50%,
+            rgba(255, 255, 255, 0.05) 60%,
+            rgba(255, 255, 255, 0) 100%);
+    transform: translateY(-100%);
+    transition: transform 0.3s;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.holo-card:hover::after {
+    transform: translateY(100%);
+    transition: transform 0.8s;
+}
+
+/* Image Pop */
+.holo-card .food-img-container {
+    position: relative;
+    transform-style: preserve-3d;
+    overflow: visible;
+    /* Important for pop-out, might clip if hidden */
+    z-index: 1;
+}
+
+/* Since the original container had overflow:hidden, popping out might be clipped. 
+   We might need to adjust the structure or allow overflow. 
+   If we allow overflow, we lose the border-radius clipping on the image.
+   Alternative: Pop the whole container inside?
+   
+   Better approach for "Pop out": 
+   Scale the image up and translateZ.
+   But if parent has overflow:hidden, it usually clips.
+   
+   Let's check the original .food-card. It has overflow:hidden.
+   If I want the image to "pop out of the card", I physically cannot do it if the card has overflow:hidden.
+   
+   However, "pop out" usually means visual depth within the 3D space, not necessarily breaking the border.
+   So translateZ(50px) inside the card works fine for depth perception.
+*/
+
+.holo-card .food-img {
+    transition: transform 0.1s ease-out;
+    transform: translateZ(0);
+}
+
+.holo-card:hover .food-img {
+    transform: translateZ(50px) scale(1.1);
+    /* Pop out and scale */
+}
+
+.holo-card .food-info {
+    background: var(--white);
+    /* Ensure background is solid */
+    transform: translateZ(20px);
+    /* Slight lift for text */
+}
+
+.holo-card .offer-badge {
+    transform: translateZ(60px);
+    /* Highest pop */
+}
+
+@media (max-width: 768px) {
+    .holo-card .food-img-container {
+        height: 150px;
+    }
+
+    .holo-card .food-info {
+        padding: 0.8rem;
+    }
+
+    .holo-card .food-title {
+        font-size: 0.8rem;
+    }
+
+    .holo-card:hover .food-img {
+        transform: translateZ(20px) scale(1.05);
+        /* Reduced intensity for mobile */
+    }
+
+    .holo-card:hover .food-info {
+        transform: translateZ(10px);
+    }
+}
