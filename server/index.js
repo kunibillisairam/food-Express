@@ -110,17 +110,24 @@ app.put('/api/orders/:id/status', async (req, res) => {
 app.post('/api/orders', async (req, res) => {
     try {
         const { userName, items, totalAmount, couponCode } = req.body;
+        console.log(`[Order] Received order from ${userName}, Coupon: ${couponCode}, Amount: ${totalAmount}`);
 
         // Handle Coupon Usage (Server-Side Verification)
         if (couponCode === 'SAI100') {
+            console.log(`[Order] Processing SAI100 for ${userName}`);
             const user = await User.findOne({ username: userName });
             if (user) {
+                console.log(`[Order] User found: ${user.username}, UsedCoupons: ${user.usedCoupons}`);
                 if (user.usedCoupons && user.usedCoupons.includes('SAI100')) {
+                    console.log(`[Order] Coupon already used! Blocking.`);
                     return res.status(400).json({ message: 'Coupon SAI100 already used' });
                 }
                 // Mark as used
                 user.usedCoupons.push('SAI100');
                 await user.save();
+                console.log(`[Order] Marked SAI100 as used for ${user.username}`);
+            } else {
+                console.log(`[Order] User NOT found: ${userName} - allowing order but NOT marking coupon!`);
             }
         }
 
@@ -132,6 +139,7 @@ app.post('/api/orders', async (req, res) => {
         const savedOrder = await newOrder.save();
         res.status(201).json(savedOrder);
     } catch (err) {
+        console.error(`[Order] Error: ${err.message}`);
         res.status(500).json({ error: err.message });
     }
 });
