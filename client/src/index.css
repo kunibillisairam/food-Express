@@ -713,6 +713,32 @@ body {
     padding: 1rem 0.5rem;
   }
 
+  /* Horizontal Scroll Categories for Mobile */
+  .categories {
+    display: flex !important;
+    justify-content: flex-start !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    gap: 0.8rem !important;
+    padding: 0.5rem 1rem !important;
+    margin: 0.5rem 0 1.5rem 0 !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    /* Hide scrollbar Firefox */
+  }
+
+  .categories::-webkit-scrollbar {
+    display: none;
+    /* Hide scrollbar Chrome/Safari */
+  }
+
+  .cat-btn {
+    flex: 0 0 auto !important;
+    /* Prevent shrinking */
+    padding: 0.5rem 1.2rem !important;
+    font-size: 0.85rem !important;
+  }
+
   .food-card {
     border-radius: 12px;
   }
