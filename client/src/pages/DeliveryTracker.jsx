@@ -60,7 +60,7 @@ const DeliveryTracker = ({ setView, orderId }) => {
                 </div>
                 <div>
                     <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Track Order</h1>
-                    <p style={{ margin: 0, color: '#666', fontSize: '0.85rem' }}>Order ID: #{orderId.slice(-6)}</p>
+                    <p style={{ margin: 0, color: '#666', fontSize: '0.85rem' }}>Order ID: #{orderId ? orderId.slice(-6) : '...'}</p>
                 </div>
             </div>
 

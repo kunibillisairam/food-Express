@@ -7,7 +7,7 @@ import PaymentProcessing from '../components/PaymentProcessing';
 import { AnimatePresence } from 'framer-motion';
 
 const Payment = ({ setView }) => {
-    const { cart, clearCart, totalAmount } = useContext(CartContext);
+    const { cart, clearCart, totalAmount, setLastOrder } = useContext(CartContext);
     const { user } = useContext(AuthContext);
 
     const [method, setMethod] = useState('cod');
@@ -174,12 +174,19 @@ const Payment = ({ setView }) => {
                 couponCode: appliedCoupon // Pass coupon to backend for verification/marketing
             };
 
-            await axios.post(`${API_BASE_URL}/api/orders`, orderData);
+            const response = await axios.post(`${API_BASE_URL}/api/orders`, orderData);
 
             // Transition to Success Animation
             setProcessStatus('success');
 
             setTimeout(() => {
+                setLastOrder({
+                    ...orderData,
+                    orderId: response.data._id, // Use real MongoDB ID
+                    displayId: 'ORD-' + response.data._id.slice(-6).toUpperCase(),
+                    estimatedTime: '25-35 mins',
+                    date: new Date().toLocaleString()
+                });
                 clearCart();
                 setLoading(false);
                 setProcessStatus('processing');

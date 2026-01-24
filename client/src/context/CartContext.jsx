@@ -41,6 +41,8 @@ export const CartProvider = ({ children }) => {
         });
     };
 
+    const [lastOrder, setLastOrder] = useState(null);
+
     const clearCart = () => {
         setCart([]);
     };
@@ -48,7 +50,7 @@ export const CartProvider = ({ children }) => {
     const totalAmount = cart.reduce((total, item) => total + item.price * item.qty, 0);
 
     return (
-        <CartContext.Provider value={{ cart, addToCart, removeFromCart, clearCart, totalAmount }}>
+        <CartContext.Provider value={{ cart, addToCart, removeFromCart, clearCart, totalAmount, lastOrder, setLastOrder }}>
             {children}
         </CartContext.Provider>
     );
