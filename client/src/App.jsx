@@ -11,7 +11,7 @@ import Signup from './pages/Signup';
 import AdminOrders from './pages/AdminOrders';
 import MyOrders from './pages/MyOrders';
 import Profile from './pages/Profile';
-import QuantumTracker from './pages/QuantumTracker';
+import DeliveryTracker from './pages/DeliveryTracker';
 import Fabricator from './pages/Fabricator';
 import DeliveryDashboard from './pages/DeliveryDashboard';
 
@@ -68,7 +68,7 @@ const Main = () => {
       case 'profile': return <Profile setView={handleViewChange} />;
       case 'login': return <Login setView={handleViewChange} />;
       case 'signup': return <Signup setView={handleViewChange} />;
-      case 'quantum-tracker': return <QuantumTracker setView={handleViewChange} orderId={selectedOrderId} />;
+      case 'quantum-tracker': return <DeliveryTracker setView={handleViewChange} orderId={selectedOrderId} />;
       case 'fabricator': return <Fabricator setView={handleViewChange} />;
       case 'delivery-partner': return <DeliveryDashboard setView={handleViewChange} />;
       default: return <Home activeCategory={category} setCategory={setCategory} setView={handleViewChange} />;
