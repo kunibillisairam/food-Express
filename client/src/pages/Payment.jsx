@@ -17,6 +17,7 @@ const Payment = ({ setView }) => {
     const [appliedCoupon, setAppliedCoupon] = useState(null);
     const [couponMsg, setCouponMsg] = useState('');
     const [processStatus, setProcessStatus] = useState('processing'); // 'processing', 'success', 'failure'
+    const [isLocating, setIsLocating] = useState(false);
 
     // Payment Details State
     const [upiId, setUpiId] = useState('');
@@ -199,21 +200,123 @@ const Payment = ({ setView }) => {
         }
     };
 
+    const handleUseLocation = () => {
+        if (!navigator.geolocation) {
+            alert('Geolocation is not supported by your browser');
+            return;
+        }
+
+        setIsLocating(true);
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const { latitude, longitude } = position.coords;
+                try {
+                    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+                    const data = await response.json();
+                    if (data.display_name) {
+                        setMissingAddress(data.display_name);
+                    } else {
+                        alert('Could not fetch address for this location.');
+                    }
+                } catch (error) {
+                    console.error('Error fetching address:', error);
+                    alert('Error fetching address. Please try again.');
+                } finally {
+                    setIsLocating(false);
+                }
+            },
+            (error) => {
+                console.error('Error getting location:', error);
+                alert('Error getting your location. Please check your permissions.');
+                setIsLocating(false);
+            }
+        );
+    };
+
     if (showAddressPrompt) {
         return (
-            <div className="page-container fade-in" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
-                <div style={{ background: 'white', padding: '2rem', borderRadius: '16px', maxWidth: '500px', width: '100%', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
-                    <h2>Almost there!</h2>
-                    <p>We need your delivery address to place the order.</p>
-                    <textarea
-                        value={missingAddress}
-                        onChange={(e) => setMissingAddress(e.target.value)}
-                        placeholder="Enter your full address..."
-                        style={{ width: '100%', padding: '1rem', border: '1px solid #ddd', borderRadius: '8px', minHeight: '100px', marginBottom: '1rem' }}
-                    />
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                        <button className="action-btn" onClick={handleConfirm}>Save & Pay</button>
-                        <button className="nav-btn" onClick={() => setShowAddressPrompt(false)}>Cancel</button>
+            <div className="page-container address-prompt-overlay" style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: 'rgba(0,0,0,0.6)',
+                zIndex: 2000,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                padding: '1rem'
+            }}>
+                <div className="fade-in" style={{
+                    background: 'white',
+                    padding: '2rem',
+                    borderRadius: '24px',
+                    maxWidth: '500px',
+                    width: '100%',
+                    boxShadow: '0 20px 50px rgba(0,0,0,0.2)',
+                    position: 'relative'
+                }}>
+                    <h2 style={{ marginBottom: '0.5rem' }}>Where should we deliver?</h2>
+                    <p style={{ color: '#666', marginBottom: '1.5rem', fontSize: '0.9rem' }}>We need your delivery address to complete the order.</p>
+
+                    <div style={{ position: 'relative', marginBottom: '1rem' }}>
+                        <textarea
+                            value={missingAddress}
+                            onChange={(e) => setMissingAddress(e.target.value)}
+                            placeholder="Apartment, Street, Area..."
+                            style={{
+                                width: '100%',
+                                padding: '1rem',
+                                border: '2px solid #f1f2f6',
+                                borderRadius: '16px',
+                                minHeight: '120px',
+                                outline: 'none',
+                                fontSize: '1rem',
+                                transition: 'border-color 0.3s'
+                            }}
+                            onFocus={(e) => e.target.style.borderColor = '#ff4757'}
+                            onBlur={(e) => e.target.style.borderColor = '#f1f2f6'}
+                        />
+                        <button
+                            onClick={handleUseLocation}
+                            disabled={isLocating}
+                            style={{
+                                position: 'absolute',
+                                right: '10px',
+                                bottom: '10px',
+                                background: '#f1f2f6',
+                                border: 'none',
+                                borderRadius: '12px',
+                                padding: '6px 12px',
+                                fontSize: '0.75rem',
+                                fontWeight: '700',
+                                color: '#2ed573',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '5px',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            {isLocating ? 'Locating...' : '📍 Use Location'}
+                        </button>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        <button
+                            className="action-btn"
+                            onClick={handleConfirm}
+                            style={{ width: '100%', borderRadius: '16px', padding: '1rem' }}
+                        >
+                            Confirm Address & Pay
+                        </button>
+                        <button
+                            className="nav-btn"
+                            onClick={() => setShowAddressPrompt(false)}
+                            style={{ background: 'transparent', color: '#999' }}
+                        >
+                            Go Back
+                        </button>
                     </div>
                 </div>
             </div>

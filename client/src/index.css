@@ -1109,6 +1109,36 @@ body {
     justify-content: space-between !important;
     width: 100%;
   }
+
+  .address-prompt-overlay>div {
+    width: 95% !important;
+    padding: 1.5rem !important;
+    border-radius: 20px !important;
+  }
+
+  .address-prompt-overlay h2 {
+    font-size: 1.4rem !important;
+  }
+
+  .address-prompt-overlay textarea {
+    font-size: 0.9rem !important;
+    min-height: 100px !important;
+  }
+}
+
+.spinner-mini {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* About Us Section */
@@ -2839,6 +2869,7 @@ body {
   margin: 0 0 0.5rem 0;
   background: linear-gradient(45deg, #1e293b, #2ed573);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 

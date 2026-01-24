@@ -961,37 +961,104 @@ const Profile = ({ setView }) => {
                     </div>
 
                     {/* 5. ADDRESS SECTION */}
-                    <div style={{ background: 'white', padding: '20px', borderRadius: '15px', border: '1px solid #ddd' }}>
-                        <h4 style={{ marginTop: 0, color: '#ff4757' }}><FaMapMarkerAlt /> Address</h4>
+                    <div style={{ background: 'white', padding: '20px', borderRadius: '15px', border: '1px solid #ddd', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                            <h4 style={{ margin: 0, color: '#ff4757', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <FaMapMarkerAlt /> Delivery Address
+                            </h4>
+                            {!isEditingAddress && address && (
+                                <span style={{ fontSize: '0.7rem', color: '#2ed573', fontWeight: 'bold', background: '#e3fff0', padding: '2px 8px', borderRadius: '4px' }}>SAVED</span>
+                            )}
+                        </div>
+
                         {isEditingAddress ? (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                 <textarea
                                     value={address}
                                     onChange={(e) => setAddress(e.target.value)}
-                                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', minHeight: '80px' }}
+                                    placeholder="Enter your full address..."
+                                    style={{
+                                        width: '100%',
+                                        padding: '12px',
+                                        borderRadius: '12px',
+                                        border: '2px solid #ff4757',
+                                        minHeight: '100px',
+                                        fontSize: '0.95rem',
+                                        outline: 'none',
+                                        fontFamily: 'inherit'
+                                    }}
                                 />
                                 <div style={{ display: 'flex', gap: '10px' }}>
-                                    <button onClick={handleSaveAddress} style={{ flex: 1, background: '#ff4757', color: 'white', padding: '10px', borderRadius: '8px', border: 'none', fontWeight: '800' }}>Save</button>
-                                    <button onClick={() => setIsEditingAddress(false)} style={{ flex: 1, background: '#eee', color: '#333', padding: '10px', borderRadius: '8px', border: 'none' }}>Cancel</button>
+                                    <button
+                                        onClick={handleSaveAddress}
+                                        style={{ flex: 2, background: '#ff4757', color: 'white', padding: '12px', borderRadius: '10px', border: 'none', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                                    >
+                                        <FaCheckCircle /> Save Address
+                                    </button>
+                                    <button
+                                        onClick={() => setIsEditingAddress(false)}
+                                        style={{ flex: 1, background: '#f1f2f6', color: '#666', padding: '12px', borderRadius: '10px', border: 'none', fontWeight: '600', cursor: 'pointer' }}
+                                    >
+                                        Cancel
+                                    </button>
                                 </div>
                             </div>
                         ) : (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                                <p style={{ margin: 0, color: '#444' }}>{address || 'No address added yet.'}</p>
+                            <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                                <div style={{
+                                    background: '#f8f9fa',
+                                    padding: '15px',
+                                    borderRadius: '12px',
+                                    border: '1px dashed #ddd',
+                                    color: address ? '#333' : '#999',
+                                    minHeight: '60px',
+                                    lineHeight: '1.5',
+                                    fontSize: '0.95rem'
+                                }}>
+                                    {address || 'No address added yet. Please add one for faster checkout.'}
+                                </div>
                                 <div style={{ display: 'flex', gap: '10px' }}>
                                     <button
                                         onClick={() => setIsEditingAddress(true)}
-                                        style={{ flex: 1, color: '#ff4757', border: '1px solid #ff4757', background: 'transparent', padding: '8px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}
+                                        style={{
+                                            flex: 1,
+                                            color: '#ff4757',
+                                            border: '2px solid #ff4757',
+                                            background: 'transparent',
+                                            padding: '10px',
+                                            borderRadius: '10px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '8px',
+                                            fontWeight: '700',
+                                            cursor: 'pointer'
+                                        }}
                                     >
-                                        Edit
+                                        {address ? 'Edit Address' : 'Add Address'}
                                     </button>
                                     <button
                                         onClick={handleUseLocation}
                                         disabled={isLocating}
-                                        style={{ flex: 1, color: 'white', background: '#2ed573', border: 'none', padding: '8px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', opacity: isLocating ? 0.7 : 1 }}
+                                        style={{
+                                            flex: 1,
+                                            color: 'white',
+                                            background: '#2ed573',
+                                            border: 'none',
+                                            padding: '10px',
+                                            borderRadius: '10px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '8px',
+                                            fontWeight: '700',
+                                            cursor: 'pointer',
+                                            opacity: isLocating ? 0.7 : 1,
+                                            boxShadow: '0 4px 12px rgba(46, 213, 115, 0.2)'
+                                        }}
                                     >
-                                        {isLocating ? <div className="spinner-mini" style={{ width: '15px', height: '15px' }}></div> : <FaLocationArrow style={{ fontSize: '0.8rem' }} />}
-                                        {isLocating ? 'Locating...' : 'Use Location'}
+                                        {isLocating ? <div className="spinner-mini" style={{ width: '16px', height: '16px' }}></div> : <FaLocationArrow style={{ fontSize: '0.9rem' }} />}
+                                        {isLocating ? 'Locating...' : 'Use GPS'}
                                     </button>
                                 </div>
                             </div>
