@@ -33,21 +33,9 @@ const PaymentProcessing = ({ status = 'processing', onComplete, method = 'card' 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                background: 'rgba(255, 255, 255, 0.9)',
-                backdropFilter: 'blur(10px)',
-                zIndex: 10000,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-            }}
+            className="payment-processing-overlay"
         >
-            <div style={{ textAlign: 'center', maxWidth: '400px', width: '90%' }}>
+            <div className="payment-processing-card">
                 <AnimatePresence mode="wait">
                     {status === 'processing' && (
                         <motion.div
@@ -57,9 +45,9 @@ const PaymentProcessing = ({ status = 'processing', onComplete, method = 'card' 
                             exit={{ scale: 1.2, opacity: 0 }}
                             className="loader-content"
                         >
-                            <div style={{ position: 'relative', width: '120px', height: '120px', margin: '0 auto 30px' }}>
+                            <div className="processing-ring-container">
                                 {/* Progress Ring */}
-                                <svg width="120" height="120">
+                                <svg className="processing-svg" viewBox="0 0 120 120">
                                     <circle
                                         cx="60" cy="60" r="54"
                                         fill="none"
@@ -95,12 +83,7 @@ const PaymentProcessing = ({ status = 'processing', onComplete, method = 'card' 
                                         rotateY: { duration: 2, repeat: Infinity, ease: "linear" },
                                         scale: { duration: 1, repeat: Infinity, ease: "easeInOut" }
                                     }}
-                                    style={{
-                                        position: 'absolute',
-                                        top: 0, left: 0, width: '100%', height: '100%',
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                        fontSize: '2.5rem', color: '#6c5ce7'
-                                    }}
+                                    className="processing-mode-icon"
                                 >
                                     {getModeIcon()}
                                 </motion.div>
@@ -109,24 +92,26 @@ const PaymentProcessing = ({ status = 'processing', onComplete, method = 'card' 
                             <motion.h2
                                 animate={{ opacity: [0.5, 1, 0.5] }}
                                 transition={{ duration: 1.5, repeat: Infinity }}
-                                style={{ fontSize: '1.5rem', color: '#2f3542', margin: '0 0 10px' }}
+                                className="processing-title"
                             >
                                 Processing Payment
                             </motion.h2>
 
-                            <AnimatePresence mode="wait">
-                                <motion.p
-                                    key={currentStatusIdx}
-                                    initial={{ y: 10, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    exit={{ y: -10, opacity: 0 }}
-                                    style={{ color: '#747d8c', fontSize: '1rem' }}
-                                >
-                                    {statusMessages[currentStatusIdx]}
-                                </motion.p>
-                            </AnimatePresence>
+                            <div className="status-msg-container">
+                                <AnimatePresence mode="wait">
+                                    <motion.p
+                                        key={currentStatusIdx}
+                                        initial={{ y: 10, opacity: 0 }}
+                                        animate={{ y: 0, opacity: 1 }}
+                                        exit={{ y: -10, opacity: 0 }}
+                                        className="status-msg-text"
+                                    >
+                                        {statusMessages[currentStatusIdx]}
+                                    </motion.p>
+                                </AnimatePresence>
+                            </div>
 
-                            <div style={{ marginTop: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: '#a4b0be', fontSize: '0.8rem' }}>
+                            <div className="secure-badge">
                                 <FaLock /> 256-bit SSL Secure Payment
                             </div>
                         </motion.div>
@@ -137,21 +122,19 @@ const PaymentProcessing = ({ status = 'processing', onComplete, method = 'card' 
                             key="success"
                             initial={{ scale: 0.5, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
-                            style={{ padding: '20px' }}
+                            className="status-result-container"
                         >
-                            <div style={{ width: '100px', height: '100px', background: '#2ed573', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', boxShadow: '0 10px 30px rgba(46, 213, 115, 0.3)' }}>
+                            <div className="result-icon-circle success-bg">
                                 <motion.div
                                     initial={{ pathLength: 0 }}
                                     animate={{ pathLength: 1 }}
                                     transition={{ duration: 0.5 }}
                                 >
-                                    <FaCheckCircle style={{ color: 'white', fontSize: '3rem' }} />
+                                    <FaCheckCircle className="result-icon" />
                                 </motion.div>
                             </div>
-                            <h2 style={{ fontSize: '1.8rem', color: '#2f3542' }}>Payment Successful!</h2>
-                            <p style={{ color: '#747d8c' }}>Redirecting to order confirmation...</p>
-
-                            {/* Confetti simulation would go here or Lottie */}
+                            <h2 className="result-title">Payment Successful!</h2>
+                            <p className="result-desc">Redirecting to order confirmation...</p>
                         </motion.div>
                     )}
 
@@ -160,16 +143,16 @@ const PaymentProcessing = ({ status = 'processing', onComplete, method = 'card' 
                             key="failure"
                             initial={{ x: [-10, 10, -10, 10, 0], opacity: 0 }}
                             animate={{ x: 0, opacity: 1 }}
-                            style={{ padding: '20px' }}
+                            className="status-result-container"
                         >
-                            <div style={{ width: '100px', height: '100px', background: '#ff4757', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', boxShadow: '0 10px 30px rgba(255, 71, 87, 0.3)' }}>
-                                <FaTimesCircle style={{ color: 'white', fontSize: '3rem' }} />
+                            <div className="result-icon-circle failure-bg">
+                                <FaTimesCircle className="result-icon" />
                             </div>
-                            <h2 style={{ fontSize: '1.8rem', color: '#2f3542' }}>Payment Failed</h2>
-                            <p style={{ color: '#747d8c', marginBottom: '30px' }}>Something went wrong. Please check your details and try again.</p>
+                            <h2 className="result-title">Payment Failed</h2>
+                            <p className="result-desc">Something went wrong. Please check your details and try again.</p>
                             <button
                                 onClick={() => onComplete('retry')}
-                                style={{ background: '#2f3542', color: 'white', border: 'none', padding: '1rem 2rem', borderRadius: '12px', fontWeight: 'bold' }}
+                                className="retry-btn"
                             >
                                 Try Again
                             </button>
