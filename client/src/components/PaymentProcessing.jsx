@@ -141,16 +141,48 @@ const PaymentProcessing = ({
                     {status === 'failure' && (
                         <motion.div
                             key="failure"
-                            initial={{ x: [-10, 10, -10, 10, 0], opacity: 0 }}
-                            animate={{ x: 0, opacity: 1 }}
-                            className="status-result-container"
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{
+                                opacity: 1,
+                                scale: 1,
+                                x: [0, -10, 10, -10, 10, 0]
+                            }}
+                            transition={{
+                                x: { duration: 0.5, delay: 0.2 },
+                                opacity: { duration: 0.3 }
+                            }}
+                            className="status-result-container failure"
                         >
-                            <div className="result-icon-circle failure-bg">
-                                <FaTimesCircle className="result-icon" />
+                            <div className="result-icon-circle failure-bg pulse-error">
+                                <svg className="error-checkmark-svg" viewBox="0 0 52 52">
+                                    <motion.circle
+                                        cx="26" cy="26" r="25" fill="none"
+                                        stroke="#ff4757" strokeWidth="3"
+                                        initial={{ pathLength: 0 }}
+                                        animate={{ pathLength: 1 }}
+                                        transition={{ duration: 0.5 }}
+                                    />
+                                    <motion.path
+                                        fill="none" stroke="#ff4757" strokeWidth="5" strokeLinecap="round"
+                                        d="M16 16 L36 36 M36 16 L16 36"
+                                        initial={{ pathLength: 0 }}
+                                        animate={{ pathLength: 1 }}
+                                        transition={{ duration: 0.3, delay: 0.5 }}
+                                    />
+                                </svg>
                             </div>
-                            <h2 className="result-title">{mode === 'payment' ? 'Payment Failed' : 'Order Failed'}</h2>
-                            <p className="result-desc">We couldn't process your request. Please try again.</p>
-                            <button onClick={() => onComplete('retry')} className="retry-btn">Try Again</button>
+                            <h2 className="result-title fail-text">{mode === 'payment' ? 'Payment Failed' : 'Order Failed'}</h2>
+                            <p className="result-desc">Something went wrong. Please check your connection or payment details.</p>
+                            <div className="failure-actions">
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={() => onComplete('retry')}
+                                    className="premium-retry-btn"
+                                >
+                                    Try Again
+                                </motion.button>
+                            </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
