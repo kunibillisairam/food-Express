@@ -7,7 +7,6 @@ import HolographicCard from '../components/HolographicCard';
 
 const Home = ({ activeCategory, setCategory, searchTerm, setSearchTerm }) => {
     const { addToCart } = useContext(CartContext);
-    const [toast, setToast] = useState(null);
 
     // Filter logic
     const filteredFood = foodData.filter(item => {
@@ -18,8 +17,6 @@ const Home = ({ activeCategory, setCategory, searchTerm, setSearchTerm }) => {
 
     const handleAdd = (item) => {
         addToCart(item);
-        setToast(`${item.name} added successfully`);
-        setTimeout(() => setToast(null), 3000);
     };
 
     return (
@@ -74,7 +71,7 @@ const Home = ({ activeCategory, setCategory, searchTerm, setSearchTerm }) => {
 
             <AboutUs />
 
-            {toast && <div className="toast">✅ {toast}</div>}
+            {/* Removed old toast div */}
         </div>
     );
 };

@@ -19,6 +19,8 @@ import Footer from './components/Footer';
 import StarfieldBackground from './components/StarfieldBackground';
 import VoiceCommander from './components/VoiceCommander';
 import { initGlobalSound } from './utils/soundEffects';
+import { CartAnimationProvider } from './context/CartAnimationContext';
+import { Toaster } from 'react-hot-toast';
 
 const Main = () => {
   const { user } = useContext(AuthContext);
@@ -114,7 +116,10 @@ const App = () => {
   return (
     <AuthProvider>
       <CartProvider>
-        <Main />
+        <CartAnimationProvider>
+          <Toaster position="bottom-center" />
+          <Main />
+        </CartAnimationProvider>
       </CartProvider>
     </AuthProvider>
   );

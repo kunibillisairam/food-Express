@@ -4,13 +4,43 @@ import { CartContext } from '../context/CartContext';
 import { FaShoppingCart, FaUser, FaSignOutAlt, FaListAlt } from 'react-icons/fa';
 import { categories } from '../data/foodData';
 import useSound from '../hooks/useSound';
+import { useCartAnimation } from '../context/CartAnimationContext';
+import { motion, useAnimation } from 'framer-motion';
+import { toast } from 'react-hot-toast';
+import { useEffect, useRef } from 'react';
 
 const Navbar = ({ setView, activeCategory, setCategory, setSearchTerm }) => {
     const { user, logout } = useContext(AuthContext);
-    const { cart } = useContext(CartContext);
+    const { totalAmount, cart } = useContext(CartContext);
     const { playSound } = useSound();
+    const { setCartPos } = useCartAnimation();
+    const cartIconRef = useRef(null);
+    const bounceControls = useAnimation();
 
     const totalItems = cart.reduce((acc, item) => acc + item.qty, 0);
+
+    // Update cart position on resize or mount
+    useEffect(() => {
+        const updatePos = () => {
+            if (cartIconRef.current) {
+                setCartPos(cartIconRef.current.getBoundingClientRect());
+            }
+        };
+        updatePos();
+        window.addEventListener('resize', updatePos);
+        return () => window.removeEventListener('resize', updatePos);
+    }, [setCartPos]);
+
+    // Bounce effect when items change
+    useEffect(() => {
+        if (totalItems > 0) {
+            bounceControls.start({
+                scale: [1, 1.4, 1],
+                rotate: [0, -10, 10, 0],
+                transition: { duration: 0.4 }
+            });
+        }
+    }, [totalItems, bounceControls]);
 
     const handleLogout = () => {
         playSound('click');
@@ -55,11 +85,17 @@ const Navbar = ({ setView, activeCategory, setCategory, setSearchTerm }) => {
                     🔮 FABRICATOR
                 </button>
 
-                <div className="cart-icon" onClick={() => setView('cart')} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <motion.div
+                    ref={cartIconRef}
+                    animate={bounceControls}
+                    className="cart-icon"
+                    onClick={() => setView('cart')}
+                    style={{ display: 'flex', alignItems: 'center', gap: '5px' }}
+                >
                     <FaShoppingCart />
                     <span className="desktop-only" style={{ fontSize: '1rem', fontWeight: '600' }}>Cart</span>
                     {totalItems > 0 && <span className="cart-badge">{totalItems}</span>}
-                </div>
+                </motion.div>
 
                 {!user ? (
                     <button className="nav-btn" onClick={() => setView('login')}>Login</button>

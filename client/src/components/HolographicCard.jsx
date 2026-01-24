@@ -1,10 +1,14 @@
 import React, { useRef, useState, useEffect } from 'react';
+import { useCartAnimation } from '../context/CartAnimationContext';
+import { toast } from 'react-hot-toast';
 import './HolographicCard.css';
 import axios from 'axios';
 import API_BASE_URL from '../config';
 
 const HolographicCard = ({ item, handleAdd, setCategory }) => {
     const cardRef = useRef(null);
+    const imgRef = useRef(null);
+    const { triggerFly } = useCartAnimation();
     const [rotation, setRotation] = useState({ x: 0, y: 0 });
     const [isHovered, setIsHovered] = useState(false);
     const [averageRating, setAverageRating] = useState(0);
@@ -75,6 +79,7 @@ const HolographicCard = ({ item, handleAdd, setCategory }) => {
             >
                 <div className="food-img-container" onClick={() => setCategory(item.category)}>
                     <img
+                        ref={imgRef}
                         src={item.image}
                         alt={item.name}
                         className="food-img"
@@ -111,7 +116,20 @@ const HolographicCard = ({ item, handleAdd, setCategory }) => {
                             ⭐ {averageRating} <span style={{ fontSize: '0.7rem', color: '#aaa', fontWeight: 'normal' }}>(Verified)</span>
                         </div>
                     )}
-                    <button className="add-btn" onClick={() => handleAdd(item)}>Add to Cart</button>
+                    <button className="add-btn" onClick={(e) => {
+                        const rect = imgRef.current.getBoundingClientRect();
+                        triggerFly(rect, item.image);
+                        handleAdd(item);
+                        toast.success(`${item.name} added to cart!`, {
+                            duration: 2000,
+                            icon: '🍕',
+                            style: {
+                                borderRadius: '10px',
+                                background: '#333',
+                                color: '#fff',
+                            },
+                        });
+                    }}>Add to Cart</button>
                 </div>
             </div>
         </div>
