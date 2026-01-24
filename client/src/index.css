@@ -2689,3 +2689,23 @@ body {
   }
 }
 
+
+
+/* Premium Success Button */
+.premium-action-btn {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.premium-action-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(46, 213, 115, 0.4);
+}
+
+.premium-action-btn:active {
+  transform: translateY(-1px);
+}
+
+.success-card {
+  border: 1px solid rgba(0,0,0,0.05);
+}
+

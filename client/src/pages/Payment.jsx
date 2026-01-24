@@ -128,6 +128,7 @@ const Payment = ({ setView }) => {
         }
 
         setLoading(true);
+        setProcessStatus('processing');
         setWalletError('');
         setErrors({});
 
@@ -219,6 +220,7 @@ const Payment = ({ setView }) => {
                     <PaymentProcessing
                         status={processStatus}
                         method={method}
+                        mode={method === 'cod' ? 'order' : 'payment'}
                         onComplete={(action) => {
                             if (action === 'retry') {
                                 setLoading(false);
@@ -451,7 +453,8 @@ const Payment = ({ setView }) => {
 
                 </div>
             </div>
-            );
+        </>
+    );
 };
 
-            export default Payment;
+export default Payment;
