@@ -2254,11 +2254,65 @@ body {
 @media (max-width: 480px) {
   .card-viz {
     padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 12px;
+  }
+
+  .card-viz div:nth-child(1) {
+    font-size: 0.9rem !important;
   }
 
   .card-viz div:nth-child(2) {
     font-size: 1.1rem !important;
     letter-spacing: 2px !important;
+    margin: 12px 0 !important;
+  }
+
+  .card-viz div:last-child div div:last-child {
+    font-size: 0.75rem !important;
+  }
+
+  .card-viz div:last-child div div:first-child {
+    font-size: 0.5rem !important;
+  }
+
+  .input-group label {
+    font-size: 0.75rem;
+  }
+
+  .input-group input {
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    border-radius: 10px;
+  }
+
+  .action-btn {
+    padding: 0.8rem 1.2rem !important;
+    font-size: 0.9rem !important;
+    border-radius: 10px !important;
+  }
+
+  .amount-chip {
+    padding: 8px 12px !important;
+    font-size: 0.8rem !important;
+  }
+
+  .method-card-v2 {
+    padding: 10px !important;
+  }
+
+  .method-icon-box {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 0.9rem !important;
+  }
+
+  .method-card-v2 div:nth-child(2) div:first-child {
+    font-size: 0.85rem !important;
+  }
+
+  .method-card-v2 div:nth-child(2) div:last-child {
+    font-size: 0.65rem !important;
   }
 }
 

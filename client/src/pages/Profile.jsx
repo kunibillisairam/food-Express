@@ -372,7 +372,6 @@ const Profile = ({ setView }) => {
                                         style={{
                                             background: '#6c5ce7',
                                             opacity: (!addAmount || parseFloat(addAmount) <= 0) ? 0.6 : 1,
-                                            marginTop: '30px'
                                         }}
                                     >
                                         Proceed to Pay
@@ -438,8 +437,7 @@ const Profile = ({ setView }) => {
                                         style={{
                                             background: '#6c5ce7',
                                             opacity: !selectedMethod ? 0.6 : 1,
-                                            marginTop: '30px',
-                                            padding: '1.2rem'
+                                            marginTop: '20px',
                                         }}
                                     >
                                         Proceed with {selectedMethod?.name || 'Payment'}
