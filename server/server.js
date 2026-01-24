@@ -104,16 +104,14 @@ app.put('/api/orders/:id/status', async (req, res) => {
 // POST /api/orders
 app.post('/api/orders', async (req, res) => {
     try {
-        const { userName, items, totalAmount, couponCode } = req.body;
-        console.log(`[Order] Received order from ${userName}, Coupon: ${couponCode}`);
+        const { userName, items, totalAmount, couponCode, address, paymentMethod } = req.body;
+        console.log(`[Order] Received order from ${userName}, Address: ${address}, Method: ${paymentMethod}`);
 
         // Handle Coupon Usage (Server-Side Verification)
         if (couponCode === 'SAI100') {
             console.log(`[Order] Processing SAI100 for ${userName} (Atomic Check)`);
 
-            // Atomic Operation: Find user AND ensure coupon not used. 
-            // If condition fails (coupon exists), it returns null.
-            const user = await User.findOneAndUpdate(
+            const userMatched = await User.findOneAndUpdate(
                 {
                     username: userName,
                     usedCoupons: { $ne: 'SAI100' }
@@ -124,25 +122,21 @@ app.post('/api/orders', async (req, res) => {
                 { new: true }
             );
 
-            if (!user) {
-                // Could be user not found OR coupon already used.
+            if (!userMatched) {
                 const userExists = await User.findOne({ username: userName });
                 if (userExists) {
-                    console.log(`[Order] SAI100 already used by ${userName} (Blocked by Atomic Check)`);
+                    console.log(`[Order] SAI100 already used by ${userName}`);
                     return res.status(400).json({ message: 'Coupon SAI100 already used' });
-                } else {
-                    console.log(`[Order] User NOT found: ${userName} - ignoring coupon logic.`);
-                    // If user not found (Guest?), we proceed without marking (or block? Assuming Guest allowed)
                 }
-            } else {
-                console.log(`[Order] SAI100 successfully applied and marked for ${userName}`);
             }
         }
 
         const newOrder = new Order({
             userName,
             items,
-            totalAmount
+            totalAmount,
+            address,
+            paymentMethod
         });
         const savedOrder = await newOrder.save();
         res.status(201).json(savedOrder);
