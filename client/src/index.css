@@ -706,7 +706,8 @@ body {
   }
 
   .page-container {
-    padding: 1rem 0.5rem 4rem;
+    padding: 1rem 1rem 6rem;
+    /* Increased bottom padding for mobile fixed buttons */
     width: 100%;
     max-width: 100%;
   }
@@ -804,9 +805,10 @@ body {
   }
 
   .action-btn {
-    padding: 0.6rem 1.5rem;
-    font-size: 0.9rem;
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
     width: 100%;
+    margin-bottom: 0.5rem;
   }
 
   /* Cart Actions Mobile Scaling */
@@ -1114,15 +1116,15 @@ body {
     width: 95% !important;
     padding: 1.5rem !important;
     border-radius: 20px !important;
+    margin-bottom: 20vh;
+    /* Push it up to avoid keyboard issues */
   }
 
-  .address-prompt-overlay h2 {
-    font-size: 1.4rem !important;
-  }
-
-  .address-prompt-overlay textarea {
-    font-size: 0.9rem !important;
-    min-height: 100px !important;
+  /* Ensure payment buttons stack nicely on mobile */
+  .payment-actions-mobile {
+    flex-direction: column-reverse !important;
+    gap: 12px !important;
+    width: 100% !important;
   }
 }
 

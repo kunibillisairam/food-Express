@@ -4,7 +4,9 @@
   "description": "Full Stack Food Delivery App",
   "main": "index.js",
   "scripts": {
-    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "start": "node index.js",
+    "build": "npm install && cd server && npm install",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
     "server": "cd server && npm start",
     "client": "cd client && npm run dev",
     "install-all": "npm install && cd server && npm install && cd ../client && npm install"

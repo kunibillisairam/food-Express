@@ -127,6 +127,8 @@ const Payment = ({ setView }) => {
 
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
+            if (showAddressPrompt) setShowAddressPrompt(false); // Close prompt so user can see what's wrong
+            setLoading(false);
             return;
         }
 
@@ -165,16 +167,16 @@ const Payment = ({ setView }) => {
             const orderData = {
                 userName: user?.username || 'Guest',
                 items: cart.map(item => ({
-                    name: item.name,
-                    price: item.price.toString(),
-                    quantity: item.qty,
-                    image: item.image
+                    name: item.name || 'Unnamed Item',
+                    price: (item.price || 0).toString(),
+                    quantity: item.qty || 1,
+                    image: item.image || ''
                 })),
                 totalAmount: finalAmount,
                 status: 'Pending',
                 paymentMethod: method,
-                address: addressToUse, // Send address to backend if needed
-                couponCode: appliedCoupon, // Pass coupon to backend for verification/marketing
+                address: addressToUse || 'No Address Provided',
+                couponCode: appliedCoupon,
                 useXp: useXp
             };
 
@@ -217,10 +219,10 @@ const Payment = ({ setView }) => {
             setTimeout(() => {
                 setLastOrder({
                     ...orderData,
-                    orderId: response.data._id, // Use real MongoDB ID
-                    displayId: 'ORD-' + response.data._id.slice(-6).toUpperCase(),
-                    earnedXp: response.data.earnedXp,
-                    earnedCredits: response.data.earnedCredits,
+                    orderId: response.data._id || 'ORD-' + Date.now(),
+                    displayId: 'ORD-' + (response.data._id ? response.data._id.slice(-6).toUpperCase() : 'NEW'),
+                    earnedXp: response.data.earnedXp || 0,
+                    earnedCredits: response.data.earnedCredits || 0,
                     estimatedTime: '25-35 mins',
                     date: new Date().toLocaleString()
                 });
@@ -231,8 +233,10 @@ const Payment = ({ setView }) => {
             }, 3000);
 
         } catch (err) {
-            console.error(err);
+            console.error("Order Placement Error:", err);
             setProcessStatus('failure');
+            // We keep loading as true so the overlay stays visible showing the failure state
+            // PaymentProcessing's onComplete handles setting loading(false) on retry
         }
     };
 
@@ -667,7 +671,7 @@ const Payment = ({ setView }) => {
                         </div>
                     </div>
 
-                    <div style={{ borderTop: '2px solid #f1f2f6', marginTop: '2rem', paddingTop: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div className="payment-actions-mobile" style={{ borderTop: '2px solid #f1f2f6', marginTop: '2rem', paddingTop: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <button className="nav-btn" onClick={() => setView('cart')} style={{ border: '1px solid #ccc' }}>Back to Cart</button>
                         <button
                             className="action-btn"
@@ -675,7 +679,7 @@ const Payment = ({ setView }) => {
                             onClick={handleConfirm}
                             disabled={loading}
                         >
-                            {loading ? 'Processing...' : `Pay ₹${finalAmount}`}
+                            {loading ? 'Processing...' : `Place Order (₹${finalAmount})`}
                         </button>
                     </div>
 
