@@ -19,6 +19,7 @@ const Payment = ({ setView }) => {
     const [processStatus, setProcessStatus] = useState('processing'); // 'processing', 'success', 'failure'
     const [isLocating, setIsLocating] = useState(false);
     const [useXp, setUseXp] = useState(false);
+    const [earnedRewards, setEarnedRewards] = useState(null);
 
     // Payment Details State
     const [upiId, setUpiId] = useState('');
@@ -179,11 +180,19 @@ const Payment = ({ setView }) => {
 
             const response = await axios.post(`${API_BASE_URL}/api/orders`, orderData);
 
+            // Update rewards state for animation
+            if (response.data) {
+                setEarnedRewards({
+                    xp: response.data.earnedXp || 0,
+                    credits: response.data.earnedCredits || 0
+                });
+            }
+
             // Transition to Success Animation
             setProcessStatus('success');
 
             // Update user state with rewards from backend
-            if (response.data) {
+            if (response.data && user) {
                 // Fetch the latest user data from server to be sure, or update from response
                 // For now, let's just update the specific fields we know changed
                 const newXp = (user.xp || 0) + (response.data.earnedXp || 0) - (useXp ? (response.data.xpUsed || 0) : 0);
@@ -358,6 +367,7 @@ const Payment = ({ setView }) => {
                         status={processStatus}
                         method={method}
                         mode={method === 'cod' ? 'order' : 'payment'}
+                        rewards={earnedRewards}
                         onComplete={(action) => {
                             if (action === 'retry') {
                                 setLoading(false);

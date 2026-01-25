@@ -24,6 +24,7 @@ const Profile = ({ setView }) => {
     const [hasPaidMock, setHasPaidMock] = useState(false); // To simulate actual payment
     const [isLocating, setIsLocating] = useState(false);
     const [isMobileDevice, setIsMobileDevice] = useState(false);
+    const [activeTab, setActiveTab] = useState('profile'); // 'profile', 'wallet', 'orders', 'address', 'help'
 
     // Device detection
     useEffect(() => {
@@ -892,211 +893,306 @@ const Profile = ({ setView }) => {
                 LATEST UPDATE: V3.0 (BRIGHT NEON)
             </div>
 
-            <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-                <div style={{ textAlign: 'center', marginBottom: '30px', animation: 'fadeIn 0.6s ease-out' }}>
-                    <div style={{
-                        width: '80px', height: '80px', background: 'white', borderRadius: '50%',
-                        margin: '0 auto 15px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: '2.5rem', boxShadow: '0 8px 16px rgba(0,0,0,0.1)', color: '#ff4757'
-                    }}>
-                        <FaUser />
-                    </div>
-                    <h2 style={{ fontSize: '1.8rem', margin: 0, fontWeight: '800', color: '#2f3542' }}>{user.username}</h2>
-                    <p style={{ margin: '8px 0 0', color: '#747d8c', fontSize: '1rem' }}>+91 {user.phone}</p>
-                </div>
+            <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+                <div className="profile-dashboard-container">
+                    {/* LEFT PANEL: Side UI */}
+                    <div className="profile-sidebar">
+                        <div className="loyalty-card fade-in" style={{ marginTop: 0 }}>
+                            <div style={{ position: 'absolute', top: '-10px', right: '-10px', width: '100px', height: '100px', background: 'rgba(0, 242, 254, 0.1)', borderRadius: '50%', filter: 'blur(30px)' }}></div>
 
-                {/* INTERGALACTIC LOYALTY (HERO SECTION) */}
-                <div className="loyalty-card fade-in">
-                    <div style={{ position: 'absolute', top: '-10px', right: '-10px', width: '100px', height: '100px', background: 'rgba(0, 242, 254, 0.1)', borderRadius: '50%', filter: 'blur(30px)' }}></div>
-
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
-                        <div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#00f2fe', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '0.75rem', fontWeight: 'bold' }}>
-                                <FaRocket /> InterGalactic Loyalty
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+                                <div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#00f2fe', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '0.65rem', fontWeight: 'bold' }}>
+                                        <FaRocket /> InterGalactic Loyalty
+                                    </div>
+                                    <h3 style={{ margin: '10px 0 0', fontSize: '1.5rem', fontWeight: '800' }}>{user.rank || 'Cadet'}</h3>
+                                </div>
+                                <div style={{ textAlign: 'right' }}>
+                                    <div style={{ fontSize: '0.65rem', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '1px' }}>Credits (CR)</div>
+                                    <div style={{ color: '#00f2fe', fontSize: '1.4rem', fontWeight: '900', textShadow: '0 0 10px rgba(0,242,254,0.3)' }}>{user.credits || 0} CR</div>
+                                </div>
                             </div>
-                            <h3 style={{ margin: '10px 0 0', fontSize: '2rem', fontWeight: '800' }}>{user.rank || 'Cadet'}</h3>
-                        </div>
-                        <div style={{ textAlign: 'right' }}>
-                            <div style={{ fontSize: '0.8rem', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '1px' }}>Credits (CR)</div>
-                            <div style={{ color: '#00f2fe', fontSize: '1.8rem', fontWeight: '900', textShadow: '0 0 10px rgba(0,242,254,0.3)' }}>{user.credits || 0} CR</div>
-                        </div>
-                    </div>
 
-                    <div style={{ margin: '20px 0' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', marginBottom: '8px', fontWeight: '600' }}>
-                            <span>{user.xp || 0} XP</span>
-                            <span style={{ opacity: 0.8 }}>Next Rank: {
-                                (user.xp < 200) ? 'Lieutenant (200 XP)' :
-                                    (user.xp < 500) ? 'Captain (500 XP)' :
-                                        (user.xp < 1000) ? 'Commander (1000 XP)' :
-                                            (user.xp < 2000) ? 'Admiral (2000 XP)' : 'Max Rank'
-                            }</span>
-                        </div>
-                        <div className="loyalty-progress-container">
-                            <div className="loyalty-progress-bar" style={{
-                                width: `${Math.min(100, (user.xp / ((user.xp < 200) ? 200 : (user.xp < 500) ? 500 : (user.xp < 1000) ? 1000 : 2000)) * 100)}%`
-                            }}></div>
-                        </div>
-                    </div>
-
-                    <div className="loyalty-stats-grid">
-                        <div className="loyalty-stat-item">
-                            <FaStar style={{ color: '#f1c40f', fontSize: '1.2rem', marginBottom: '6px' }} />
-                            <div style={{ fontSize: '0.7rem', opacity: 0.7, marginBottom: '2px' }}>Matter Templates</div>
-                            <div style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
-                                {user.rank === 'Admiral' ? '6 unlocked' : user.rank === 'Commander' ? '4 unlocked' : user.rank === 'Captain' ? '2 unlocked' : 'Basic'}
+                            <div style={{ margin: '20px 0' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.65rem', marginBottom: '8px', fontWeight: '600' }}>
+                                    <span>{user.xp || 0} XP</span>
+                                    <span style={{ opacity: 0.8 }}>Next Rank: {
+                                        (user.xp < 200) ? 'Lieutenant (200 XP)' :
+                                            (user.xp < 500) ? 'Captain (500 XP)' :
+                                                (user.xp < 1000) ? 'Commander (1000 XP)' :
+                                                    (user.xp < 2000) ? 'Admiral (2000 XP)' : 'Max Rank'
+                                    }</span>
+                                </div>
+                                <div className="loyalty-progress-container">
+                                    <div className="loyalty-progress-bar" style={{
+                                        width: `${Math.min(100, (user.xp / ((user.xp < 200) ? 200 : (user.xp < 500) ? 500 : (user.xp < 1000) ? 1000 : 2000)) * 100)}%`
+                                    }}></div>
+                                </div>
                             </div>
-                        </div>
-                        <div className="loyalty-stat-item">
-                            <FaAward style={{ color: '#00f2fe', fontSize: '1.2rem', marginBottom: '6px' }} />
-                            <div style={{ fontSize: '0.7rem', opacity: 0.7, marginBottom: '2px' }}>Tier Multiplier</div>
-                            <div style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
-                                {user.rank === 'Admiral' ? '2.0x' : user.rank === 'Commander' ? '1.5x' : user.rank === 'Captain' ? '1.2x' : '1.0x'}
+
+                            <div className="loyalty-stats-grid">
+                                <div className="loyalty-stat-item">
+                                    <FaStar style={{ color: '#f1c40f', fontSize: '1rem', marginBottom: '4px' }} />
+                                    <div style={{ fontSize: '0.65rem', opacity: 0.7, marginBottom: '2px' }}>Matter Templates</div>
+                                    <div style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>
+                                        {user.rank === 'Admiral' ? '6 unlocked' : user.rank === 'Commander' ? '4 unlocked' : user.rank === 'Captain' ? '2 unlocked' : 'Basic'}
+                                    </div>
+                                </div>
+                                <div className="loyalty-stat-item">
+                                    <FaAward style={{ color: '#00f2fe', fontSize: '1rem', marginBottom: '4px' }} />
+                                    <div style={{ fontSize: '0.65rem', opacity: 0.7, marginBottom: '2px' }}>Tier Multiplier</div>
+                                    <div style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>
+                                        {user.rank === 'Admiral' ? '2.0x' : user.rank === 'Commander' ? '1.5x' : user.rank === 'Captain' ? '1.2x' : '1.0x'}
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                {/* RESPONSIVE GRID FOR MINI CARDS */}
-                <div className="profile-grid">
-                    {/* 1. WALLET */}
-                    <div className="profile-card-mini" onClick={() => setActiveModal('wallet')}>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                            <div className="icon-box"><FaWallet /></div>
-                            <div>
-                                <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: '700' }}>Wallet Balance</h4>
-                                <p style={{ margin: 0, fontSize: '1.2rem', fontWeight: '800', color: '#2f3542' }}>₹{user.walletBalance || 0}</p>
+                        <div className="profile-nav-menu">
+                            <div className={`profile-nav-item ${activeTab === 'profile' ? 'active' : ''}`} onClick={() => setActiveTab('profile')}>
+                                <div className="icon-box-mini"><FaUser /></div>
+                                <span>My Profile</span>
+                            </div>
+                            <div className={`profile-nav-item ${activeTab === 'wallet' ? 'active' : ''}`} onClick={() => setActiveTab('wallet')}>
+                                <div className="icon-box-mini"><FaWallet /></div>
+                                <span>Wallet & Payments</span>
+                            </div>
+                            <div className={`profile-nav-item ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => setActiveTab('orders')}>
+                                <div className="icon-box-mini"><FaListAlt /></div>
+                                <span>Order Logs</span>
+                            </div>
+                            <div className={`profile-nav-item ${activeTab === 'address' ? 'active' : ''}`} onClick={() => setActiveTab('address')}>
+                                <div className="icon-box-mini"><FaMapMarkerAlt /></div>
+                                <span>Delivery Address</span>
+                            </div>
+                            <div className={`profile-nav-item ${activeTab === 'help' ? 'active' : ''}`} onClick={() => setActiveTab('help')}>
+                                <div className="icon-box-mini"><FaQuestionCircle /></div>
+                                <span>Help Center</span>
+                            </div>
+                            <div className="profile-nav-item" onClick={handleLogout} style={{ marginTop: 'auto', border: '1px solid #fee2e2', color: '#ff4757' }}>
+                                <div className="icon-box-mini" style={{ background: '#fff5f5', color: '#ff4757' }}><FaSignOutAlt /></div>
+                                <span>Sign Out</span>
                             </div>
                         </div>
-                        <span style={{ fontSize: '1.5rem', color: '#ccc' }}>›</span>
                     </div>
 
-                    {/* 2. HISTORY */}
-                    <div className="profile-card-mini" onClick={() => setActiveModal('history')}>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                            <div className="icon-box" style={{ color: '#0984e3', background: '#f0f7ff' }}><FaListAlt /></div>
-                            <div>
-                                <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: '700' }}>Order History</h4>
-                                <p style={{ margin: 0, fontSize: '0.85rem', color: '#747d8c' }}>Check your past logs</p>
+                    {/* RIGHT PANEL: Main Content */}
+                    <div className="profile-main-content px-4">
+                        {activeTab === 'profile' && (
+                            <div className="fade-in">
+                                <div style={{ textAlign: 'center', marginBottom: '30px', animation: 'fadeIn 0.6s ease-out' }}>
+                                    <div style={{
+                                        width: '80px', height: '80px', background: 'white', borderRadius: '50%',
+                                        margin: '0 auto 15px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        fontSize: '2.5rem', boxShadow: '0 8px 16px rgba(0,0,0,0.1)', color: '#ff4757'
+                                    }}>
+                                        <FaUser />
+                                    </div>
+                                    <h2 style={{ fontSize: '1.8rem', margin: 0, fontWeight: '800', color: '#2f3542' }}>{user.username}</h2>
+                                    <p style={{ margin: '8px 0 0', color: '#747d8c', fontSize: '1rem' }}>+91 {user.phone}</p>
+                                </div>
+
+                                <div className="profile-grid" style={{ marginTop: 0 }}>
+                                    <div className="profile-card-mini" onClick={() => setActiveTab('wallet')}>
+                                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                                            <div className="icon-box"><FaWallet /></div>
+                                            <div>
+                                                <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: '700' }}>Wallet</h4>
+                                                <p style={{ margin: 0, fontSize: '1.1rem', fontWeight: '800' }}>₹{user.walletBalance || 0}</p>
+                                            </div>
+                                        </div>
+                                        <span style={{ fontSize: '1.2rem', color: '#ccc' }}>›</span>
+                                    </div>
+                                    <div className="profile-card-mini" onClick={() => setActiveTab('orders')}>
+                                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                                            <div className="icon-box" style={{ color: '#0984e3', background: '#f0f7ff' }}><FaListAlt /></div>
+                                            <div>
+                                                <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: '700' }}>Orders</h4>
+                                                <p style={{ margin: 0, fontSize: '0.8rem', color: '#747d8c' }}>View History</p>
+                                            </div>
+                                        </div>
+                                        <span style={{ fontSize: '1.2rem', color: '#ccc' }}>›</span>
+                                    </div>
+                                </div>
+
+                                <div style={{ background: 'white', padding: '25px', borderRadius: '20px', border: '1px solid rgba(0,0,0,0.06)', margin: '25px 0' }}>
+                                    <h4 style={{ margin: '0 0 15px', color: '#2f3542' }}>Active Address</h4>
+                                    <div style={{ padding: '15px', background: '#f8f9fc', borderRadius: '12px', fontSize: '0.9rem', color: '#666' }}>
+                                        {address || 'No address set'}
+                                    </div>
+                                    <button className="nav-btn w-full mt-4" onClick={() => setActiveTab('address')}>Change Address</button>
+                                </div>
                             </div>
-                        </div>
-                        <span style={{ fontSize: '1.5rem', color: '#ccc' }}>›</span>
-                    </div>
+                        )}
 
-                    {/* 3. ACTIVE ORDERS */}
-                    <div className="profile-card-mini" onClick={() => setView('my-orders')}>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                            <div className="icon-box" style={{ color: '#2ed573', background: '#f0fff4' }}><FaMotorcycle /></div>
-                            <div>
-                                <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: '700' }}>My Active Orders</h4>
-                                <p style={{ margin: 0, fontSize: '0.85rem', color: '#747d8c' }}>Track live cargo</p>
+                        {activeTab === 'wallet' && (
+                            <div className="fade-in">
+                                <div className="section-header" style={{ marginBottom: '25px' }}>
+                                    <h2 style={{ fontSize: '1.5rem', fontWeight: '800' }}>Wallet & Recharge</h2>
+                                    <p style={{ color: '#747d8c' }}>Manage your funds and transaction history</p>
+                                </div>
+
+                                <div className="wallet-gradient-card" style={{ textAlign: 'left', padding: '2rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '200px', background: 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)', borderRadius: '24px', position: 'relative', overflow: 'hidden' }}>
+                                    <div style={{ position: 'absolute', top: '-10%', right: '-10%', width: '150px', height: '150px', background: 'rgba(255,255,255,0.05)', borderRadius: '50%' }}></div>
+                                    <div>
+                                        <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '2px', opacity: 0.7 }}>Available Balance</div>
+                                        <div style={{ fontSize: '2.5rem', fontWeight: '800', marginTop: '5px' }}>₹{user.walletBalance || 0}</div>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                                        <div>
+                                            <div style={{ fontSize: '0.9rem', fontWeight: '600' }}>{user.username}</div>
+                                            <div style={{ fontSize: '0.7rem', opacity: 0.6 }}>**** **** **** {user.phone.slice(-4)}</div>
+                                        </div>
+                                        <div style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '8px', fontSize: '0.7rem' }}>VISA / UPI</div>
+                                    </div>
+                                </div>
+
+                                <div style={{ marginTop: '25px' }}>
+                                    <button className="action-btn w-full" onClick={() => setActiveModal('wallet')} style={{ padding: '1rem', borderRadius: '15px' }}>+ Add Money to Wallet</button>
+                                </div>
+
+                                <div style={{ marginTop: '30px' }}>
+                                    <h3 style={{ fontSize: '1.2rem', marginBottom: '15px' }}>Recent Transactions</h3>
+                                    <div className="transaction-history-list">
+                                        {(user.transactions && user.transactions.length > 0) ? (
+                                            user.transactions.map((txn, idx) => (
+                                                <div key={idx} className="transaction-item" style={{ background: 'white', marginBottom: '10px', borderRadius: '15px', border: '1px solid #f1f2f6' }}>
+                                                    <div style={{ flex: 1 }}>
+                                                        <div style={{ fontWeight: '600' }}>{txn.description}</div>
+                                                        <div style={{ fontSize: '0.75rem', color: '#999' }}>{new Date(txn.date).toLocaleString()}</div>
+                                                    </div>
+                                                    <div style={{ textAlign: 'right' }}>
+                                                        <div className={txn.type === 'Debit' ? 'color-error' : 'color-success'} style={{ fontWeight: '700' }}>
+                                                            {txn.type === 'Debit' ? '-' : '+'} ₹{txn.amount}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>No transaction history found.</div>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <span style={{ fontSize: '1.5rem', color: '#ccc' }}>›</span>
-                    </div>
+                        )}
 
-                    {/* 4. HELP */}
-                    <div className="profile-card-mini" onClick={() => setActiveModal('help')}>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                            <div className="icon-box" style={{ color: '#6c5ce7', background: '#f5f3ff' }}><FaQuestionCircle /></div>
-                            <div>
-                                <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: '700' }}>Help & Support</h4>
-                                <p style={{ margin: 0, fontSize: '0.85rem', color: '#747d8c' }}>Get instant assistance</p>
+                        {activeTab === 'orders' && (
+                            <div className="fade-in">
+                                <div className="section-header" style={{ marginBottom: '25px' }}>
+                                    <h2 style={{ fontSize: '1.5rem', fontWeight: '800' }}>Order History</h2>
+                                    <p style={{ color: '#747d8c' }}>Track and review your past hunger satisfyers</p>
+                                </div>
+
+                                {orders.length > 0 ? (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                                        {orders.map((order, idx) => (
+                                            <div key={idx} className="profile-card-mini" style={{ cursor: 'default' }}>
+                                                <div style={{ flex: 1 }}>
+                                                    <div style={{ fontWeight: '700', fontSize: '1.1rem' }}>Order #{order._id.substring(order._id.length - 6)}</div>
+                                                    <div style={{ fontSize: '0.8rem', color: '#747d8c', marginTop: '4px' }}>{new Date(order.createdAt).toLocaleDateString()} at {new Date(order.createdAt).toLocaleTimeString()}</div>
+                                                    <div style={{ marginTop: '10px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                                        <span style={{ fontSize: '0.7rem', padding: '4px 10px', borderRadius: '20px', background: order.status === 'Delivered' ? '#e3fff0' : '#fff5f5', color: order.status === 'Delivered' ? '#2ed573' : '#ff4757', fontWeight: 'bold' }}>{order.status}</span>
+                                                        <span style={{ fontSize: '0.9rem', fontWeight: '800' }}>₹{order.totalAmount}</span>
+                                                    </div>
+                                                </div>
+                                                <button onClick={() => setView('my-orders')} style={{ background: 'var(--primary)', color: 'white', border: 'none', padding: '8px 15px', borderRadius: '10px', fontSize: '0.8rem', cursor: 'pointer' }}>Track</button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div style={{ textAlign: 'center', padding: '60px', background: 'white', borderRadius: '20px', border: '1px dashed #ddd' }}>
+                                        <FaMotorcycle style={{ fontSize: '3rem', color: '#eee', marginBottom: '15px' }} />
+                                        <h3 style={{ margin: 0, color: '#999' }}>No orders yet</h3>
+                                        <p style={{ color: '#bbb', fontSize: '0.9rem' }}>Delicious food is just a click away!</p>
+                                        <button className="nav-btn mt-4" onClick={() => setView('home')}>Order Now</button>
+                                    </div>
+                                )}
                             </div>
-                        </div>
-                        <span style={{ fontSize: '1.5rem', color: '#ccc' }}>›</span>
-                    </div>
-                </div>
+                        )}
 
-                {/* 5. ADDRESS SECTION (FULL WIDTH) */}
-                <div style={{ background: 'white', padding: '25px', borderRadius: '20px', border: '1px solid rgba(0,0,0,0.06)', margin: '25px 0', boxShadow: '0 4px 15px rgba(0,0,0,0.03)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                        <h4 style={{ margin: 0, color: '#ff4757', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.1rem', fontWeight: '700' }}>
-                            <FaMapMarkerAlt /> Delivery Address
-                        </h4>
-                        {!isEditingAddress && address && (
-                            <span style={{ fontSize: '0.75rem', color: '#2ed573', fontWeight: '800', background: '#e3fff0', padding: '4px 12px', borderRadius: '20px', textTransform: 'uppercase' }}>Verified</span>
+                        {activeTab === 'address' && (
+                            <div className="fade-in">
+                                <div className="section-header" style={{ marginBottom: '25px' }}>
+                                    <h2 style={{ fontSize: '1.5rem', fontWeight: '800' }}>Delivery Address</h2>
+                                    <p style={{ color: '#747d8c' }}>Where should we bring your food?</p>
+                                </div>
+
+                                <div style={{ background: 'white', padding: '30px', borderRadius: '24px', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 10px 30px rgba(0,0,0,0.02)' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '25px' }}>
+                                        <div style={{ width: '50px', height: '50px', borderRadius: '15px', background: '#fff5f5', color: '#ff4757', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>
+                                            <FaMapMarkerAlt />
+                                        </div>
+                                        <div>
+                                            <div style={{ fontWeight: '700', fontSize: '1.1rem' }}>Active Landmark</div>
+                                            <div style={{ fontSize: '0.85rem', color: '#747d8c' }}>Set as default for future orders</div>
+                                        </div>
+                                    </div>
+
+                                    {isEditingAddress ? (
+                                        <div className="fade-in">
+                                            <textarea
+                                                value={address}
+                                                onChange={(e) => setAddress(e.target.value)}
+                                                placeholder="Enter full address..."
+                                                style={{ width: '100%', padding: '20px', borderRadius: '15px', border: '2px solid #ff4757', minHeight: '150px', outline: 'none', background: '#fffafa' }}
+                                            />
+                                            <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+                                                <button onClick={handleSaveAddress} style={{ flex: 2, background: '#ff4757', color: 'white', padding: '15px', borderRadius: '12px', border: 'none', fontWeight: '800', cursor: 'pointer' }}>Save Address</button>
+                                                <button onClick={() => setIsEditingAddress(false)} style={{ flex: 1, background: '#f1f2f6', color: '#747d8c', padding: '15px', borderRadius: '12px', border: 'none', cursor: 'pointer' }}>Cancel</button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="fade-in">
+                                            <div style={{ padding: '20px', background: '#fdfdfd', borderRadius: '15px', border: '1px dashed #ddd', lineHeight: '1.6', color: address ? '#2f3542' : '#999' }}>
+                                                {address || 'No address set. Update now for faster delivery.'}
+                                            </div>
+                                            <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+                                                <button onClick={() => setIsEditingAddress(true)} style={{ flex: 1, color: '#ff4757', border: '2px solid #ff4757', background: 'transparent', padding: '12px', borderRadius: '12px', fontWeight: '700', cursor: 'pointer' }}>Edit Address</button>
+                                                <button onClick={handleUseLocation} disabled={isLocating} style={{ flex: 1, background: '#2ed573', color: 'white', border: 'none', padding: '12px', borderRadius: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                                                    {isLocating ? 'Scanning...' : <><FaLocationArrow /> Use Current</>}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'help' && (
+                            <div className="fade-in">
+                                <div className="section-header" style={{ marginBottom: '25px' }}>
+                                    <h2 style={{ fontSize: '1.5rem', fontWeight: '800' }}>Help & Support</h2>
+                                    <p style={{ color: '#747d8c' }}>We're here to help you 24/7</p>
+                                </div>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '30px' }}>
+                                    <div style={{ padding: '20px', background: 'white', borderRadius: '20px', border: '1px solid #f1f2f6' }}>
+                                        <div style={{ fontSize: '1.5rem', color: '#0984e3', marginBottom: '10px' }}>📧</div>
+                                        <div style={{ fontWeight: '700' }}>Email Us</div>
+                                        <div style={{ fontSize: '0.85rem', color: '#747d8c' }}>support@foodexpress.com</div>
+                                    </div>
+                                    <div style={{ padding: '20px', background: 'white', borderRadius: '20px', border: '1px solid #f1f2f6' }}>
+                                        <div style={{ fontSize: '1.5rem', color: '#2ed573', marginBottom: '10px' }}>📞</div>
+                                        <div style={{ fontWeight: '700' }}>Call Center</div>
+                                        <div style={{ fontSize: '0.85rem', color: '#747d8c' }}>1800-200-100</div>
+                                    </div>
+                                </div>
+
+                                <div className="faq-section">
+                                    <h3 style={{ fontSize: '1.1rem', marginBottom: '15px' }}>Frequently Asked Questions</h3>
+                                    <details style={{ background: 'white', padding: '15px', borderRadius: '12px', marginBottom: '10px', border: '1px solid #f1f2f6' }}>
+                                        <summary style={{ fontWeight: '600', cursor: 'pointer' }}>Where is my order?</summary>
+                                        <p style={{ fontSize: '0.9rem', color: '#666', marginTop: '10px' }}>Track your orders in real-time from the "Order Logs" or "My Active Orders" section.</p>
+                                    </details>
+                                    <details style={{ background: 'white', padding: '15px', borderRadius: '12px', marginBottom: '10px', border: '1px solid #f1f2f6' }}>
+                                        <summary style={{ fontWeight: '600', cursor: 'pointer' }}>How to cancel an order?</summary>
+                                        <p style={{ fontSize: '0.9rem', color: '#666', marginTop: '10px' }}>Cancellations are allowed within 120 seconds of placement. Post that, please contact support.</p>
+                                    </details>
+                                </div>
+                            </div>
                         )}
                     </div>
-
-                    {isEditingAddress ? (
-                        <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                            <textarea
-                                value={address}
-                                onChange={(e) => setAddress(e.target.value)}
-                                placeholder="Enter your full street address, landmark, and pin code..."
-                                style={{
-                                    width: '100%', padding: '15px', borderRadius: '15px', border: '2px solid #ff4757',
-                                    minHeight: '120px', fontSize: '1rem', outline: 'none', fontFamily: 'inherit', background: '#fffafa'
-                                }}
-                            />
-                            <div style={{ display: 'flex', gap: '12px' }}>
-                                <button
-                                    onClick={handleSaveAddress}
-                                    style={{ flex: 2, background: '#ff4757', color: 'white', padding: '15px', borderRadius: '12px', border: 'none', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', boxShadow: '0 4px 12px rgba(255, 71, 87, 0.2)' }}
-                                >
-                                    <FaCheckCircle /> Save Changes
-                                </button>
-                                <button
-                                    onClick={() => setIsEditingAddress(false)}
-                                    style={{ flex: 1, background: '#f1f2f6', color: '#747d8c', padding: '15px', borderRadius: '12px', border: 'none', fontWeight: '700', cursor: 'pointer' }}
-                                >
-                                    Cancel
-                                </button>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                            <div style={{
-                                background: '#fdfdfd', padding: '20px', borderRadius: '15px', border: '1px dashed #dfe4ea',
-                                color: address ? '#2f3542' : '#a4b0be', minHeight: '80px', lineHeight: '1.6', fontSize: '1rem'
-                            }}>
-                                {address || 'You haven\'t set a delivery address yet. Add one to ensure smooth and fast delivery!'}
-                            </div>
-                            <div style={{ display: 'flex', gap: '12px' }}>
-                                <button
-                                    onClick={() => setIsEditingAddress(true)}
-                                    className="nav-btn"
-                                    style={{
-                                        flex: 1, color: '#ff4757', border: '2px solid #ff4757', background: 'transparent',
-                                        padding: '12px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                        gap: '10px', fontWeight: '700', cursor: 'pointer'
-                                    }}
-                                >
-                                    {address ? 'Edit Location' : 'Set New Address'}
-                                </button>
-                                <button
-                                    onClick={handleUseLocation}
-                                    disabled={isLocating}
-                                    style={{
-                                        flex: 1, color: 'white', background: '#2ed573', border: 'none',
-                                        padding: '12px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                        gap: '10px', fontWeight: '700', cursor: 'pointer', opacity: isLocating ? 0.7 : 1,
-                                        boxShadow: '0 4px 12px rgba(46, 213, 115, 0.2)'
-                                    }}
-                                >
-                                    {isLocating ? <div className="spinner-mini" style={{ width: '18px', height: '18px' }}></div> : <FaLocationArrow />}
-                                    {isLocating ? 'Scanning...' : 'Detect Nearby'}
-                                </button>
-                            </div>
-                        </div>
-                    )}
                 </div>
-
-                {/* 6. LOGOUT */}
-                <button
-                    onClick={handleLogout}
-                    style={{
-                        width: '100%', padding: '18px', background: '#2f3542', color: 'white',
-                        border: 'none', borderRadius: '15px', fontWeight: '800', fontSize: '1.1rem',
-                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        gap: '12px', transition: 'all 0.3s', boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                    }}
-                    onMouseOver={(e) => e.target.style.background = '#000'}
-                    onMouseOut={(e) => e.target.style.background = '#2f3542'}
-                >
-                    <FaSignOutAlt /> Sign Out Securely
-                </button>
             </div>
 
             <div style={{ height: '100px' }}></div>

@@ -3170,10 +3170,10 @@ body {
 
 .loyalty-progress-container {
   width: 100%;
-  height: 10px;
+  height: 8px;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 20px;
-  margin: 15px 0;
+  margin: 12px 0;
   overflow: hidden;
 }
 
@@ -3203,4 +3203,83 @@ body {
 
 .loyalty-stat-item:hover {
   background: rgba(255, 255, 255, 0.08);
+}
+
+.profile-dashboard-container {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 30px;
+  align-items: start;
+}
+
+@media (max-width: 968px) {
+  .profile-dashboard-container {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+.profile-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+@media (min-width: 969px) {
+  .profile-sidebar {
+    position: sticky;
+    top: 100px;
+  }
+}
+
+.profile-nav-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.profile-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  background: white;
+  border-radius: 15px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: all 0.3s;
+  font-weight: 600;
+  color: var(--dark);
+}
+
+.profile-nav-item:hover {
+  background: #fdfdfd;
+  border-color: var(--primary);
+  transform: translateX(5px);
+}
+
+.profile-nav-item.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+  box-shadow: 0 4px 15px rgba(255, 71, 87, 0.2);
+}
+
+.profile-nav-item.active .icon-box-mini {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.icon-box-mini {
+  width: 35px;
+  height: 35px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  background: #f1f2f6;
+  color: var(--dark);
+  transition: all 0.3s;
 }

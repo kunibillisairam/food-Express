@@ -247,63 +247,62 @@ app.post('/api/orders', async (req, res) => {
         console.log(`[Order] Received order from ${userName}, Address: ${address}, Method: ${paymentMethod}, Use XP: ${useXp}`);
 
         const user = await User.findOne({ username: userName });
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        // Handle Coupon Usage (Server-Side Verification)
-        if (couponCode === 'SAI100') {
-            if (user.usedCoupons.includes('SAI100')) {
-                return res.status(400).json({ message: 'Coupon SAI100 already used' });
-            }
-            user.usedCoupons.push('SAI100');
-        }
-
+        let earnedXp = 0;
+        let earnedCredits = 0;
         let xpDeducted = 0;
         let finalAmount = totalAmount;
 
-        // Handle XP Usage (10 XP = 1 CR = 1 Rupee discount)
-        if (useXp) {
-            const availableCredits = user.credits || 0;
-            const discountAvailable = availableCredits; // 1 credit = 1 rupee discount
-            const discountToApply = Math.min(discountAvailable, totalAmount);
+        if (user) {
+            // Handle Coupon Usage (Server-Side Verification)
+            if (couponCode === 'SAI100') {
+                if (user.usedCoupons.includes('SAI100')) {
+                    return res.status(400).json({ message: 'Coupon SAI100 already used' });
+                }
+                user.usedCoupons.push('SAI100');
+            }
 
-            if (discountToApply > 0) {
-                user.credits -= discountToApply;
-                xpDeducted = discountToApply * 10;
-                user.xp = Math.max(0, (user.xp || 0) - xpDeducted);
-                finalAmount -= discountToApply;
+            // Handle XP Usage (10 XP = 1 CR = 1 Rupee discount)
+            if (useXp) {
+                const availableCredits = user.credits || 0;
+                const discountAvailable = availableCredits; // 1 credit = 1 rupee discount
+                const discountToApply = Math.min(discountAvailable, totalAmount);
 
+                if (discountToApply > 0) {
+                    user.credits -= discountToApply;
+                    xpDeducted = discountToApply * 10;
+                    user.xp = Math.max(0, (user.xp || 0) - xpDeducted);
+                    finalAmount -= discountToApply;
+
+                    user.transactions.push({
+                        type: 'Debit',
+                        amount: discountToApply,
+                        description: `Used ${discountToApply} CR for discount on order`
+                    });
+                }
+            }
+
+            // Calculate XP Reward for the order (based on final amount)
+            if (finalAmount >= 100) {
+                earnedXp = 10 + Math.floor((finalAmount - 100.1) / 50) * 5;
+            }
+
+            // 10 XP = 1 CR reward
+            earnedCredits = earnedXp / 10;
+
+            user.xp = (user.xp || 0) + earnedXp;
+            user.credits = (user.credits || 0) + earnedCredits;
+            user.rank = calculateRank(user.xp);
+
+            // Add transaction for rewards
+            if (earnedCredits > 0) {
                 user.transactions.push({
-                    type: 'Debit',
-                    amount: discountToApply,
-                    description: `Used ${discountToApply} CR for discount on order`
+                    type: 'Credit',
+                    amount: earnedCredits,
+                    description: `Earned ${earnedCredits} CR from Order XP`
                 });
             }
+            await user.save();
         }
-
-        // Calculate XP Reward for the order (based on final amount)
-        let earnedXp = 0;
-        if (finalAmount >= 100) {
-            earnedXp = 10 + Math.floor((finalAmount - 100.1) / 50) * 5;
-        }
-
-        // 10 XP = 1 CR reward
-        const earnedCredits = earnedXp / 10;
-
-        user.xp = (user.xp || 0) + earnedXp;
-        user.credits = (user.credits || 0) + earnedCredits;
-        user.rank = calculateRank(user.xp);
-
-        // Add transaction for rewards
-        if (earnedCredits > 0) {
-            user.transactions.push({
-                type: 'Credit',
-                amount: earnedCredits,
-                description: `Earned ${earnedCredits} CR from Order XP`
-            });
-        }
-        await user.save();
 
         const newOrder = new Order({
             userName,
@@ -316,7 +315,7 @@ app.post('/api/orders', async (req, res) => {
             xpUsed: xpDeducted
         });
         const savedOrder = await newOrder.save();
-        res.status(201).json({ ...savedOrder._doc, earnedXp, earnedCredits });
+        res.status(201).json({ ...savedOrder._doc, earnedXp, earnedCredits, xpUsed: xpDeducted });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: err.message });

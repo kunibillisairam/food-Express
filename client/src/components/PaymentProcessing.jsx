@@ -6,7 +6,8 @@ const PaymentProcessing = ({
     status = 'processing',
     onComplete,
     method = 'card',
-    mode = 'payment' // 'payment' or 'order'
+    mode = 'payment', // 'payment' or 'order'
+    rewards = null // { xp: number, credits: number }
 }) => {
     const [currentStatusIdx, setCurrentStatusIdx] = useState(0);
 
@@ -135,6 +136,44 @@ const PaymentProcessing = ({
                             </div>
                             <h2 className="result-title">{mode === 'payment' ? 'Payment Successful!' : 'Order Placed!'}</h2>
                             <p className="result-desc">Wrapping things up for you...</p>
+
+                            {rewards && (rewards.xp > 0 || rewards.credits > 0) && (
+                                <motion.div
+                                    initial={{ y: 20, opacity: 0, scale: 0.8 }}
+                                    animate={{ y: 0, opacity: 1, scale: 1 }}
+                                    transition={{ delay: 0.5, type: 'spring', stiffness: 200 }}
+                                    style={{
+                                        marginTop: '1.5rem',
+                                        padding: '12px 24px',
+                                        background: 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)',
+                                        borderRadius: '20px',
+                                        border: '1px solid #00f2fe',
+                                        boxShadow: '0 0 20px rgba(0, 242, 254, 0.4)',
+                                        display: 'inline-flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        gap: '4px'
+                                    }}
+                                >
+                                    <div style={{ color: '#00f2fe', fontSize: '0.7rem', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '2px' }}>Rewards Earned</div>
+                                    <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                                        <div style={{ color: '#fff', fontSize: '1.2rem', fontWeight: '900', textShadow: '0 0 10px rgba(255,255,255,0.5)' }}>
+                                            +{rewards.xp} XP
+                                        </div>
+                                        <div style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.2)' }} />
+                                        <div style={{ color: '#f1c40f', fontSize: '1.2rem', fontWeight: '900', textShadow: '0 0 10px rgba(241,196,15,0.5)' }}>
+                                            +{rewards.credits} CR
+                                        </div>
+                                    </div>
+                                    <motion.div
+                                        animate={{ scale: [1, 1.1, 1] }}
+                                        transition={{ repeat: Infinity, duration: 2 }}
+                                        style={{ fontSize: '0.7rem', color: '#fff', opacity: 0.7, marginTop: '2px' }}
+                                    >
+                                        Level Up Incoming! 🚀
+                                    </motion.div>
+                                </motion.div>
+                            )}
                         </motion.div>
                     )}
 
