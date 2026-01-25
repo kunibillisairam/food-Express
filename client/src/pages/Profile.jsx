@@ -892,254 +892,213 @@ const Profile = ({ setView }) => {
                 LATEST UPDATE: V3.0 (BRIGHT NEON)
             </div>
 
-            <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-                <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-                    <div style={{ width: '60px', height: '60px', background: '#eee', borderRadius: '50%', margin: '0 auto 10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem' }}>
+            <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+                <div style={{ textAlign: 'center', marginBottom: '30px', animation: 'fadeIn 0.6s ease-out' }}>
+                    <div style={{
+                        width: '80px', height: '80px', background: 'white', borderRadius: '50%',
+                        margin: '0 auto 15px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: '2.5rem', boxShadow: '0 8px 16px rgba(0,0,0,0.1)', color: '#ff4757'
+                    }}>
                         <FaUser />
                     </div>
-                    <h2 style={{ fontSize: '1.5rem', margin: 0 }}>{user.username}</h2>
-                    <p style={{ margin: '5px 0 0', color: '#666', fontSize: '0.9rem' }}>+91 {user.phone}</p>
+                    <h2 style={{ fontSize: '1.8rem', margin: 0, fontWeight: '800', color: '#2f3542' }}>{user.username}</h2>
+                    <p style={{ margin: '8px 0 0', color: '#747d8c', fontSize: '1rem' }}>+91 {user.phone}</p>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                {/* INTERGALACTIC LOYALTY (HERO SECTION) */}
+                <div className="loyalty-card fade-in">
+                    <div style={{ position: 'absolute', top: '-10px', right: '-10px', width: '100px', height: '100px', background: 'rgba(0, 242, 254, 0.1)', borderRadius: '50%', filter: 'blur(30px)' }}></div>
 
-                    {/* 1. WALLET (WHITE) */}
-                    <div
-                        style={{ display: 'flex', background: 'white', padding: '15px', borderRadius: '12px', border: '1px solid #ddd', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', color: 'black' }}
-                        onClick={() => setActiveModal('wallet')}
-                    >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                            <FaWallet style={{ fontSize: '1.5rem', color: '#ff4757' }} />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+                        <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#00f2fe', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '0.75rem', fontWeight: 'bold' }}>
+                                <FaRocket /> InterGalactic Loyalty
+                            </div>
+                            <h3 style={{ margin: '10px 0 0', fontSize: '2rem', fontWeight: '800' }}>{user.rank || 'Cadet'}</h3>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                            <div style={{ fontSize: '0.8rem', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '1px' }}>Credits (CR)</div>
+                            <div style={{ color: '#00f2fe', fontSize: '1.8rem', fontWeight: '900', textShadow: '0 0 10px rgba(0,242,254,0.3)' }}>{user.credits || 0} CR</div>
+                        </div>
+                    </div>
+
+                    <div style={{ margin: '20px 0' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '8px', fontWeight: '600' }}>
+                            <span>{user.xp || 0} XP</span>
+                            <span style={{ opacity: 0.8 }}>Next Rank: {
+                                (user.xp < 200) ? 'Lieutenant (200 XP)' :
+                                    (user.xp < 500) ? 'Captain (500 XP)' :
+                                        (user.xp < 1000) ? 'Commander (1000 XP)' :
+                                            (user.xp < 2000) ? 'Admiral (2000 XP)' : 'Max Rank'
+                            }</span>
+                        </div>
+                        <div className="loyalty-progress-container">
+                            <div className="loyalty-progress-bar" style={{
+                                width: `${Math.min(100, (user.xp / ((user.xp < 200) ? 200 : (user.xp < 500) ? 500 : (user.xp < 1000) ? 1000 : 2000)) * 100)}%`
+                            }}></div>
+                        </div>
+                    </div>
+
+                    <div className="loyalty-stats-grid">
+                        <div className="loyalty-stat-item">
+                            <FaStar style={{ color: '#f1c40f', fontSize: '1.2rem', marginBottom: '6px' }} />
+                            <div style={{ fontSize: '0.7rem', opacity: 0.7, marginBottom: '2px' }}>Matter Templates</div>
+                            <div style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
+                                {user.rank === 'Admiral' ? '6 unlocked' : user.rank === 'Commander' ? '4 unlocked' : user.rank === 'Captain' ? '2 unlocked' : 'Basic'}
+                            </div>
+                        </div>
+                        <div className="loyalty-stat-item">
+                            <FaAward style={{ color: '#00f2fe', fontSize: '1.2rem', marginBottom: '6px' }} />
+                            <div style={{ fontSize: '0.7rem', opacity: 0.7, marginBottom: '2px' }}>Tier Multiplier</div>
+                            <div style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
+                                {user.rank === 'Admiral' ? '2.0x' : user.rank === 'Commander' ? '1.5x' : user.rank === 'Captain' ? '1.2x' : '1.0x'}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* RESPONSIVE GRID FOR MINI CARDS */}
+                <div className="profile-grid">
+                    {/* 1. WALLET */}
+                    <div className="profile-card-mini" onClick={() => setActiveModal('wallet')}>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <div className="icon-box"><FaWallet /></div>
                             <div>
-                                <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '800' }}>Wallet Balance</h4>
-                                <p style={{ margin: 0, fontSize: '0.9rem' }}>₹{user.walletBalance || 0}</p>
+                                <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: '700' }}>Wallet Balance</h4>
+                                <p style={{ margin: 0, fontSize: '1.2rem', fontWeight: '800', color: '#2f3542' }}>₹{user.walletBalance || 0}</p>
                             </div>
                         </div>
-                        <span style={{ fontSize: '1.5rem' }}>›</span>
+                        <span style={{ fontSize: '1.5rem', color: '#ccc' }}>›</span>
                     </div>
 
-                    {/* INTERGALACTIC LOYALTY (NEW - DARK/NEON) */}
-                    <div style={{
-                        background: 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)',
-                        padding: '20px',
-                        borderRadius: '15px',
-                        color: 'white',
-                        position: 'relative',
-                        overflow: 'hidden',
-                        boxShadow: '0 8px 32px rgba(48, 43, 99, 0.4)',
-                        border: '1px solid rgba(255,255,255,0.1)'
-                    }}>
-                        {/* Decorative neon circles */}
-                        <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '80px', height: '80px', background: 'rgba(0, 242, 254, 0.1)', borderRadius: '50%', filter: 'blur(20px)' }}></div>
-
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '15px' }}>
+                    {/* 2. HISTORY */}
+                    <div className="profile-card-mini" onClick={() => setActiveModal('history')}>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <div className="icon-box" style={{ color: '#0984e3', background: '#f0f7ff' }}><FaListAlt /></div>
                             <div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#00f2fe', textTransform: 'uppercase', letterSpacing: '1px', fontSize: '0.7rem', fontWeight: 'bold' }}>
-                                    <FaRocket /> InterGalactic Loyalty
-                                </div>
-                                <h3 style={{ margin: '5px 0 0', fontSize: '1.4rem' }}>{user.rank || 'Cadet'}</h3>
-                            </div>
-                            <div style={{ textAlign: 'right' }}>
-                                <div style={{ fontSize: '0.7rem', opacity: 0.7, textTransform: 'uppercase' }}>Credits (CR)</div>
-                                <div style={{ color: '#00f2fe', fontSize: '1.2rem', fontWeight: '800' }}>{user.credits || 0} CR</div>
+                                <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: '700' }}>Order History</h4>
+                                <p style={{ margin: 0, fontSize: '0.85rem', color: '#747d8c' }}>Check your past logs</p>
                             </div>
                         </div>
-
-                        <div style={{ margin: '15px 0' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '5px' }}>
-                                <span>{user.xp || 0} XP</span>
-                                <span style={{ opacity: 0.7 }}>Next Rank: {
-                                    (user.xp < 200) ? 'Lieutenant (200 XP)' :
-                                        (user.xp < 500) ? 'Captain (500 XP)' :
-                                            (user.xp < 1000) ? 'Commander (1000 XP)' :
-                                                (user.xp < 2000) ? 'Admiral (2000 XP)' : 'Max Rank'
-                                }</span>
-                            </div>
-                            <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
-                                <div style={{
-                                    height: '100%',
-                                    width: `${Math.min(100, (user.xp / ((user.xp < 200) ? 200 : (user.xp < 500) ? 500 : (user.xp < 1000) ? 1000 : 2000)) * 100)}%`,
-                                    background: 'linear-gradient(90deg, #00f2fe, #4facfe)',
-                                    borderRadius: '4px',
-                                    boxShadow: '0 0 10px rgba(0, 242, 254, 0.5)'
-                                }}></div>
-                            </div>
-                        </div>
-
-                        <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
-                            <div style={{ flex: 1, background: 'rgba(255,255,255,0.05)', padding: '10px', borderRadius: '10px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.05)' }}>
-                                <FaStar style={{ color: '#f1c40f', marginBottom: '4px' }} />
-                                <div style={{ fontSize: '0.6rem', opacity: 0.6 }}>Matter Templates</div>
-                                <div style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>
-                                    {user.rank === 'Admiral' ? '6 unlocked' : user.rank === 'Commander' ? '4 unlocked' : user.rank === 'Captain' ? '2 unlocked' : 'Basic'}
-                                </div>
-                            </div>
-                            <div style={{ flex: 1, background: 'rgba(255,255,255,0.05)', padding: '10px', borderRadius: '10px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.05)' }}>
-                                <FaAward style={{ color: '#00f2fe', marginBottom: '4px' }} />
-                                <div style={{ fontSize: '0.6rem', opacity: 0.6 }}>Tier Multiplier</div>
-                                <div style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>
-                                    {user.rank === 'Admiral' ? '2.0x' : user.rank === 'Commander' ? '1.5x' : user.rank === 'Captain' ? '1.2x' : '1.0x'}
-                                </div>
-                            </div>
-                        </div>
+                        <span style={{ fontSize: '1.5rem', color: '#ccc' }}>›</span>
                     </div>
 
-                    {/* 2. HISTORY (WHITE) */}
-                    <div
-                        style={{ display: 'flex', background: 'white', padding: '15px', borderRadius: '12px', border: '1px solid #ddd', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', color: 'black' }}
-                        onClick={() => setActiveModal('history')}
-                    >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                            <FaListAlt style={{ fontSize: '1.5rem', color: '#ff4757' }} />
+                    {/* 3. ACTIVE ORDERS */}
+                    <div className="profile-card-mini" onClick={() => setView('my-orders')}>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <div className="icon-box" style={{ color: '#2ed573', background: '#f0fff4' }}><FaMotorcycle /></div>
                             <div>
-                                <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '800' }}>Order History</h4>
-                                <p style={{ margin: 0, fontSize: '0.9rem' }}>Check Logs</p>
+                                <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: '700' }}>My Active Orders</h4>
+                                <p style={{ margin: 0, fontSize: '0.85rem', color: '#747d8c' }}>Track live cargo</p>
                             </div>
                         </div>
-                        <span style={{ fontSize: '1.5rem' }}>›</span>
+                        <span style={{ fontSize: '1.5rem', color: '#ccc' }}>›</span>
                     </div>
 
-                    {/* 3. HELP (WHITE) */}
-                    <div
-                        style={{ display: 'flex', background: 'white', padding: '15px', borderRadius: '12px', border: '1px solid #ddd', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', color: 'black' }}
-                        onClick={() => setActiveModal('help')}
-                    >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                            <FaQuestionCircle style={{ fontSize: '1.5rem', color: '#ff4757' }} />
+                    {/* 4. HELP */}
+                    <div className="profile-card-mini" onClick={() => setActiveModal('help')}>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <div className="icon-box" style={{ color: '#6c5ce7', background: '#f5f3ff' }}><FaQuestionCircle /></div>
                             <div>
-                                <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '800' }}>Help & Support</h4>
-                                <p style={{ margin: 0, fontSize: '0.9rem' }}>Get Assistance</p>
+                                <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: '700' }}>Help & Support</h4>
+                                <p style={{ margin: 0, fontSize: '0.85rem', color: '#747d8c' }}>Get instant assistance</p>
                             </div>
                         </div>
-                        <span style={{ fontSize: '1.5rem' }}>›</span>
+                        <span style={{ fontSize: '1.5rem', color: '#ccc' }}>›</span>
                     </div>
+                </div>
 
-                    {/* 4. MY ORDERS */}
-                    <div
-                        style={{ display: 'flex', background: 'white', padding: '20px', borderRadius: '15px', border: '1px solid #000', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
-                        onClick={() => setView('my-orders')}
-                    >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                            <FaListAlt style={{ color: '#ff4757' }} />
-                            <h4 style={{ margin: 0 }}>My Active Orders</h4>
-                        </div>
-                        <span>›</span>
-                    </div>
-
-                    {/* 5. ADDRESS SECTION */}
-                    <div style={{ background: 'white', padding: '20px', borderRadius: '15px', border: '1px solid #ddd', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-                            <h4 style={{ margin: 0, color: '#ff4757', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <FaMapMarkerAlt /> Delivery Address
-                            </h4>
-                            {!isEditingAddress && address && (
-                                <span style={{ fontSize: '0.7rem', color: '#2ed573', fontWeight: 'bold', background: '#e3fff0', padding: '2px 8px', borderRadius: '4px' }}>SAVED</span>
-                            )}
-                        </div>
-
-                        {isEditingAddress ? (
-                            <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                <textarea
-                                    value={address}
-                                    onChange={(e) => setAddress(e.target.value)}
-                                    placeholder="Enter your full address..."
-                                    style={{
-                                        width: '100%',
-                                        padding: '12px',
-                                        borderRadius: '12px',
-                                        border: '2px solid #ff4757',
-                                        minHeight: '100px',
-                                        fontSize: '0.95rem',
-                                        outline: 'none',
-                                        fontFamily: 'inherit'
-                                    }}
-                                />
-                                <div style={{ display: 'flex', gap: '10px' }}>
-                                    <button
-                                        onClick={handleSaveAddress}
-                                        style={{ flex: 2, background: '#ff4757', color: 'white', padding: '12px', borderRadius: '10px', border: 'none', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-                                    >
-                                        <FaCheckCircle /> Save Address
-                                    </button>
-                                    <button
-                                        onClick={() => setIsEditingAddress(false)}
-                                        style={{ flex: 1, background: '#f1f2f6', color: '#666', padding: '12px', borderRadius: '10px', border: 'none', fontWeight: '600', cursor: 'pointer' }}
-                                    >
-                                        Cancel
-                                    </button>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                                <div style={{
-                                    background: '#f8f9fa',
-                                    padding: '15px',
-                                    borderRadius: '12px',
-                                    border: '1px dashed #ddd',
-                                    color: address ? '#333' : '#999',
-                                    minHeight: '60px',
-                                    lineHeight: '1.5',
-                                    fontSize: '0.95rem'
-                                }}>
-                                    {address || 'No address added yet. Please add one for faster checkout.'}
-                                </div>
-                                <div style={{ display: 'flex', gap: '10px' }}>
-                                    <button
-                                        onClick={() => setIsEditingAddress(true)}
-                                        style={{
-                                            flex: 1,
-                                            color: '#ff4757',
-                                            border: '2px solid #ff4757',
-                                            background: 'transparent',
-                                            padding: '10px',
-                                            borderRadius: '10px',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            gap: '8px',
-                                            fontWeight: '700',
-                                            cursor: 'pointer'
-                                        }}
-                                    >
-                                        {address ? 'Edit Address' : 'Add Address'}
-                                    </button>
-                                    <button
-                                        onClick={handleUseLocation}
-                                        disabled={isLocating}
-                                        style={{
-                                            flex: 1,
-                                            color: 'white',
-                                            background: '#2ed573',
-                                            border: 'none',
-                                            padding: '10px',
-                                            borderRadius: '10px',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            gap: '8px',
-                                            fontWeight: '700',
-                                            cursor: 'pointer',
-                                            opacity: isLocating ? 0.7 : 1,
-                                            boxShadow: '0 4px 12px rgba(46, 213, 115, 0.2)'
-                                        }}
-                                    >
-                                        {isLocating ? <div className="spinner-mini" style={{ width: '16px', height: '16px' }}></div> : <FaLocationArrow style={{ fontSize: '0.9rem' }} />}
-                                        {isLocating ? 'Locating...' : 'Use GPS'}
-                                    </button>
-                                </div>
-                            </div>
+                {/* 5. ADDRESS SECTION (FULL WIDTH) */}
+                <div style={{ background: 'white', padding: '25px', borderRadius: '20px', border: '1px solid rgba(0,0,0,0.06)', margin: '25px 0', boxShadow: '0 4px 15px rgba(0,0,0,0.03)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                        <h4 style={{ margin: 0, color: '#ff4757', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.1rem', fontWeight: '700' }}>
+                            <FaMapMarkerAlt /> Delivery Address
+                        </h4>
+                        {!isEditingAddress && address && (
+                            <span style={{ fontSize: '0.75rem', color: '#2ed573', fontWeight: '800', background: '#e3fff0', padding: '4px 12px', borderRadius: '20px', textTransform: 'uppercase' }}>Verified</span>
                         )}
                     </div>
 
-                    {/* 6. LOGOUT */}
-                    <button
-                        onClick={handleLogout}
-                        style={{ width: '100%', padding: '15px', background: '#333', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '1rem' }}
-                    >
-                        Log Out
-                    </button>
+                    {isEditingAddress ? (
+                        <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                            <textarea
+                                value={address}
+                                onChange={(e) => setAddress(e.target.value)}
+                                placeholder="Enter your full street address, landmark, and pin code..."
+                                style={{
+                                    width: '100%', padding: '15px', borderRadius: '15px', border: '2px solid #ff4757',
+                                    minHeight: '120px', fontSize: '1rem', outline: 'none', fontFamily: 'inherit', background: '#fffafa'
+                                }}
+                            />
+                            <div style={{ display: 'flex', gap: '12px' }}>
+                                <button
+                                    onClick={handleSaveAddress}
+                                    style={{ flex: 2, background: '#ff4757', color: 'white', padding: '15px', borderRadius: '12px', border: 'none', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', boxShadow: '0 4px 12px rgba(255, 71, 87, 0.2)' }}
+                                >
+                                    <FaCheckCircle /> Save Changes
+                                </button>
+                                <button
+                                    onClick={() => setIsEditingAddress(false)}
+                                    style={{ flex: 1, background: '#f1f2f6', color: '#747d8c', padding: '15px', borderRadius: '12px', border: 'none', fontWeight: '700', cursor: 'pointer' }}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                            <div style={{
+                                background: '#fdfdfd', padding: '20px', borderRadius: '15px', border: '1px dashed #dfe4ea',
+                                color: address ? '#2f3542' : '#a4b0be', minHeight: '80px', lineHeight: '1.6', fontSize: '1rem'
+                            }}>
+                                {address || 'You haven\'t set a delivery address yet. Add one to ensure smooth and fast delivery!'}
+                            </div>
+                            <div style={{ display: 'flex', gap: '12px' }}>
+                                <button
+                                    onClick={() => setIsEditingAddress(true)}
+                                    className="nav-btn"
+                                    style={{
+                                        flex: 1, color: '#ff4757', border: '2px solid #ff4757', background: 'transparent',
+                                        padding: '12px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        gap: '10px', fontWeight: '700', cursor: 'pointer'
+                                    }}
+                                >
+                                    {address ? 'Edit Location' : 'Set New Address'}
+                                </button>
+                                <button
+                                    onClick={handleUseLocation}
+                                    disabled={isLocating}
+                                    style={{
+                                        flex: 1, color: 'white', background: '#2ed573', border: 'none',
+                                        padding: '12px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        gap: '10px', fontWeight: '700', cursor: 'pointer', opacity: isLocating ? 0.7 : 1,
+                                        boxShadow: '0 4px 12px rgba(46, 213, 115, 0.2)'
+                                    }}
+                                >
+                                    {isLocating ? <div className="spinner-mini" style={{ width: '18px', height: '18px' }}></div> : <FaLocationArrow />}
+                                    {isLocating ? 'Scanning...' : 'Detect Nearby'}
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
+
+                {/* 6. LOGOUT */}
+                <button
+                    onClick={handleLogout}
+                    style={{
+                        width: '100%', padding: '18px', background: '#2f3542', color: 'white',
+                        border: 'none', borderRadius: '15px', fontWeight: '800', fontSize: '1.1rem',
+                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        gap: '12px', transition: 'all 0.3s', boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                    }}
+                    onMouseOver={(e) => e.target.style.background = '#000'}
+                    onMouseOut={(e) => e.target.style.background = '#2f3542'}
+                >
+                    <FaSignOutAlt /> Sign Out Securely
+                </button>
             </div>
+
             <div style={{ height: '100px' }}></div>
         </div>
     );
