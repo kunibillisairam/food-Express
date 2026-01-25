@@ -6,15 +6,47 @@ import { toast } from 'react-hot-toast';
 
 export const CartContext = createContext();
 
-const socket = io(API_BASE_URL);
-
 export const CartProvider = ({ children }) => {
     const { user } = useContext(AuthContext);
+    const [socket, setSocket] = useState(null);
     const [cart, setCart] = useState([]);
     const [fleetCode, setFleetCode] = useState(localStorage.getItem('fleetCode') || null);
     const [isInternalUpdate, setIsInternalUpdate] = useState(false);
+    const [isConnected, setIsConnected] = useState(false);
 
-    // Initial Load
+    // Initialize Socket
+    useEffect(() => {
+        const newSocket = io(API_BASE_URL, {
+            transports: ['websocket'],
+            reconnection: true,
+            reconnectionAttempts: 10
+        });
+
+        newSocket.on('connect', () => {
+            console.log(`[Socket] Connected to Fleet Command: ${newSocket.id}`);
+            setIsConnected(true);
+            // Re-join fleet if code exists
+            const savedCode = localStorage.getItem('fleetCode');
+            if (savedCode) {
+                newSocket.emit('join-fleet', savedCode);
+            }
+        });
+
+        newSocket.on('disconnect', () => {
+            console.log('[Socket] Disconnected from Fleet Command');
+            setIsConnected(false);
+        });
+
+        newSocket.on('connect_error', (err) => {
+            console.error('[Socket] Connection Error:', err.message);
+        });
+
+        setSocket(newSocket);
+
+        return () => newSocket.close();
+    }, []);
+
+    // Initial Load Cart
     useEffect(() => {
         const storedCart = localStorage.getItem('cart');
         if (storedCart) {
@@ -27,7 +59,7 @@ export const CartProvider = ({ children }) => {
         localStorage.setItem('cart', JSON.stringify(cart));
 
         // Sync to Fleet if code exists AND this wasn't an external update
-        if (fleetCode && !isInternalUpdate) {
+        if (socket && fleetCode && !isInternalUpdate && isConnected) {
             socket.emit('sync-cart', {
                 fleetCode,
                 cartItems: cart,
@@ -35,10 +67,12 @@ export const CartProvider = ({ children }) => {
             });
         }
         setIsInternalUpdate(false);
-    }, [cart, fleetCode, user]);
+    }, [cart, fleetCode, user, socket, isConnected]);
 
     // Socket Event Listeners
     useEffect(() => {
+        if (!socket) return;
+
         socket.on('cart-updated', ({ cartItems, updatedBy }) => {
             setIsInternalUpdate(true);
             setCart(cartItems);
@@ -66,20 +100,22 @@ export const CartProvider = ({ children }) => {
             socket.off('cart-updated');
             socket.off('fleet-announcement');
         };
-    }, []);
+    }, [socket]);
 
-    // Re-join fleet on mount/refresh if code exists
+    // Join fleet whenever code changes
     useEffect(() => {
-        if (fleetCode) {
+        if (socket && fleetCode && isConnected) {
             socket.emit('join-fleet', fleetCode);
         }
-    }, [fleetCode]);
+    }, [fleetCode, socket, isConnected]);
 
     const joinFleet = (code) => {
         const cleanCode = code.toUpperCase().trim();
         setFleetCode(cleanCode);
         localStorage.setItem('fleetCode', cleanCode);
-        socket.emit('join-fleet', cleanCode);
+        if (socket && isConnected) {
+            socket.emit('join-fleet', cleanCode);
+        }
         toast.success(`JOINED FLEET: ${cleanCode}`);
     };
 
