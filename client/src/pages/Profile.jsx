@@ -923,7 +923,7 @@ const Profile = ({ setView }) => {
                     </div>
 
                     <div style={{ margin: '20px 0' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '8px', fontWeight: '600' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', marginBottom: '8px', fontWeight: '600' }}>
                             <span>{user.xp || 0} XP</span>
                             <span style={{ opacity: 0.8 }}>Next Rank: {
                                 (user.xp < 200) ? 'Lieutenant (200 XP)' :
