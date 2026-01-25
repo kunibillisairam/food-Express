@@ -79,7 +79,7 @@ app.get('/api/orders', async (req, res) => {
 app.get('/api/orders/user/:username', async (req, res) => {
     try {
         const { username } = req.params;
-        const orders = await Order.find({ userName: username }).sort({ createdAt: -1 });
+        const orders = await Order.find({ userName: username }).sort({ createdAt: -1 }).limit(10);
         res.json(orders);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -315,6 +315,20 @@ app.post('/api/orders', async (req, res) => {
             xpUsed: xpDeducted
         });
         const savedOrder = await newOrder.save();
+
+        // Automatically delete orders beyond the last 10 for this user
+        try {
+            const userOrders = await Order.find({ userName }).sort({ createdAt: -1 });
+            if (userOrders.length > 10) {
+                const ordersToDelete = userOrders.slice(10);
+                const idsToDelete = ordersToDelete.map(o => o._id);
+                await Order.deleteMany({ _id: { $in: idsToDelete } });
+                console.log(`[Cleanup] Deleted ${idsToDelete.length} old orders for ${userName}`);
+            }
+        } catch (cleanupErr) {
+            console.error("[Cleanup Error]", cleanupErr);
+        }
+
         res.status(201).json({ ...savedOrder._doc, earnedXp, earnedCredits, xpUsed: xpDeducted });
     } catch (err) {
         console.error(err);
