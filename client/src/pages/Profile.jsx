@@ -980,47 +980,83 @@ const Profile = ({ setView }) => {
                     <div className="profile-main-content px-4">
                         {activeTab === 'profile' && (
                             <div className="fade-in">
-                                <div style={{ textAlign: 'center', marginBottom: '30px', animation: 'fadeIn 0.6s ease-out' }}>
+                                <div style={{ textAlign: 'center', marginBottom: '30px', animation: 'fadeIn 0.6s ease-out', position: 'relative' }}>
                                     <div style={{
-                                        width: '80px', height: '80px', background: 'white', borderRadius: '50%',
+                                        width: '100px', height: '100px', background: 'white', borderRadius: '50%',
                                         margin: '0 auto 15px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                        fontSize: '2.5rem', boxShadow: '0 8px 16px rgba(0,0,0,0.1)', color: '#ff4757'
+                                        fontSize: '3rem', boxShadow: '0 10px 20px rgba(0,0,0,0.1)', color: '#ff4757',
+                                        border: '4px solid #fff'
                                     }}>
                                         <FaUser />
                                     </div>
                                     <h2 style={{ fontSize: '1.8rem', margin: 0, fontWeight: '800', color: '#2f3542' }}>{user.username}</h2>
-                                    <p style={{ margin: '8px 0 0', color: '#747d8c', fontSize: '1rem' }}>+91 {user.phone}</p>
+                                    <p style={{ margin: '5px 0 0', color: '#747d8c', fontSize: '1rem' }}>+91 {user.phone}</p>
+
+                                    {/* Mobile Loyalty Tag */}
+                                    <div className="mobile-only" style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '15px' }}>
+                                        <div style={{ background: 'linear-gradient(135deg, #0f0c29, #302b63)', padding: '5px 15px', borderRadius: '20px', color: '#00f2fe', fontSize: '0.8rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                            <FaRocket /> {user.rank || 'Cadet'}
+                                        </div>
+                                        <div style={{ background: '#fff', padding: '5px 15px', borderRadius: '20px', color: '#333', fontSize: '0.8rem', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.05)' }}>
+                                            {user.credits || 0} CR
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div className="profile-grid" style={{ marginTop: 0 }}>
                                     <div className="profile-card-mini" onClick={() => setActiveTab('wallet')}>
-                                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                             <div className="icon-box"><FaWallet /></div>
                                             <div>
-                                                <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: '700' }}>Wallet</h4>
-                                                <p style={{ margin: 0, fontSize: '1.1rem', fontWeight: '800' }}>₹{user.walletBalance || 0}</p>
+                                                <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: '700' }}>Wallet</h4>
+                                                <p style={{ margin: 0, fontSize: '1rem', fontWeight: '800' }}>₹{user.walletBalance || 0}</p>
                                             </div>
                                         </div>
-                                        <span style={{ fontSize: '1.2rem', color: '#ccc' }}>›</span>
                                     </div>
                                     <div className="profile-card-mini" onClick={() => setActiveTab('orders')}>
-                                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                             <div className="icon-box" style={{ color: '#0984e3', background: '#f0f7ff' }}><FaListAlt /></div>
                                             <div>
-                                                <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: '700' }}>Orders</h4>
-                                                <p style={{ margin: 0, fontSize: '0.8rem', color: '#747d8c' }}>View History</p>
+                                                <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: '700' }}>Orders</h4>
+                                                <p style={{ margin: 0, fontSize: '0.75rem', color: '#747d8c' }}>History</p>
                                             </div>
                                         </div>
-                                        <span style={{ fontSize: '1.2rem', color: '#ccc' }}>›</span>
+                                    </div>
+                                    <div className="profile-card-mini" onClick={() => setActiveTab('address')}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <div className="icon-box" style={{ color: '#ff4757', background: '#fff5f5' }}><FaMapMarkerAlt /></div>
+                                            <div>
+                                                <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: '700' }}>Address</h4>
+                                                <p style={{ margin: 0, fontSize: '0.75rem', color: '#747d8c' }}>Manage</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="profile-card-mini" onClick={() => setActiveTab('help')}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <div className="icon-box" style={{ color: '#2ed573', background: '#e3fff0' }}><FaQuestionCircle /></div>
+                                            <div>
+                                                <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: '700' }}>Help</h4>
+                                                <p style={{ margin: 0, fontSize: '0.75rem', color: '#747d8c' }}>Support</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div style={{ background: 'white', padding: '25px', borderRadius: '20px', border: '1px solid rgba(0,0,0,0.06)', margin: '25px 0' }}>
-                                    <h4 style={{ margin: '0 0 15px', color: '#2f3542' }}>Active Address</h4>
-                                    <div style={{ padding: '15px', background: '#f8f9fc', borderRadius: '12px', fontSize: '0.9rem', color: '#666' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                                        <h4 style={{ margin: 0, color: '#2f3542' }}>Active Address</h4>
+                                        <span onClick={() => setActiveTab('address')} style={{ fontSize: '0.8rem', color: '#ff4757', cursor: 'pointer', fontWeight: '600' }}>Change</span>
+                                    </div>
+                                    <div style={{ padding: '15px', background: '#f8f9fc', borderRadius: '12px', fontSize: '0.8rem', color: '#666' }}>
                                         {address || 'No address set'}
                                     </div>
-                                    <button className="nav-btn w-full mt-4" onClick={() => setActiveTab('address')}>Change Address</button>
+                                </div>
+
+                                {/* Mobile Logout Button */}
+                                <div className="mobile-only" style={{ marginTop: '20px' }}>
+                                    <button onClick={handleLogout} style={{ width: '100%', padding: '15px', borderRadius: '15px', background: '#fff5f5', color: '#ff4757', border: '1px solid #fee2e2', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                                        <FaSignOutAlt /> Sign Out
+                                    </button>
                                 </div>
                             </div>
                         )}
@@ -1028,6 +1064,9 @@ const Profile = ({ setView }) => {
                         {activeTab === 'wallet' && (
                             <div className="fade-in">
                                 <div className="section-header" style={{ marginBottom: '25px' }}>
+                                    <div className="mobile-only" onClick={() => setActiveTab('profile')} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#ff4757', fontWeight: 'bold', marginBottom: '15px', cursor: 'pointer' }}>
+                                        <FaArrowLeft /> Back to Profile
+                                    </div>
                                     <h2 style={{ fontSize: '1.5rem', fontWeight: '800' }}>Wallet & Recharge</h2>
                                     <p style={{ color: '#747d8c' }}>Manage your funds and transaction history</p>
                                 </div>
@@ -1079,6 +1118,9 @@ const Profile = ({ setView }) => {
                         {activeTab === 'orders' && (
                             <div className="fade-in">
                                 <div className="section-header" style={{ marginBottom: '25px' }}>
+                                    <div className="mobile-only" onClick={() => setActiveTab('profile')} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#ff4757', fontWeight: 'bold', marginBottom: '15px', cursor: 'pointer' }}>
+                                        <FaArrowLeft /> Back to Profile
+                                    </div>
                                     <h2 style={{ fontSize: '1.5rem', fontWeight: '800' }}>Order History</h2>
                                     <p style={{ color: '#747d8c' }}>Track and review your past hunger satisfyers</p>
                                 </div>
@@ -1113,6 +1155,9 @@ const Profile = ({ setView }) => {
                         {activeTab === 'address' && (
                             <div className="fade-in">
                                 <div className="section-header" style={{ marginBottom: '25px' }}>
+                                    <div className="mobile-only" onClick={() => setActiveTab('profile')} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#ff4757', fontWeight: 'bold', marginBottom: '15px', cursor: 'pointer' }}>
+                                        <FaArrowLeft /> Back to Profile
+                                    </div>
                                     <h2 style={{ fontSize: '1.5rem', fontWeight: '800' }}>Delivery Address</h2>
                                     <p style={{ color: '#747d8c' }}>Where should we bring your food?</p>
                                 </div>
@@ -1161,6 +1206,9 @@ const Profile = ({ setView }) => {
                         {activeTab === 'help' && (
                             <div className="fade-in">
                                 <div className="section-header" style={{ marginBottom: '25px' }}>
+                                    <div className="mobile-only" onClick={() => setActiveTab('profile')} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#ff4757', fontWeight: 'bold', marginBottom: '15px', cursor: 'pointer' }}>
+                                        <FaArrowLeft /> Back to Profile
+                                    </div>
                                     <h2 style={{ fontSize: '1.5rem', fontWeight: '800' }}>Help & Support</h2>
                                     <p style={{ color: '#747d8c' }}>We're here to help you 24/7</p>
                                 </div>
