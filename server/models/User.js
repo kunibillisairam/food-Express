@@ -13,6 +13,9 @@ const userSchema = new mongoose.Schema({
     phone: { type: String, required: true },
     address: { type: String, default: '' },
     walletBalance: { type: Number, default: 0 },
+    credits: { type: Number, default: 0 },
+    xp: { type: Number, default: 0 },
+    rank: { type: String, default: 'Cadet' },
     transactions: [transactionSchema],
     usedCoupons: { type: [String], default: [] },
     role: { type: String, default: 'user' }

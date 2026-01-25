@@ -263,33 +263,75 @@ const Success = ({ setView }) => {
                                     <div className="more-items">+ {orderItems.length - 2} more items</div>
                                 )}
                             </div>
+                        </div>
+
+                            {/* XP/CR REWARDS BANNER (GAMIFICATION) */}
+                    {lastOrder?.earnedXp > 0 && (
+                        <motion.div
+                            className="rewards-success-banner"
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ delay: 1.2, type: 'spring' }}
+                            style={{
+                                background: 'linear-gradient(135deg, #0f0c29, #302b63)',
+                                margin: '15px -20px 0',
+                                padding: '15px 20px',
+                                borderTop: '1px solid rgba(0, 242, 254, 0.2)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between'
+                            }}
+                        >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <div style={{
+                                    width: '35px',
+                                    height: '35px',
+                                    background: 'rgba(0, 242, 254, 0.1)',
+                                    borderRadius: '50%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    color: '#00f2fe'
+                                }}>
+                                    <FaRocket />
+                                </div>
+                                <div>
+                                    <div style={{ fontSize: '0.65rem', color: '#00f2fe', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px' }}>Loyalty Rewards</div>
+                                    <div style={{ fontSize: '0.9rem', color: 'white', fontWeight: 'bold' }}>Rank Progress +{lastOrder.earnedXp} XP</div>
+                                </div>
+                            </div>
+                            <div style={{ textAlign: 'right' }}>
+                                <div style={{ fontSize: '1.2rem', fontWeight: '900', color: '#00f2fe' }}>+{lastOrder.earnedCredits} CR</div>
+                            </div>
                         </motion.div>
                     )}
-                </AnimatePresence>
-
-                {/* Step 5: CTA Buttons */}
-                <motion.div className="success-actions" variants={itemVariants}>
-                    <motion.button
-                        className="btn-track-order"
-                        whileHover={{ scale: 1.05, boxShadow: "0 10px 25px rgba(46, 213, 115, 0.4)" }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => setView('quantum-tracker', lastOrder?.orderId)}
-                    >
-                        <FaRocket /> Track Your Order
-                    </motion.button>
-
-                    <motion.button
-                        className="btn-continue"
-                        whileHover={{ x: 5 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => setView('home')}
-                    >
-                        <FaArrowLeft /> Continue Shopping
-                    </motion.button>
-                </motion.div>
             </motion.div>
+                    )}
+        </AnimatePresence>
 
-        </div>
+                {/* Step 5: CTA Buttons */ }
+    <motion.div className="success-actions" variants={itemVariants}>
+        <motion.button
+            className="btn-track-order"
+            whileHover={{ scale: 1.05, boxShadow: "0 10px 25px rgba(46, 213, 115, 0.4)" }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setView('quantum-tracker', lastOrder?.orderId)}
+        >
+            <FaRocket /> Track Your Order
+        </motion.button>
+
+        <motion.button
+            className="btn-continue"
+            whileHover={{ x: 5 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setView('home')}
+        >
+            <FaArrowLeft /> Continue Shopping
+        </motion.button>
+    </motion.div>
+            </motion.div >
+
+        </div >
     );
 };
 

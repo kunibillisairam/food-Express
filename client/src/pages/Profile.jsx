@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { FaUser, FaMapMarkerAlt, FaSignOutAlt, FaGift, FaWallet, FaQuestionCircle, FaListAlt, FaMotorcycle, FaCreditCard, FaMobileAlt, FaUniversity, FaArrowLeft, FaCheckCircle, FaLocationArrow } from 'react-icons/fa';
+import { FaUser, FaMapMarkerAlt, FaSignOutAlt, FaGift, FaWallet, FaQuestionCircle, FaListAlt, FaMotorcycle, FaCreditCard, FaMobileAlt, FaUniversity, FaArrowLeft, FaCheckCircle, FaLocationArrow, FaRocket, FaStar, FaAward } from 'react-icons/fa';
 import axios from 'axios';
 import API_BASE_URL from '../config';
 
@@ -916,6 +916,72 @@ const Profile = ({ setView }) => {
                             </div>
                         </div>
                         <span style={{ fontSize: '1.5rem' }}>›</span>
+                    </div>
+
+                    {/* INTERGALACTIC LOYALTY (NEW - DARK/NEON) */}
+                    <div style={{
+                        background: 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)',
+                        padding: '20px',
+                        borderRadius: '15px',
+                        color: 'white',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        boxShadow: '0 8px 32px rgba(48, 43, 99, 0.4)',
+                        border: '1px solid rgba(255,255,255,0.1)'
+                    }}>
+                        {/* Decorative neon circles */}
+                        <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '80px', height: '80px', background: 'rgba(0, 242, 254, 0.1)', borderRadius: '50%', filter: 'blur(20px)' }}></div>
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '15px' }}>
+                            <div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#00f2fe', textTransform: 'uppercase', letterSpacing: '1px', fontSize: '0.7rem', fontWeight: 'bold' }}>
+                                    <FaRocket /> InterGalactic Loyalty
+                                </div>
+                                <h3 style={{ margin: '5px 0 0', fontSize: '1.4rem' }}>{user.rank || 'Cadet'}</h3>
+                            </div>
+                            <div style={{ textAlign: 'right' }}>
+                                <div style={{ fontSize: '0.7rem', opacity: 0.7, textTransform: 'uppercase' }}>Credits (CR)</div>
+                                <div style={{ color: '#00f2fe', fontSize: '1.2rem', fontWeight: '800' }}>{user.credits || 0} CR</div>
+                            </div>
+                        </div>
+
+                        <div style={{ margin: '15px 0' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '5px' }}>
+                                <span>{user.xp || 0} XP</span>
+                                <span style={{ opacity: 0.7 }}>Next Rank: {
+                                    (user.xp < 200) ? 'Lieutenant (200 XP)' :
+                                        (user.xp < 500) ? 'Captain (500 XP)' :
+                                            (user.xp < 1000) ? 'Commander (1000 XP)' :
+                                                (user.xp < 2000) ? 'Admiral (2000 XP)' : 'Max Rank'
+                                }</span>
+                            </div>
+                            <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
+                                <div style={{
+                                    height: '100%',
+                                    width: `${Math.min(100, (user.xp / ((user.xp < 200) ? 200 : (user.xp < 500) ? 500 : (user.xp < 1000) ? 1000 : 2000)) * 100)}%`,
+                                    background: 'linear-gradient(90deg, #00f2fe, #4facfe)',
+                                    borderRadius: '4px',
+                                    boxShadow: '0 0 10px rgba(0, 242, 254, 0.5)'
+                                }}></div>
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+                            <div style={{ flex: 1, background: 'rgba(255,255,255,0.05)', padding: '10px', borderRadius: '10px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                <FaStar style={{ color: '#f1c40f', marginBottom: '4px' }} />
+                                <div style={{ fontSize: '0.6rem', opacity: 0.6 }}>Matter Templates</div>
+                                <div style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>
+                                    {user.rank === 'Admiral' ? '6 unlocked' : user.rank === 'Commander' ? '4 unlocked' : user.rank === 'Captain' ? '2 unlocked' : 'Basic'}
+                                </div>
+                            </div>
+                            <div style={{ flex: 1, background: 'rgba(255,255,255,0.05)', padding: '10px', borderRadius: '10px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                <FaAward style={{ color: '#00f2fe', marginBottom: '4px' }} />
+                                <div style={{ fontSize: '0.6rem', opacity: 0.6 }}>Tier Multiplier</div>
+                                <div style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>
+                                    {user.rank === 'Admiral' ? '2.0x' : user.rank === 'Commander' ? '1.5x' : user.rank === 'Captain' ? '1.2x' : '1.0x'}
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     {/* 2. HISTORY (WHITE) */}

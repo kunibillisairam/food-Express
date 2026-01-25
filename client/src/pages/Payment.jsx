@@ -185,6 +185,8 @@ const Payment = ({ setView }) => {
                     ...orderData,
                     orderId: response.data._id, // Use real MongoDB ID
                     displayId: 'ORD-' + response.data._id.slice(-6).toUpperCase(),
+                    earnedXp: response.data.earnedXp,
+                    earnedCredits: response.data.earnedCredits,
                     estimatedTime: '25-35 mins',
                     date: new Date().toLocaleString()
                 });
@@ -482,10 +484,37 @@ const Payment = ({ setView }) => {
                                     </div>
                                 )}
                                 <hr style={{ border: 'none', borderTop: '1px dashed #ccc', margin: '1rem 0' }} />
-                                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '800', fontSize: '1.2rem' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '800', fontSize: '1.2rem', marginBottom: '1rem' }}>
                                     <span>To Pay</span>
                                     <span>₹{finalAmount}</span>
                                 </div>
+
+                                {/* XP EARNINGS INDICATOR */}
+                                {finalAmount >= 100 && (
+                                    <div style={{
+                                        background: 'linear-gradient(90deg, #0f0c29, #302b63)',
+                                        padding: '12px',
+                                        borderRadius: '12px',
+                                        marginTop: '15px',
+                                        border: '1px solid rgba(0, 242, 254, 0.3)',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: '5px'
+                                    }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <span style={{ fontSize: '0.7rem', color: '#00f2fe', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px' }}>InterGalactic Rewards</span>
+                                            <span style={{ fontSize: '0.7rem', color: 'white', opacity: 0.6 }}>PROMO ACTIVE</span>
+                                        </div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <div style={{ color: 'white', fontSize: '0.9rem', fontWeight: 'bold' }}>
+                                                +{10 + Math.floor((finalAmount - 100) / 50) * 5} XP
+                                            </div>
+                                            <div style={{ color: '#00f2fe', fontSize: '0.9rem', fontWeight: 'bold' }}>
+                                                +{(10 + Math.floor((finalAmount - 100) / 50) * 5) / 10} CR
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             <h3 style={{ marginBottom: '1rem' }}>Offers & Coupons</h3>

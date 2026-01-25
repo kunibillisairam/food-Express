@@ -6,12 +6,53 @@ require('dotenv').config();
 
 const Order = require('./models/Order');
 
+const http = require('http');
+const { Server } = require('socket.io');
+
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: "*", // Adjust this in production
+        methods: ["GET", "POST"]
+    }
+});
+
 const PORT = process.env.PORT || 5000;
+
+// Socket.io Multiplayer Logic
+io.on('connection', (socket) => {
+    console.log(`[Socket] User connected: ${socket.id}`);
+
+    socket.on('join-fleet', (fleetCode) => {
+        socket.join(fleetCode);
+        console.log(`[Socket] User ${socket.id} joined fleet: ${fleetCode}`);
+
+        // Notify others in fleet
+        socket.to(fleetCode).emit('fleet-announcement', {
+            type: 'USER_JOINED',
+            message: `A new member has joined the Fleet.`,
+            userId: socket.id
+        });
+    });
+
+    socket.on('sync-cart', ({ fleetCode, cartItems, senderName }) => {
+        // Broadcast the updated cart to everyone in the room EXCEPT the sender
+        socket.to(fleetCode).emit('cart-updated', {
+            cartItems,
+            updatedBy: senderName
+        });
+    });
+
+    socket.on('disconnect', () => {
+        console.log(`[Socket] User disconnected: ${socket.id}`);
+    });
+});
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
+
 
 // MongoDB Connection
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/restaurant_app';
@@ -101,6 +142,14 @@ app.put('/api/orders/:id/status', async (req, res) => {
     }
 });
 
+const calculateRank = (xp) => {
+    if (xp >= 2000) return 'Admiral';
+    if (xp >= 1000) return 'Commander';
+    if (xp >= 500) return 'Captain';
+    if (xp >= 200) return 'Lieutenant';
+    return 'Cadet';
+};
+
 // POST /api/orders
 app.post('/api/orders', async (req, res) => {
     try {
@@ -109,26 +158,41 @@ app.post('/api/orders', async (req, res) => {
 
         // Handle Coupon Usage (Server-Side Verification)
         if (couponCode === 'SAI100') {
-            console.log(`[Order] Processing SAI100 for ${userName} (Atomic Check)`);
-
             const userMatched = await User.findOneAndUpdate(
-                {
-                    username: userName,
-                    usedCoupons: { $ne: 'SAI100' }
-                },
-                {
-                    $addToSet: { usedCoupons: 'SAI100' }
-                },
+                { username: userName, usedCoupons: { $ne: 'SAI100' } },
+                { $addToSet: { usedCoupons: 'SAI100' } },
                 { new: true }
             );
-
             if (!userMatched) {
                 const userExists = await User.findOne({ username: userName });
-                if (userExists) {
-                    console.log(`[Order] SAI100 already used by ${userName}`);
-                    return res.status(400).json({ message: 'Coupon SAI100 already used' });
-                }
+                if (userExists) return res.status(400).json({ message: 'Coupon SAI100 already used' });
             }
+        }
+
+        // Calculate XP: 100-150 -> 10, 151-200 -> 15, etc.
+        let earnedXp = 0;
+        if (totalAmount >= 100) {
+            earnedXp = 10 + Math.floor((totalAmount - 100) / 50) * 5;
+        }
+
+        // 10 XP = 1 CR
+        const earnedCredits = earnedXp / 10;
+
+        const user = await User.findOne({ username: userName });
+        if (user) {
+            user.xp = (user.xp || 0) + earnedXp;
+            user.credits = (user.credits || 0) + earnedCredits;
+            user.rank = calculateRank(user.xp);
+
+            // Add transaction for credits
+            if (earnedCredits > 0) {
+                user.transactions.push({
+                    type: 'Credit',
+                    amount: earnedCredits,
+                    description: `Earned ${earnedCredits} CR from Order XP`
+                });
+            }
+            await user.save();
         }
 
         const newOrder = new Order({
@@ -139,7 +203,7 @@ app.post('/api/orders', async (req, res) => {
             paymentMethod
         });
         const savedOrder = await newOrder.save();
-        res.status(201).json(savedOrder);
+        res.status(201).json({ ...savedOrder._doc, earnedXp, earnedCredits });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: err.message });
@@ -252,6 +316,6 @@ app.get('/', (req, res) => {
     res.send('Restaurant API is running');
 });
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
