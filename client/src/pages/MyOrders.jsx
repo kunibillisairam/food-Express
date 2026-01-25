@@ -114,27 +114,17 @@ const MyOrders = ({ setView }) => {
                 // Update local state immediately
                 setOrders(prev => prev.map(o => o._id === orderId ? { ...o, status: 'Cancelled' } : o));
 
-                // Process Refund to Wallet
-                const currentBalance = user.walletBalance || 0;
-                const refundAmount = parseFloat(amount);
+                // Refresh user data from server (to sync XP/Credits/Wallet)
+                try {
+                    const userRes = await axios.get(`${API_BASE_URL}/api/users/${user.username}`);
+                    if (userRes.data) {
+                        updateUser(userRes.data);
+                    }
+                } catch (e) {
+                    console.error("Failed to sync user data", e);
+                }
 
-                const newTransaction = {
-                    type: 'Credit',
-                    amount: refundAmount,
-                    description: `Refund for Order #${orderId.substring(orderId.length - 6)}`,
-                    date: new Date()
-                };
-
-                // Optimistically update user wallet
-                const updatedTransactions = [newTransaction, ...(user.transactions || [])];
-                const updatedBalance = currentBalance + refundAmount;
-
-                updateUser({
-                    walletBalance: updatedBalance,
-                    transactions: updatedTransactions
-                });
-
-                alert('✅ Order cancelled successfully! Amount refunded to wallet.');
+                alert('✅ Order cancelled successfully! XP/Credits updated.');
             }
         } catch (err) {
             console.error("Cancel Error:", err);

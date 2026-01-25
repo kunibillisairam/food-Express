@@ -5,6 +5,8 @@ const bodyParser = require('body-parser');
 require('dotenv').config();
 
 const Order = require('./models/Order');
+const User = require('./models/User');
+const Review = require('./models/Review');
 
 const http = require('http');
 const { Server } = require('socket.io');
@@ -117,7 +119,51 @@ app.put('/api/orders/:id/cancel', async (req, res) => {
         if (!order) {
             return res.status(404).json({ message: 'Order not found' });
         }
-        order.status = 'Cancelled';
+
+        if (order.status !== 'Cancelled') {
+            order.status = 'Cancelled';
+
+            // Deduct XP and Credits back
+            const user = await User.findOne({ username: order.userName });
+            if (user) {
+                user.xp = Math.max(0, (user.xp || 0) - (order.earnedXp || 0));
+                user.credits = Math.max(0, (user.credits || 0) - (order.earnedCredits || 0));
+
+                // Refund used credits if any
+                if (order.xpUsed > 0) {
+                    const refundCredits = order.xpUsed / 10;
+                    user.credits += refundCredits;
+                    user.transactions.push({
+                        type: 'Credit',
+                        amount: refundCredits,
+                        description: `Refunded ${refundCredits} CR (XP Usage) for cancelled order ${order._id}`
+                    });
+                }
+
+                // Refund wallet balance if paymentMethod was wallet
+                if (order.paymentMethod === 'wallet') {
+                    user.walletBalance = (user.walletBalance || 0) + order.totalAmount;
+                    user.transactions.push({
+                        type: 'Credit',
+                        amount: order.totalAmount,
+                        description: `Refund for cancelled order ${order._id}`
+                    });
+                }
+
+                user.rank = calculateRank(user.xp);
+
+                // Add debit transaction for deducted rewards
+                if (order.earnedCredits > 0) {
+                    user.transactions.push({
+                        type: 'Debit',
+                        amount: order.earnedCredits,
+                        description: `Deducted ${order.earnedCredits} CR rewards for cancelled order`
+                    });
+                }
+                await user.save();
+            }
+        }
+
         const updatedOrder = await order.save();
         res.json(updatedOrder);
     } catch (err) {
@@ -134,7 +180,51 @@ app.put('/api/orders/:id/status', async (req, res) => {
         if (!order) {
             return res.status(404).json({ message: 'Order not found' });
         }
+
+        const oldStatus = order.status;
         order.status = status;
+
+        // If status changed to Cancelled, deduct rewards
+        if (status === 'Cancelled' && oldStatus !== 'Cancelled') {
+            const user = await User.findOne({ username: order.userName });
+            if (user) {
+                user.xp = Math.max(0, (user.xp || 0) - (order.earnedXp || 0));
+                user.credits = Math.max(0, (user.credits || 0) - (order.earnedCredits || 0));
+
+                // Refund used credits if any
+                if (order.xpUsed > 0) {
+                    const refundCredits = order.xpUsed / 10;
+                    user.credits += refundCredits;
+                    user.transactions.push({
+                        type: 'Credit',
+                        amount: refundCredits,
+                        description: `Refunded ${refundCredits} CR (XP Usage) for cancelled order ${order._id}`
+                    });
+                }
+
+                // Refund wallet balance if paymentMethod was wallet
+                if (order.paymentMethod === 'wallet') {
+                    user.walletBalance = (user.walletBalance || 0) + order.totalAmount;
+                    user.transactions.push({
+                        type: 'Credit',
+                        amount: order.totalAmount,
+                        description: `Refund for cancelled order ${order._id}`
+                    });
+                }
+
+                user.rank = calculateRank(user.xp);
+
+                if (order.earnedCredits > 0) {
+                    user.transactions.push({
+                        type: 'Debit',
+                        amount: order.earnedCredits,
+                        description: `Deducted ${order.earnedCredits} CR rewards for cancelled order`
+                    });
+                }
+                await user.save();
+            }
+        }
+
         const updatedOrder = await order.save();
         res.json(updatedOrder);
     } catch (err) {
@@ -153,54 +243,77 @@ const calculateRank = (xp) => {
 // POST /api/orders
 app.post('/api/orders', async (req, res) => {
     try {
-        const { userName, items, totalAmount, couponCode, address, paymentMethod } = req.body;
-        console.log(`[Order] Received order from ${userName}, Address: ${address}, Method: ${paymentMethod}`);
+        const { userName, items, totalAmount, couponCode, address, paymentMethod, useXp } = req.body;
+        console.log(`[Order] Received order from ${userName}, Address: ${address}, Method: ${paymentMethod}, Use XP: ${useXp}`);
+
+        const user = await User.findOne({ username: userName });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
 
         // Handle Coupon Usage (Server-Side Verification)
         if (couponCode === 'SAI100') {
-            const userMatched = await User.findOneAndUpdate(
-                { username: userName, usedCoupons: { $ne: 'SAI100' } },
-                { $addToSet: { usedCoupons: 'SAI100' } },
-                { new: true }
-            );
-            if (!userMatched) {
-                const userExists = await User.findOne({ username: userName });
-                if (userExists) return res.status(400).json({ message: 'Coupon SAI100 already used' });
+            if (user.usedCoupons.includes('SAI100')) {
+                return res.status(400).json({ message: 'Coupon SAI100 already used' });
             }
+            user.usedCoupons.push('SAI100');
         }
 
-        // Calculate XP: 100-150 -> 10, 151-200 -> 15, etc.
-        let earnedXp = 0;
-        if (totalAmount >= 100) {
-            earnedXp = 10 + Math.floor((totalAmount - 100) / 50) * 5;
-        }
+        let xpDeducted = 0;
+        let finalAmount = totalAmount;
 
-        // 10 XP = 1 CR
-        const earnedCredits = earnedXp / 10;
+        // Handle XP Usage (10 XP = 1 CR = 1 Rupee discount)
+        if (useXp) {
+            const availableCredits = user.credits || 0;
+            const discountAvailable = availableCredits; // 1 credit = 1 rupee discount
+            const discountToApply = Math.min(discountAvailable, totalAmount);
 
-        const user = await User.findOne({ username: userName });
-        if (user) {
-            user.xp = (user.xp || 0) + earnedXp;
-            user.credits = (user.credits || 0) + earnedCredits;
-            user.rank = calculateRank(user.xp);
+            if (discountToApply > 0) {
+                user.credits -= discountToApply;
+                xpDeducted = discountToApply * 10;
+                user.xp = Math.max(0, (user.xp || 0) - xpDeducted);
+                finalAmount -= discountToApply;
 
-            // Add transaction for credits
-            if (earnedCredits > 0) {
                 user.transactions.push({
-                    type: 'Credit',
-                    amount: earnedCredits,
-                    description: `Earned ${earnedCredits} CR from Order XP`
+                    type: 'Debit',
+                    amount: discountToApply,
+                    description: `Used ${discountToApply} CR for discount on order`
                 });
             }
-            await user.save();
         }
+
+        // Calculate XP Reward for the order (based on final amount)
+        let earnedXp = 0;
+        if (finalAmount >= 100) {
+            earnedXp = 10 + Math.floor((finalAmount - 100.1) / 50) * 5;
+        }
+
+        // 10 XP = 1 CR reward
+        const earnedCredits = earnedXp / 10;
+
+        user.xp = (user.xp || 0) + earnedXp;
+        user.credits = (user.credits || 0) + earnedCredits;
+        user.rank = calculateRank(user.xp);
+
+        // Add transaction for rewards
+        if (earnedCredits > 0) {
+            user.transactions.push({
+                type: 'Credit',
+                amount: earnedCredits,
+                description: `Earned ${earnedCredits} CR from Order XP`
+            });
+        }
+        await user.save();
 
         const newOrder = new Order({
             userName,
             items,
-            totalAmount,
+            totalAmount: finalAmount,
             address,
-            paymentMethod
+            paymentMethod,
+            earnedXp,
+            earnedCredits,
+            xpUsed: xpDeducted
         });
         const savedOrder = await newOrder.save();
         res.status(201).json({ ...savedOrder._doc, earnedXp, earnedCredits });
@@ -211,7 +324,6 @@ app.post('/api/orders', async (req, res) => {
 });
 
 // Review Routes
-const Review = require('./models/Review');
 
 // GET /api/reviews/:foodId
 app.get('/api/reviews/:foodId', async (req, res) => {
@@ -242,7 +354,6 @@ app.post('/api/reviews', async (req, res) => {
 });
 
 // Auth Routes
-const User = require('./models/User');
 
 // POST /api/auth/signup
 app.post('/api/auth/signup', async (req, res) => {
@@ -287,6 +398,20 @@ app.post('/api/auth/login', async (req, res) => {
     }
 });
 
+// GET /api/users/:username -> Fetch User Details
+app.get('/api/users/:username', async (req, res) => {
+    try {
+        const { username } = req.params;
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json(user);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // PUT /api/users/:username -> Update User (Address, Wallet)
 app.put('/api/users/:username', async (req, res) => {
     try {
@@ -314,6 +439,20 @@ app.get('/api/reviews', async (req, res) => {
 
 app.get('/', (req, res) => {
     res.send('Restaurant API is running');
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error(`[Error] ${err.stack}`);
+    res.status(500).json({ error: 'Internal Server Error', message: err.message });
+});
+
+process.on('uncaughtException', (err) => {
+    console.error(`[Uncaught Exception] ${err.stack}`);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error(`[Unhandled Rejection] at: ${promise}, reason: ${reason}`);
 });
 
 server.listen(PORT, () => {

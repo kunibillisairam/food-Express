@@ -14,6 +14,9 @@ const OrderSchema = new mongoose.Schema({
     address: { type: String, required: true },
     paymentMethod: { type: String, required: true },
     status: { type: String, default: 'Pending' },
+    earnedXp: { type: Number, default: 0 },
+    earnedCredits: { type: Number, default: 0 },
+    xpUsed: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now }
 });
 

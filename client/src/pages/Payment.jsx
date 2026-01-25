@@ -18,6 +18,7 @@ const Payment = ({ setView }) => {
     const [couponMsg, setCouponMsg] = useState('');
     const [processStatus, setProcessStatus] = useState('processing'); // 'processing', 'success', 'failure'
     const [isLocating, setIsLocating] = useState(false);
+    const [useXp, setUseXp] = useState(false);
 
     // Payment Details State
     const [upiId, setUpiId] = useState('');
@@ -79,11 +80,11 @@ const Payment = ({ setView }) => {
     // State for address if missing
     const [missingAddress, setMissingAddress] = useState('');
     const [showAddressPrompt, setShowAddressPrompt] = useState(false);
+    const [walletError, setWalletError] = useState('');
     const { updateUser } = useContext(AuthContext);
 
-    const finalAmount = totalAmount - discount;
-
-    const [walletError, setWalletError] = useState('');
+    const xpDiscount = useXp ? (user?.credits || 0) : 0;
+    const finalAmount = Math.max(0, totalAmount - discount - xpDiscount);
 
     const handleConfirm = async () => {
         // Validation: Check Address
@@ -172,13 +173,37 @@ const Payment = ({ setView }) => {
                 status: 'Pending',
                 paymentMethod: method,
                 address: addressToUse, // Send address to backend if needed
-                couponCode: appliedCoupon // Pass coupon to backend for verification/marketing
+                couponCode: appliedCoupon, // Pass coupon to backend for verification/marketing
+                useXp: useXp
             };
 
             const response = await axios.post(`${API_BASE_URL}/api/orders`, orderData);
 
             // Transition to Success Animation
             setProcessStatus('success');
+
+            // Update user state with rewards from backend
+            if (response.data) {
+                // Fetch the latest user data from server to be sure, or update from response
+                // For now, let's just update the specific fields we know changed
+                const newXp = (user.xp || 0) + (response.data.earnedXp || 0) - (useXp ? (response.data.xpUsed || 0) : 0);
+                const newCredits = (user.credits || 0) + (response.data.earnedCredits || 0) - (useXp ? (user.credits || 0) : 0);
+
+                // Better approach: fetch full user if possible, or trust local math
+                // Since our backend returns earnedXp and earnedCredits, we use those.
+                // Note: useXp might have consumed all credits.
+
+                // Let's just use the updateUser to sync if we had a simplified response, 
+                // but since we want to be accurate, let's fetch the user data.
+                try {
+                    const userRes = await axios.get(`${API_BASE_URL}/api/users/${user.username}`);
+                    if (userRes.data) {
+                        updateUser(userRes.data);
+                    }
+                } catch (e) {
+                    console.error("Failed to sync user data", e);
+                }
+            }
 
             setTimeout(() => {
                 setLastOrder({
@@ -489,6 +514,60 @@ const Payment = ({ setView }) => {
                                     <span>₹{finalAmount}</span>
                                 </div>
 
+                                {user && user.credits > 0 && (
+                                    <div
+                                        onClick={() => setUseXp(!useXp)}
+                                        className={`xp-usage-card ${useXp ? 'active' : ''}`}
+                                        style={{
+                                            border: useXp ? '2px solid #00f2fe' : '1px solid #ddd',
+                                            background: useXp ? 'rgba(0, 242, 254, 0.05)' : '#fff',
+                                            padding: '1rem',
+                                            borderRadius: '16px',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.3s ease',
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            marginBottom: '1rem',
+                                            position: 'relative',
+                                            overflow: 'hidden'
+                                        }}
+                                    >
+                                        {useXp && <div style={{ position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', background: '#00f2fe' }} />}
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                            <div style={{
+                                                width: '40px',
+                                                height: '40px',
+                                                borderRadius: '10px',
+                                                background: 'linear-gradient(45deg, #0984e3, #6c5ce7)',
+                                                display: 'flex',
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                                color: 'white',
+                                                fontSize: '1.2rem'
+                                            }}>
+                                                ⚡
+                                            </div>
+                                            <div>
+                                                <div style={{ fontWeight: '700', fontSize: '0.9rem' }}>Use XP Credits</div>
+                                                <div style={{ fontSize: '0.75rem', color: '#666' }}>Available: {user.credits} CR (₹{user.credits})</div>
+                                            </div>
+                                        </div>
+                                        <div style={{
+                                            width: '24px',
+                                            height: '24px',
+                                            borderRadius: '50%',
+                                            border: '2px solid' + (useXp ? '#00f2fe' : '#ddd'),
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            background: useXp ? '#00f2fe' : 'transparent'
+                                        }}>
+                                            {useXp && <span style={{ color: 'white', fontSize: '12px' }}>✓</span>}
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* XP EARNINGS INDICATOR */}
                                 {finalAmount >= 100 && (
                                     <div style={{
@@ -507,10 +586,10 @@ const Payment = ({ setView }) => {
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                             <div style={{ color: 'white', fontSize: '0.9rem', fontWeight: 'bold' }}>
-                                                +{10 + Math.floor((finalAmount - 100) / 50) * 5} XP
+                                                +{10 + Math.floor((finalAmount - 100.1) / 50) * 5} XP
                                             </div>
                                             <div style={{ color: '#00f2fe', fontSize: '0.9rem', fontWeight: 'bold' }}>
-                                                +{(10 + Math.floor((finalAmount - 100) / 50) * 5) / 10} CR
+                                                +{(10 + Math.floor((finalAmount - 100.1) / 50) * 5) / 10} CR
                                             </div>
                                         </div>
                                     </div>

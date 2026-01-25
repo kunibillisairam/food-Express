@@ -5,6 +5,8 @@ const bodyParser = require('body-parser');
 require('dotenv').config();
 
 const Order = require('./models/Order');
+const User = require('./models/User');
+const Review = require('./models/Review');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -155,7 +157,6 @@ app.post('/api/orders', async (req, res) => {
 });
 
 // Review Routes
-const Review = require('./models/Review');
 
 // GET /api/reviews/:foodId
 app.get('/api/reviews/:foodId', async (req, res) => {
@@ -186,7 +187,6 @@ app.post('/api/reviews', async (req, res) => {
 });
 
 // Auth Routes
-const User = require('./models/User');
 
 // POST /api/auth/signup
 app.post('/api/auth/signup', async (req, res) => {
