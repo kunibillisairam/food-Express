@@ -1885,16 +1885,18 @@ body {
   }
 
   .balance-card {
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
+    padding: 1.2rem;
+    margin-bottom: 1.2rem;
   }
 
   .balance-amount {
-    font-size: 2rem;
+    font-size: 1.8rem;
+    /* Reduced from 2rem for better fit */
   }
 
   .balance-label {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
   }
 
   .transaction-item {
@@ -1906,7 +1908,7 @@ body {
   }
 
   .txn-amount {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
   }
 
   .txn-date {
@@ -1919,8 +1921,27 @@ body {
   }
 
   .referral-code-box {
-    font-size: 1.2rem;
-    padding: 1rem;
+    font-size: 1.1rem;
+    padding: 0.8rem;
+  }
+
+  /* Optimize Recharge Input on Mobile */
+  .premium-input-container {
+    padding: 0.8rem !important;
+    margin: 0.5rem 0 !important;
+  }
+
+  .premium-input-container input {
+    font-size: 1.4rem !important;
+    /* Fixed huge input font */
+    padding: 0.5rem !important;
+  }
+
+  .amount-chip {
+    padding: 0.6rem 0.8rem !important;
+    font-size: 0.85rem !important;
+    min-width: 60px;
+    text-align: center;
   }
 
   /* Improved Order & Transaction List Scaling */

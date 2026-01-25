@@ -450,8 +450,32 @@ app.get('/api/reviews', async (req, res) => {
     }
 });
 
-app.get('/', (req, res) => {
-    res.send('Restaurant API is running');
+// Serve Static Frontend (Production)
+const path = require('path');
+
+// Health Check
+app.get('/api/health', (req, res) => {
+    res.json({
+        status: 'ok',
+        mongoConnected: mongoose.connection.readyState === 1,
+        socketActive: !!io,
+        timestamp: new Date()
+    });
+});
+
+// Serve React App
+app.use(express.static(path.join(__dirname, '../client/dist')));
+
+// API Routes (Orders, Auth, Reviews) are defined above...
+
+// Handle React Routing (Catch-All) - MUST BE LAST
+app.get('*', (req, res) => {
+    const indexPath = path.join(__dirname, '../client/dist/index.html');
+    if (require('fs').existsSync(indexPath)) {
+        res.sendFile(indexPath);
+    } else {
+        res.send('API Running. Frontend not built. Run "npm run build" in client.');
+    }
 });
 
 // Error handling middleware
@@ -470,4 +494,8 @@ process.on('unhandledRejection', (reason, promise) => {
 
 server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+    console.log(`MongoDB URI Configured: ${!!process.env.MONGO_URI} (Check Render Environment Variables)`);
+    if (process.env.MONGO_URI) {
+        console.log(`MongoDB URI Host: ${process.env.MONGO_URI.split('@')[1] || 'Hidden/Local'}`);
+    }
 });
