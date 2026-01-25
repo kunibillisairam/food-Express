@@ -26,7 +26,9 @@ export const useSound = () => {
         try {
             const audio = getAudio(type);
             audio.currentTime = 0; // Reset to start
-            audio.play().catch(e => console.log("Audio play failed (user interaction needed first)"));
+            audio.play().catch(e => {
+                // Ignore autoplay/user-interaction errors, they are expected
+            });
         } catch (err) {
             console.error("Sound error", err);
         }
