@@ -17,13 +17,12 @@ const Hero = ({ setView }) => {
                         <span>Fastest Delivery in Town</span>
                     </div>
                     <h1 className="hero-title">
-                        Savor the <span className="highlight">Future</span> of <br />
-                        <span className="text-gradient">Elite Dining</span>
+                        Savor the Future of Dining
                     </h1>
                     <p className="hero-subtitle">
-                        Experience lightning-fast delivery and gourmet flavors from the city's finest kitchens.
-                        Your premium food journey starts here.
+                        Experience lightning-fast delivery and gourmet flavors.
                     </p>
+
                     <div className="hero-actions">
                         <button className="hero-primary-btn" onClick={() => {
                             const el = document.getElementById('food-explore');

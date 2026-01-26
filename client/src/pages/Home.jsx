@@ -5,8 +5,10 @@ import { CartContext } from '../context/CartContext';
 import AboutUs from '../components/AboutUs';
 import HolographicCard from '../components/HolographicCard';
 import Hero from '../components/Hero';
+import AppDownloadSection from '../components/AppDownloadSection';
 
 const Home = ({ activeCategory, setCategory, searchTerm, setSearchTerm, setView }) => {
+
     const { addToCart } = useContext(CartContext);
 
     // Filter logic
@@ -73,7 +75,10 @@ const Home = ({ activeCategory, setCategory, searchTerm, setSearchTerm, setView 
                     </div>
                 )}
 
+                <AppDownloadSection />
+
                 <AboutUs />
+
             </div>
         </div>
     );
