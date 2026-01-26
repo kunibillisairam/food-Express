@@ -6,10 +6,15 @@ import AboutUs from '../components/AboutUs';
 import HolographicCard from '../components/HolographicCard';
 import Hero from '../components/Hero';
 import AppDownloadSection from '../components/AppDownloadSection';
+import { AuthContext } from '../context/AuthContext';
 
 const Home = ({ activeCategory, setCategory, searchTerm, setSearchTerm, setView }) => {
-
+    const { user } = useContext(AuthContext);
     const { addToCart } = useContext(CartContext);
+
+    // Detect if app is running in standalone mode (installed)
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
 
     // Filter logic
     const filteredFood = foodData.filter(item => {
@@ -24,7 +29,8 @@ const Home = ({ activeCategory, setCategory, searchTerm, setSearchTerm, setView 
 
     return (
         <div className="home-page fade-in">
-            <Hero setView={setView} />
+            {!user && <Hero setView={setView} />}
+
 
             <div id="food-explore" className="explore-section">
                 <div className="search-container">
@@ -75,7 +81,7 @@ const Home = ({ activeCategory, setCategory, searchTerm, setSearchTerm, setView 
                     </div>
                 )}
 
-                <AppDownloadSection />
+                {!isStandalone && <AppDownloadSection />}
 
                 <AboutUs />
 
