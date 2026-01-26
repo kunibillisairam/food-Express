@@ -98,6 +98,9 @@ const Profile = ({ setView }) => {
             setIsVerifying(false);
             setVerificationError('');
             setHasPaidMock(false);
+            setUpiError('');
+            setIsPaymentPending(false);
+            setPaymentReturnedFromApp(false);
         }
     }, [activeModal]);
 
@@ -224,13 +227,43 @@ const Profile = ({ setView }) => {
         handleAddMoney();
     };
 
+    // Validate UPI ID format
+    const validateUPIId = (upiIdStr) => {
+        // UPI ID format: username@provider (e.g., user@paytm, 9876543210@ybl, etc.)
+        const upiRegex = /^[\w\.\-]{3,}@[a-zA-Z]{2,}$/;
+        return upiRegex.test(upiIdStr);
+    };
+
     const handleUPIPayment = () => {
-        if (isMobileDevice) {
-            // Simulated UPI app redirect
-            const upiLink = `upi://pay?pa=${upiId || 'merchant@upi'}&pn=FoodExpress&am=${addAmount}&cu=INR`;
-            window.location.href = upiLink;
+        // Validate UPI ID if provided
+        if (upiId && !validateUPIId(upiId)) {
+            setUpiError('Invalid UPI ID format. Please enter a valid UPI ID (e.g., username@paytm)');
+            return;
         }
-        handleAddMoney();
+
+        setUpiError('');
+
+        if (isMobileDevice) {
+            // Set payment pending status
+            setIsPaymentPending(true);
+
+            // Construct UPI deep link
+            const merchantUpi = upiId || 'foodexpress@upi';
+            const upiLink = `upi://pay?pa=${merchantUpi}&pn=FoodExpress&am=${addAmount}&cu=INR&tn=Wallet Recharge`;
+
+            console.log('Redirecting to UPI app:', upiLink);
+
+            // Try to open UPI app
+            window.location.href = upiLink;
+
+            // Set a timeout to check if user returned from the app
+            setTimeout(() => {
+                setPaymentReturnedFromApp(true);
+            }, 3000); // Wait 3 seconds for app to open
+        } else {
+            // For desktop, proceed to QR code flow (already handled in UI)
+            setUpiError('');
+        }
     };
 
     const popularBanks = [
