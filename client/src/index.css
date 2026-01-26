@@ -3166,6 +3166,10 @@ body {
     grid-template-columns: 1fr 1fr;
     gap: 12px;
   }
+
+  .profile-grid>div:last-child:nth-child(odd) {
+    grid-column: span 2;
+  }
 }
 
 .profile-card-mini {

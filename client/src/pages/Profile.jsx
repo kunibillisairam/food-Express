@@ -1019,12 +1019,21 @@ const Profile = ({ setView }) => {
                                             </div>
                                         </div>
                                     </div>
+                                    <div className="profile-card-mini" onClick={() => setView('my-orders')}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <div className="icon-box" style={{ color: '#ff9f43', background: '#fff9ee' }}><FaMotorcycle /></div>
+                                            <div>
+                                                <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: '700' }}>My Orders</h4>
+                                                <p style={{ margin: 0, fontSize: '0.75rem', color: '#747d8c' }}>Track Live</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div className="profile-card-mini" onClick={() => setActiveTab('orders')}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                             <div className="icon-box" style={{ color: '#0984e3', background: '#f0f7ff' }}><FaListAlt /></div>
                                             <div>
-                                                <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: '700' }}>Orders</h4>
-                                                <p style={{ margin: 0, fontSize: '0.75rem', color: '#747d8c' }}>History</p>
+                                                <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: '700' }}>History</h4>
+                                                <p style={{ margin: 0, fontSize: '0.75rem', color: '#747d8c' }}>Past Orders</p>
                                             </div>
                                         </div>
                                     </div>
