@@ -3551,3 +3551,34 @@ body {
     width: 100%;
   }
 }
+
+/* Desktop Profile Cards */
+.desktop-action-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4) !important;
+}
+
+.desktop-action-card-white:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12) !important;
+  border-color: var(--primary) !important;
+}
+
+/* Responsive Display Utilities */
+.mobile-only {
+  display: block;
+}
+
+.desktop-only {
+  display: none;
+}
+
+@media (min-width: 769px) {
+  .mobile-only {
+    display: none !important;
+  }
+
+  .desktop-only {
+    display: block !important;
+  }
+}

@@ -937,85 +937,308 @@ const Profile = ({ setView }) => {
                     {/* RIGHT PANEL: Main Content */}
                     <div className="profile-main-content px-4">
                         {activeTab === 'profile' && (
-                            <div className="fade-in mobile-profile-section">
-                                <div className="mobile-user-header">
-                                    <div className="mobile-avatar">
-                                        {user.username.charAt(0).toUpperCase()}
-                                    </div>
-                                    <div>
-                                        <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#2d3436' }}>
-                                            {user.username}
+                            <>
+                                {/* MOBILE VIEW */}
+                                <div className="fade-in mobile-profile-section mobile-only">
+                                    <div className="mobile-user-header">
+                                        <div className="mobile-avatar">
+                                            {user.username.charAt(0).toUpperCase()}
                                         </div>
-                                        <div style={{ fontSize: '0.9rem', color: '#636e72' }}>
-                                            {user.email || user.phone}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="mobile-quick-grid">
-                                    <div className="mobile-quick-card" onClick={() => setView('my-orders')}>
-                                        <FaMotorcycle size={24} color="#2d3436" />
-                                        <div style={{ fontSize: '0.8rem', fontWeight: '600', color: '#2d3436' }}>Your Orders</div>
-                                    </div>
-                                    <div className="mobile-quick-card" onClick={() => setActiveTab('help')}>
-                                        <FaQuestionCircle size={24} color="#2d3436" />
-                                        <div style={{ fontSize: '0.8rem', fontWeight: '600', color: '#2d3436' }}>Help & Support</div>
-                                    </div>
-                                    <div className="mobile-quick-card" onClick={() => setActiveTab('orders')}>
-                                        <FaListAlt size={24} color="#2d3436" />
-                                        <div style={{ fontSize: '0.8rem', fontWeight: '600', color: '#2d3436' }}>Order Logs</div>
-                                    </div>
-                                </div>
-
-                                <div className="mobile-wallet-banner">
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                            <div style={{ background: 'white', padding: '8px', borderRadius: '10px' }}>
-                                                <FaWallet color="#9333ea" size={20} />
-                                            </div>
-                                            <div>
-                                                <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#4c1d95' }}>FoodExpress Cash</div>
-                                                <div style={{ fontSize: '0.7rem', color: '#6b21a8' }}>Seamless Checkout</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 5px' }}>
                                         <div>
-                                            <div style={{ fontSize: '0.8rem', color: '#6b21a8' }}>Available Balance</div>
-                                            <div style={{ fontSize: '1.4rem', fontWeight: '800', color: '#4c1d95' }}>₹{user.walletBalance || 0}</div>
+                                            <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#2d3436' }}>
+                                                {user.username}
+                                            </div>
+                                            <div style={{ fontSize: '0.9rem', color: '#636e72' }}>
+                                                {user.email || user.phone}
+                                            </div>
                                         </div>
-                                        <button
-                                            onClick={() => setActiveModal('wallet')}
-                                            style={{ background: '#9333ea', color: 'white', border: 'none', padding: '8px 20px', borderRadius: '20px', fontWeight: '600', fontSize: '0.85rem' }}
-                                        >
-                                            Add Balance
+                                    </div>
+
+                                    <div className="mobile-quick-grid">
+                                        <div className="mobile-quick-card" onClick={() => setView('my-orders')}>
+                                            <FaMotorcycle size={24} color="#2d3436" />
+                                            <div style={{ fontSize: '0.8rem', fontWeight: '600', color: '#2d3436' }}>Your Orders</div>
+                                        </div>
+                                        <div className="mobile-quick-card" onClick={() => setActiveTab('help')}>
+                                            <FaQuestionCircle size={24} color="#2d3436" />
+                                            <div style={{ fontSize: '0.8rem', fontWeight: '600', color: '#2d3436' }}>Help & Support</div>
+                                        </div>
+                                        <div className="mobile-quick-card" onClick={() => setActiveTab('orders')}>
+                                            <FaListAlt size={24} color="#2d3436" />
+                                            <div style={{ fontSize: '0.8rem', fontWeight: '600', color: '#2d3436' }}>Order Logs</div>
+                                        </div>
+                                    </div>
+
+                                    <div className="mobile-wallet-banner">
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                <div style={{ background: 'white', padding: '8px', borderRadius: '10px' }}>
+                                                    <FaWallet color="#9333ea" size={20} />
+                                                </div>
+                                                <div>
+                                                    <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#4c1d95' }}>FoodExpress Cash</div>
+                                                    <div style={{ fontSize: '0.7rem', color: '#6b21a8' }}>Seamless Checkout</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 5px' }}>
+                                            <div>
+                                                <div style={{ fontSize: '0.8rem', color: '#6b21a8' }}>Available Balance</div>
+                                                <div style={{ fontSize: '1.4rem', fontWeight: '800', color: '#4c1d95' }}>₹{user.walletBalance || 0}</div>
+                                            </div>
+                                            <button
+                                                onClick={() => setActiveModal('wallet')}
+                                                style={{ background: '#9333ea', color: 'white', border: 'none', padding: '8px 20px', borderRadius: '20px', fontWeight: '600', fontSize: '0.85rem' }}
+                                            >
+                                                Add Balance
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '15px', color: '#2d3436' }}>Your Information</div>
+                                    <div className="mobile-menu-list">
+                                        <div className="mobile-menu-item" onClick={() => setActiveTab('address')}>
+                                            <div className="mobile-menu-icon" style={{ color: '#2d3436' }}><FaMapMarkerAlt /></div>
+                                            <div style={{ flex: 1 }}>Saved Addresses</div>
+                                            <div style={{ color: '#bbb' }}>&gt;</div>
+                                        </div>
+                                        <div className="mobile-menu-item" onClick={() => setActiveModal('refer')}>
+                                            <div className="mobile-menu-icon" style={{ color: '#2d3436' }}><FaGift /></div>
+                                            <div style={{ flex: 1 }}>Refer & Earn</div>
+                                            <div style={{ color: '#bbb' }}>&gt;</div>
+                                        </div>
+                                        <div className="mobile-menu-item" onClick={() => setActiveTab('wallet')}>
+                                            <div className="mobile-menu-icon" style={{ color: '#2d3436' }}><FaCreditCard /></div>
+                                            <div style={{ flex: 1 }}>Payment Methods</div>
+                                            <div style={{ color: '#bbb' }}>&gt;</div>
+                                        </div>
+                                        <div className="mobile-menu-item" onClick={handleLogout}>
+                                            <div className="mobile-menu-icon" style={{ color: '#ff4757' }}><FaSignOutAlt /></div>
+                                            <div style={{ flex: 1, color: '#ff4757' }}>Log Out</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* DESKTOP VIEW */}
+                                <div className="fade-in desktop-profile-section desktop-only" style={{ position: 'relative' }}>
+                                    {/* Floating Top-Right Badges */}
+                                    <div className="floating-badge-group" style={{ position: 'absolute', top: 0, right: 0, zIndex: 10 }}>
+                                        <div className="rank-badge-glow" style={{
+                                            background: 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)',
+                                            color: '#00f2fe',
+                                            padding: '10px 20px',
+                                            borderRadius: '25px',
+                                            fontSize: '0.95rem',
+                                            fontWeight: '700',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '10px',
+                                            cursor: 'pointer'
+                                        }}>
+                                            <FaRocket /> {user.rank || 'Cadet'}
+                                            <span style={{ fontSize: '0.85rem', opacity: 0.8, marginLeft: '6px', borderLeft: '1px solid rgba(255,255,255,0.2)', paddingLeft: '10px' }}>
+                                                {user.xp || 0} XP
+                                            </span>
+                                        </div>
+                                        <button onClick={handleLogout} className="logout-btn-minimal" style={{
+                                            background: '#fff5f5',
+                                            color: '#ff4757',
+                                            border: '1px solid #fee2e2',
+                                            width: '42px',
+                                            height: '42px',
+                                            borderRadius: '50%',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            cursor: 'pointer',
+                                            fontSize: '1rem'
+                                        }}>
+                                            <FaSignOutAlt />
                                         </button>
                                     </div>
-                                </div>
 
-                                <div style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '15px', color: '#2d3436' }}>Your Information</div>
-                                <div className="mobile-menu-list">
-                                    <div className="mobile-menu-item" onClick={() => setActiveTab('address')}>
-                                        <div className="mobile-menu-icon" style={{ color: '#2d3436' }}><FaMapMarkerAlt /></div>
-                                        <div style={{ flex: 1 }}>Saved Addresses</div>
-                                        <div style={{ color: '#bbb' }}>&gt;</div>
+                                    {/* Welcome Header */}
+                                    <div style={{ textAlign: 'center', marginBottom: '40px', paddingTop: '20px' }}>
+                                        <div style={{
+                                            width: '120px', height: '120px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                            borderRadius: '50%', margin: '0 auto 20px', display: 'flex', alignItems: 'center',
+                                            justifyContent: 'center', fontSize: '3.5rem', color: 'white', fontWeight: '800',
+                                            boxShadow: '0 15px 35px rgba(102, 126, 234, 0.3)', border: '5px solid white'
+                                        }}>
+                                            {user.username.charAt(0).toUpperCase()}
+                                        </div>
+                                        <h2 style={{ fontSize: '2.2rem', margin: 0, fontWeight: '800', color: '#2f3542' }}>
+                                            Welcome, {user.username}!
+                                        </h2>
+                                        <p style={{ margin: '8px 0 0', color: '#747d8c', fontSize: '1.1rem' }}>
+                                            +91 {user.phone}
+                                        </p>
                                     </div>
-                                    <div className="mobile-menu-item" onClick={() => setActiveModal('refer')}>
-                                        <div className="mobile-menu-icon" style={{ color: '#2d3436' }}><FaGift /></div>
-                                        <div style={{ flex: 1 }}>Refer & Earn</div>
-                                        <div style={{ color: '#bbb' }}>&gt;</div>
-                                    </div>
-                                    <div className="mobile-menu-item" onClick={() => setActiveTab('wallet')}>
-                                        <div className="mobile-menu-icon" style={{ color: '#2d3436' }}><FaCreditCard /></div>
-                                        <div style={{ flex: 1 }}>Payment Methods</div>
-                                        <div style={{ color: '#bbb' }}>&gt;</div>
-                                    </div>
-                                    <div className="mobile-menu-item" onClick={handleLogout}>
-                                        <div className="mobile-menu-icon" style={{ color: '#ff4757' }}><FaSignOutAlt /></div>
-                                        <div style={{ flex: 1, color: '#ff4757' }}>Log Out</div>
+
+                                    {/* Dashboard Grid */}
+                                    <div className="desktop-dashboard-grid" style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                                        gap: '25px',
+                                        marginTop: '35px'
+                                    }}>
+                                        {/* Wallet Card */}
+                                        <div onClick={() => setActiveTab('wallet')} style={{
+                                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                            color: 'white',
+                                            padding: '30px',
+                                            borderRadius: '24px',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                                            boxShadow: '0 10px 30px rgba(102, 126, 234, 0.3)',
+                                            position: 'relative',
+                                            overflow: 'hidden'
+                                        }}
+                                            className="desktop-action-card">
+                                            <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '120px', height: '120px', background: 'rgba(255,255,255,0.1)', borderRadius: '50%', filter: 'blur(40px)' }}></div>
+                                            <div style={{ position: 'relative', zIndex: 2 }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                                                    <FaWallet style={{ fontSize: '2rem' }} />
+                                                    <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: '700' }}>Wallet</h3>
+                                                </div>
+                                                <div style={{ fontSize: '0.9rem', opacity: 0.9, marginBottom: '10px' }}>Available Balance</div>
+                                                <div style={{ fontSize: '2.5rem', fontWeight: '900', marginBottom: '15px' }}>₹{user.walletBalance || 0}</div>
+                                                <button onClick={(e) => { e.stopPropagation(); setActiveModal('wallet'); }}
+                                                    style={{
+                                                        background: 'rgba(255,255,255,0.2)',
+                                                        color: 'white',
+                                                        border: '1px solid rgba(255,255,255,0.3)',
+                                                        padding: '10px 20px',
+                                                        borderRadius: '15px',
+                                                        fontWeight: '600',
+                                                        cursor: 'pointer',
+                                                        backdropFilter: 'blur(10px)'
+                                                    }}>
+                                                    + Add Money
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        {/* My Orders Card */}
+                                        <div onClick={() => setView('my-orders')} style={{
+                                            background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                                            color: 'white',
+                                            padding: '30px',
+                                            borderRadius: '24px',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                                            boxShadow: '0 10px 30px rgba(245, 87, 108, 0.3)',
+                                            position: 'relative',
+                                            overflow: 'hidden'
+                                        }}
+                                            className="desktop-action-card">
+                                            <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '120px', height: '120px', background: 'rgba(255,255,255,0.1)', borderRadius: '50%', filter: 'blur(40px)' }}></div>
+                                            <div style={{ position: 'relative', zIndex: 2 }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                                                    <FaMotorcycle style={{ fontSize: '2rem' }} />
+                                                    <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: '700' }}>My Orders</h3>
+                                                </div>
+                                                <p style={{ fontSize: '1rem', opacity: 0.95, margin: '0 0 20px', lineHeight: '1.6' }}>
+                                                    Track your live orders and view delivery status in real-time
+                                                </p>
+                                                <div style={{ fontSize: '0.9rem', opacity: 0.8 }}>→ Track Now</div>
+                                            </div>
+                                        </div>
+
+                                        {/* Order History Card */}
+                                        <div onClick={() => setActiveTab('orders')} style={{
+                                            background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                                            color: 'white',
+                                            padding: '30px',
+                                            borderRadius: '24px',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                                            boxShadow: '0 10px 30px rgba(0, 242, 254, 0.3)',
+                                            position: 'relative',
+                                            overflow: 'hidden'
+                                        }}
+                                            className="desktop-action-card">
+                                            <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '120px', height: '120px', background: 'rgba(255,255,255,0.1)', borderRadius: '50%', filter: 'blur(40px)' }}></div>
+                                            <div style={{ position: 'relative', zIndex: 2 }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                                                    <FaListAlt style={{ fontSize: '2rem' }} />
+                                                    <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: '700' }}>History</h3>
+                                                </div>
+                                                <p style={{ fontSize: '1rem', opacity: 0.95, margin: '0 0 20px', lineHeight: '1.6' }}>
+                                                    View all your past orders and reorder your favorites
+                                                </p>
+                                                <div style={{ fontSize: '0.9rem', opacity: 0.8 }}>→ View Logs</div>
+                                            </div>
+                                        </div>
+
+                                        {/* Address Card */}
+                                        <div onClick={() => setActiveTab('address')} style={{
+                                            background: 'white',
+                                            padding: '30px',
+                                            borderRadius: '24px',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.3s',
+                                            boxShadow: '0 5px 20px rgba(0,0,0,0.08)',
+                                            border: '1px solid rgba(0,0,0,0.05)'
+                                        }}
+                                            className="desktop-action-card-white">
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '15px' }}>
+                                                <div style={{ padding: '12px', background: '#fff5f5', borderRadius: '15px', color: '#ff4757' }}>
+                                                    <FaMapMarkerAlt style={{ fontSize: '1.5rem' }} />
+                                                </div>
+                                                <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '700', color: '#2f3542' }}>Saved Addresses</h3>
+                                            </div>
+                                            <p style={{ fontSize: '0.95rem', color: '#747d8c', margin: 0, lineHeight: '1.5' }}>
+                                                Manage your delivery locations
+                                            </p>
+                                        </div>
+
+                                        {/* Help & Support Card */}
+                                        <div onClick={() => setActiveTab('help')} style={{
+                                            background: 'white',
+                                            padding: '30px',
+                                            borderRadius: '24px',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.3s',
+                                            boxShadow: '0 5px 20px rgba(0,0,0,0.08)',
+                                            border: '1px solid rgba(0,0,0,0.05)'
+                                        }}
+                                            className="desktop-action-card-white">
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '15px' }}>
+                                                <div style={{ padding: '12px', background: '#f0f7ff', borderRadius: '15px', color: '#0984e3' }}>
+                                                    <FaQuestionCircle style={{ fontSize: '1.5rem' }} />
+                                                </div>
+                                                <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '700', color: '#2f3542' }}>Help & Support</h3>
+                                            </div>
+                                            <p style={{ fontSize: '0.95rem', color: '#747d8c', margin: 0, lineHeight: '1.5' }}>
+                                                Get assistance and FAQs
+                                            </p>
+                                        </div>
+
+                                        {/* Refer & Earn Card */}
+                                        <div onClick={() => setActiveModal('refer')} style={{
+                                            background: 'white',
+                                            padding: '30px',
+                                            borderRadius: '24px',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.3s',
+                                            boxShadow: '0 5px 20px rgba(0,0,0,0.08)',
+                                            border: '1px solid rgba(0,0,0,0.05)'
+                                        }}
+                                            className="desktop-action-card-white">
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '15px' }}>
+                                                <div style={{ padding: '12px', background: '#fff9ee', borderRadius: '15px', color: '#ff9f43' }}>
+                                                    <FaGift style={{ fontSize: '1.5rem' }} />
+                                                </div>
+                                                <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '700', color: '#2f3542' }}>Refer & Earn</h3>
+                                            </div>
+                                            <p style={{ fontSize: '0.95rem', color: '#747d8c', margin: 0, lineHeight: '1.5' }}>
+                                                Share and get rewards
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            </>
                         )}
 
                         {activeTab === 'wallet' && (
