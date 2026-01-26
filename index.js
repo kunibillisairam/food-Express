@@ -4,4 +4,4 @@ const path = require('path');
 process.chdir(path.join(__dirname, 'server'));
 
 // Require the actual server entry point
-require('./server.js');
+require('./server/server.js');
