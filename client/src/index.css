@@ -253,12 +253,13 @@ body {
 
 .food-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 3rem;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 2rem;
   padding: 2rem 4rem;
-  max-width: 1500px;
+  max-width: 1400px;
   margin: 0 auto;
 }
+
 
 
 .food-card {
@@ -1314,11 +1315,12 @@ body {
 /* About Us Section */
 .about-us-section {
   background: var(--white);
-  padding: 2rem 1rem;
+  padding: 1rem 1rem;
   margin-top: 0;
   position: relative;
   overflow: hidden;
 }
+
 
 .about-content {
   max-width: 1000px;
@@ -1333,13 +1335,14 @@ body {
 }
 
 .section-title {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   font-weight: 800;
   color: var(--dark);
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
   position: relative;
   display: inline-block;
 }
+
 
 .section-title::after {
   content: '';
@@ -1378,10 +1381,11 @@ body {
 }
 
 .about-image-container {
-  flex: 0.8;
+  flex: 0.6;
   position: relative;
-  max-width: 450px;
+  max-width: 320px;
 }
+
 
 .about-image {
   width: 100%;
@@ -1638,7 +1642,8 @@ body {
 /* Hero Section */
 .hero-section {
   padding: 2rem 2rem;
-  min-height: 50vh;
+  min-height: 40vh;
+
   display: flex;
   align-items: center;
 }
@@ -1751,12 +1756,13 @@ body {
 
 .hero-main-img {
   width: 100%;
-  max-width: 550px;
+  max-width: 420px;
   display: block;
   margin-left: auto;
-  border-radius: 30px;
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+  border-radius: 24px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
 }
+
 
 
 .floating-card {
@@ -1811,14 +1817,15 @@ body {
 .app-promo-content {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 3rem;
+  gap: 2rem;
   align-items: center;
   background: #f8fafc;
-  padding: 2.5rem;
-  border-radius: 30px;
-  max-width: 1000px;
+  padding: 2rem;
+  border-radius: 24px;
+  max-width: 850px;
   margin: 0 auto;
 }
+
 
 .promo-title {
   font-size: 2rem;
@@ -1847,10 +1854,11 @@ body {
 }
 
 .phone-mockup {
-  width: 200px;
-  height: 400px;
-  border-radius: 30px;
+  width: 170px;
+  height: 340px;
+  border-radius: 24px;
 }
+
 
 
 .phone-screen {
