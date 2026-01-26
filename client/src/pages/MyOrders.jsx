@@ -42,22 +42,23 @@ const ReviewModal = ({ item, onSubmit, onClose }) => {
 
 const MyOrders = ({ setView }) => {
     const [orders, setOrders] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const { user, updateUser } = useContext(AuthContext);
-    const [reviewItem, setReviewItem] = useState(null); // Item being reviewed
+    const [reviewItem, setReviewItem] = useState(null);
     const [cancellingId, setCancellingId] = useState(null);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         let intervalId;
         if (user) {
-            fetchOrders(); // Initial fetch
-            // Poll for updates every 5 seconds
-            intervalId = setInterval(fetchOrders, 5000);
+            fetchOrders(true);
+            intervalId = setInterval(() => fetchOrders(false), 8000);
         }
         return () => {
             if (intervalId) clearInterval(intervalId);
         };
     }, [user]);
+
 
     const handleRate = (item) => {
         setReviewItem(item);
@@ -91,16 +92,20 @@ const MyOrders = ({ setView }) => {
 
 
 
-    const fetchOrders = async () => {
-        // Don't set loading=true here to avoid flickering on every poll
+    const fetchOrders = async (isInitial = false) => {
+        if (isInitial) setLoading(true);
         try {
             const res = await axios.get(`${API_BASE_URL}/api/orders/user/${user.username}`);
             setOrders(res.data);
+            setError(null);
         } catch (err) {
             console.error("Polling Error:", err);
-            // Don't alert on polling error to avoid annoying popups
+            if (isInitial) setError("Failed to load orders. Please check your connection.");
+        } finally {
+            if (isInitial) setLoading(false);
         }
     };
+
 
     const handleCancel = async (orderId, amount) => {
         if (!window.confirm('Are you sure you want to cancel this order? Amount will be refunded to your wallet.')) return;
@@ -145,14 +150,27 @@ const MyOrders = ({ setView }) => {
             <h2 className="page-title">My Orders 📦</h2>
             {reviewItem && <ReviewModal item={reviewItem} onSubmit={submitReview} onClose={() => setReviewItem(null)} />}
 
-            {loading && <div style={{ textAlign: 'center', padding: '2rem' }}>Loading your orders...</div>}
+            {loading && (
+                <div style={{ textAlign: 'center', padding: '3rem' }}>
+                    <div className="spinner-mini" style={{ margin: '0 auto 1rem', borderColor: 'var(--primary)', borderTopColor: 'transparent' }}></div>
+                    <p>Fetching your delicious history...</p>
+                </div>
+            )}
 
-            {!loading && orders.length === 0 && (
+            {error && !loading && (
+                <div style={{ textAlign: 'center', padding: '3rem', color: '#ff4757' }}>
+                    <p>{error}</p>
+                    <button className="nav-btn" onClick={() => fetchOrders(true)}>Retry</button>
+                </div>
+            )}
+
+            {!loading && !error && orders.length === 0 && (
                 <div style={{ textAlign: 'center', padding: '3rem', color: '#888' }}>
                     <h3 style={{ marginBottom: '1rem' }}>No orders found.</h3>
                     <p>Hungry? <span style={{ color: '#ff4757', cursor: 'pointer', fontWeight: 'bold' }} onClick={() => setView('home')}>Order something delicious!</span></p>
                 </div>
             )}
+
 
             {orders.map(order => (
                 <div key={order._id} className="order-card" style={{ borderLeft: '5px solid #2f3542' }}>

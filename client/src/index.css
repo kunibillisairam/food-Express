@@ -48,7 +48,7 @@ body {
 }
 
 .fade-in {
-  animation: fadeIn 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+  animation: fadeIn 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
 /* Navbar */

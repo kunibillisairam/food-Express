@@ -1,35 +1,14 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import { useCartAnimation } from '../context/CartAnimationContext';
 import { toast } from 'react-hot-toast';
 import './HolographicCard.css';
-import axios from 'axios';
-import API_BASE_URL from '../config';
 
-const HolographicCard = ({ item, handleAdd, setCategory }) => {
+const HolographicCard = ({ item, handleAdd, setCategory, rating }) => {
     const cardRef = useRef(null);
     const imgRef = useRef(null);
     const { triggerFly } = useCartAnimation();
     const [rotation, setRotation] = useState({ x: 0, y: 0 });
     const [isHovered, setIsHovered] = useState(false);
-    const [averageRating, setAverageRating] = useState(0);
-
-    /* Fetch Rating on Mount */
-    useEffect(() => {
-        const fetchRating = async () => {
-            try {
-                const res = await axios.get(`${API_BASE_URL}/api/reviews/${item.id}`);
-                const reviews = res.data;
-                if (reviews.length > 0) {
-                    const avg = reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length;
-                    setAverageRating(avg.toFixed(1));
-                }
-            } catch (err) {
-                // Silent fail for UI or log
-                // console.error("Rating fetch error", err); 
-            }
-        };
-        fetchRating();
-    }, [item.id]);
 
     const handleMouseMove = (e) => {
         if (!cardRef.current) return;
@@ -111,9 +90,9 @@ const HolographicCard = ({ item, handleAdd, setCategory }) => {
                         <span className="food-price">₹{item.price}</span>
                     </div>
                     {/* Rating Display */}
-                    {averageRating > 0 && (
+                    {rating > 0 && (
                         <div style={{ margin: '0.2rem 0', color: '#f1c40f', fontSize: '0.9rem', fontWeight: 'bold', textShadow: '0 0 5px rgba(241, 196, 15, 0.5)' }}>
-                            ⭐ {averageRating} <span style={{ fontSize: '0.7rem', color: '#aaa', fontWeight: 'normal' }}>(Verified)</span>
+                            ⭐ {rating.toFixed(1)} <span style={{ fontSize: '0.7rem', color: '#aaa', fontWeight: 'normal' }}>(Verified)</span>
                         </div>
                     )}
                     <button className="add-btn" onClick={(e) => {

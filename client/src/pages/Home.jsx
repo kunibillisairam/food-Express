@@ -1,6 +1,8 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { foodData, categories } from '../data/foodData';
 import { CartContext } from '../context/CartContext';
+import axios from 'axios';
+import API_BASE_URL from '../config';
 
 import AboutUs from '../components/AboutUs';
 import HolographicCard from '../components/HolographicCard';
@@ -12,6 +14,24 @@ const Home = ({ activeCategory, setCategory, searchTerm, setSearchTerm, setView 
     const { user } = useContext(AuthContext);
     const { addToCart } = useContext(CartContext);
     const [isStandalone, setIsStandalone] = useState(false);
+    const [ratings, setRatings] = useState({});
+
+    // Fetch ratings summary
+    useEffect(() => {
+        const fetchRatings = async () => {
+            try {
+                const res = await axios.get(`${API_BASE_URL}/api/reviews/summary`);
+                const ratingMap = {};
+                res.data.forEach(item => {
+                    ratingMap[item._id] = item.averageRating;
+                });
+                setRatings(ratingMap);
+            } catch (err) {
+                console.error("Failed to fetch ratings", err);
+            }
+        };
+        fetchRatings();
+    }, []);
 
     useEffect(() => {
         const checkStandalone = () => {
@@ -102,6 +122,7 @@ const Home = ({ activeCategory, setCategory, searchTerm, setSearchTerm, setView 
                             item={item}
                             handleAdd={handleAdd}
                             setCategory={setCategory}
+                            rating={ratings[item.id] || 0}
                         />
                     ))}
                 </div>

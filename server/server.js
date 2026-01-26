@@ -386,6 +386,15 @@ app.post('/api/reviews', async (req, res) => {
 });
 
 // Auth Routes
+// GET /api/users -> Fetch all users (Admin)
+app.get('/api/users', async (req, res) => {
+    try {
+        const users = await User.find();
+        res.json(users);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
 // POST /api/auth/signup
 app.post('/api/auth/signup', async (req, res) => {
@@ -454,6 +463,24 @@ app.put('/api/users/:username', async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
         res.json(user);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// GET /api/reviews/summary -> Get average ratings for all food items
+app.get('/api/reviews/summary', async (req, res) => {
+    try {
+        const summary = await Review.aggregate([
+            {
+                $group: {
+                    _id: "$foodId", // foodId is String or Number based on schema? The schema wasn't shown but usage implies it matches item.id
+                    averageRating: { $avg: "$rating" },
+                    count: { $sum: 1 }
+                }
+            }
+        ]);
+        res.json(summary);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
