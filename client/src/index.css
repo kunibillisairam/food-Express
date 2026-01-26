@@ -3489,3 +3489,65 @@ body {
   color: var(--dark);
   transition: all 0.3s;
 }
+
+.back-btn-hover {
+  transition: all 0.3s ease;
+  padding: 5px 10px;
+  border-radius: 8px;
+}
+
+.back-btn-hover:hover {
+  background: rgba(255, 71, 87, 0.05);
+  transform: translateX(-5px);
+  color: #ff1f33 !important;
+}
+
+.floating-badge-group {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.floating-badge-group:hover {
+  transform: translateY(-2px);
+}
+
+.rank-badge-glow {
+  box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+  animation: pulseBadge 3s infinite;
+}
+
+@keyframes pulseBadge {
+  0% {
+    box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+  }
+
+  50% {
+    box-shadow: 0 0 25px rgba(0, 242, 254, 0.4);
+  }
+
+  100% {
+    box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+  }
+}
+
+.logout-btn-minimal {
+  transition: all 0.3s ease;
+}
+
+.logout-btn-minimal:hover {
+  background: #ff4757 !important;
+  color: white !important;
+  transform: rotate(15deg) scale(1.1);
+  box-shadow: 0 5px 15px rgba(255, 71, 87, 0.3);
+}
+
+@media (max-width: 480px) {
+  .floating-badge-group {
+    position: static !important;
+    margin-bottom: 20px;
+    justify-content: center;
+    width: 100%;
+  }
+}

@@ -25,6 +25,9 @@ const Profile = ({ setView }) => {
     const [isLocating, setIsLocating] = useState(false);
     const [isMobileDevice, setIsMobileDevice] = useState(false);
     const [activeTab, setActiveTab] = useState('profile'); // 'profile', 'wallet', 'orders', 'address', 'help'
+    const [upiError, setUpiError] = useState('');
+    const [isPaymentPending, setIsPaymentPending] = useState(false);
+    const [paymentReturnedFromApp, setPaymentReturnedFromApp] = useState(false);
 
     // Device detection
     useEffect(() => {
@@ -901,131 +904,83 @@ const Profile = ({ setView }) => {
                     {/* RIGHT PANEL: Main Content */}
                     <div className="profile-main-content px-4">
                         {activeTab === 'profile' && (
-                            <div className="fade-in" style={{ position: 'relative' }}>
-                                {/* Floating Top-Right Buttons */}
-                                <div style={{ position: 'absolute', top: 0, right: 0, display: 'flex', gap: '10px' }}>
-                                    <div style={{
-                                        background: 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)',
-                                        color: '#00f2fe',
-                                        padding: '8px 16px',
-                                        borderRadius: '20px',
-                                        fontSize: '0.85rem',
-                                        fontWeight: '700',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '8px',
-                                        boxShadow: '0 4px 15px rgba(48, 43, 99, 0.3)',
-                                        cursor: 'pointer'
-                                    }}>
-                                        <FaRocket /> {user.rank || 'Cadet'}
-                                        <span style={{ fontSize: '0.75rem', opacity: 0.8, marginLeft: '4px', borderLeft: '1px solid rgba(255,255,255,0.2)', paddingLeft: '8px' }}>
-                                            {user.xp || 0} XP
-                                        </span>
+                            <div className="fade-in mobile-profile-section">
+                                <div className="mobile-user-header">
+                                    <div className="mobile-avatar">
+                                        {user.username.charAt(0).toUpperCase()}
                                     </div>
-                                    <button onClick={handleLogout} style={{
-                                        background: '#fff5f5',
-                                        color: '#ff4757',
-                                        border: '1px solid #fee2e2',
-                                        width: '36px',
-                                        height: '36px',
-                                        borderRadius: '50%',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        cursor: 'pointer',
-                                        fontSize: '0.9rem',
-                                        transition: 'all 0.3s'
-                                    }}>
-                                        <FaSignOutAlt />
-                                    </button>
-                                </div>
-
-                                <div style={{ textAlign: 'center', marginBottom: '30px', animation: 'fadeIn 0.6s ease-out', position: 'relative', marginTop: '40px' }}>
-                                    <div style={{
-                                        width: '100px', height: '100px', background: 'white', borderRadius: '50%',
-                                        margin: '0 auto 15px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                        fontSize: '3rem', boxShadow: '0 10px 20px rgba(0,0,0,0.1)', color: '#ff4757',
-                                        border: '4px solid #fff'
-                                    }}>
-                                        <FaUser />
-                                    </div>
-                                    <h2 style={{ fontSize: '1.8rem', margin: 0, fontWeight: '800', color: '#2f3542' }}>{user.username}</h2>
-                                    <p style={{ margin: '5px 0 0', color: '#747d8c', fontSize: '1rem' }}>+91 {user.phone}</p>
-
-                                    {/* Mobile Loyalty Tag */}
-                                    <div className="mobile-only" style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '15px' }}>
-                                        <div style={{ background: 'linear-gradient(135deg, #0f0c29, #302b63)', padding: '5px 15px', borderRadius: '20px', color: '#00f2fe', fontSize: '0.8rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                            <FaRocket /> {user.rank || 'Cadet'}
+                                    <div>
+                                        <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#2d3436' }}>
+                                            {user.username}
                                         </div>
-                                        <div style={{ background: '#fff', padding: '5px 15px', borderRadius: '20px', color: '#333', fontSize: '0.8rem', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.05)' }}>
-                                            {user.credits || 0} CR
+                                        <div style={{ fontSize: '0.9rem', color: '#636e72' }}>
+                                            {user.email || user.phone}
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="profile-grid" style={{ marginTop: 0 }}>
-                                    <div className="profile-card-mini" onClick={() => setActiveTab('wallet')}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                            <div className="icon-box"><FaWallet /></div>
-                                            <div>
-                                                <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: '700' }}>Wallet</h4>
-                                                <p style={{ margin: 0, fontSize: '1rem', fontWeight: '800' }}>₹{user.walletBalance || 0}</p>
-                                            </div>
-                                        </div>
+                                <div className="mobile-quick-grid">
+                                    <div className="mobile-quick-card" onClick={() => setView('my-orders')}>
+                                        <FaMotorcycle size={24} color="#2d3436" />
+                                        <div style={{ fontSize: '0.8rem', fontWeight: '600', color: '#2d3436' }}>Your Orders</div>
                                     </div>
-                                    <div className="profile-card-mini" onClick={() => setView('my-orders')}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                            <div className="icon-box" style={{ color: '#ff9f43', background: '#fff9ee' }}><FaMotorcycle /></div>
-                                            <div>
-                                                <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: '700' }}>My Orders</h4>
-                                                <p style={{ margin: 0, fontSize: '0.75rem', color: '#747d8c' }}>Track Live</p>
-                                            </div>
-                                        </div>
+                                    <div className="mobile-quick-card" onClick={() => setActiveTab('help')}>
+                                        <FaQuestionCircle size={24} color="#2d3436" />
+                                        <div style={{ fontSize: '0.8rem', fontWeight: '600', color: '#2d3436' }}>Help & Support</div>
                                     </div>
-                                    <div className="profile-card-mini" onClick={() => setActiveTab('orders')}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                            <div className="icon-box" style={{ color: '#0984e3', background: '#f0f7ff' }}><FaListAlt /></div>
-                                            <div>
-                                                <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: '700' }}>History</h4>
-                                                <p style={{ margin: 0, fontSize: '0.75rem', color: '#747d8c' }}>Past Orders</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="profile-card-mini" onClick={() => setActiveTab('address')}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                            <div className="icon-box" style={{ color: '#ff4757', background: '#fff5f5' }}><FaMapMarkerAlt /></div>
-                                            <div>
-                                                <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: '700' }}>Address</h4>
-                                                <p style={{ margin: 0, fontSize: '0.75rem', color: '#747d8c' }}>Manage</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="profile-card-mini" onClick={() => setActiveTab('help')}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                            <div className="icon-box" style={{ color: '#2ed573', background: '#e3fff0' }}><FaQuestionCircle /></div>
-                                            <div>
-                                                <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: '700' }}>Help</h4>
-                                                <p style={{ margin: 0, fontSize: '0.75rem', color: '#747d8c' }}>Support</p>
-                                            </div>
-                                        </div>
+                                    <div className="mobile-quick-card" onClick={() => setActiveTab('orders')}>
+                                        <FaListAlt size={24} color="#2d3436" />
+                                        <div style={{ fontSize: '0.8rem', fontWeight: '600', color: '#2d3436' }}>Order Logs</div>
                                     </div>
                                 </div>
 
-                                <div style={{ background: 'white', padding: '25px', borderRadius: '20px', border: '1px solid rgba(0,0,0,0.06)', margin: '25px 0' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-                                        <h4 style={{ margin: 0, color: '#2f3542' }}>Active Address</h4>
-                                        <span onClick={() => setActiveTab('address')} style={{ fontSize: '0.8rem', color: '#ff4757', cursor: 'pointer', fontWeight: '600' }}>Change</span>
+                                <div className="mobile-wallet-banner">
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <div style={{ background: 'white', padding: '8px', borderRadius: '10px' }}>
+                                                <FaWallet color="#9333ea" size={20} />
+                                            </div>
+                                            <div>
+                                                <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#4c1d95' }}>FoodExpress Cash</div>
+                                                <div style={{ fontSize: '0.7rem', color: '#6b21a8' }}>Seamless Checkout</div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div style={{ padding: '15px', background: '#f8f9fc', borderRadius: '12px', fontSize: '0.8rem', color: '#666' }}>
-                                        {address || 'No address set'}
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 5px' }}>
+                                        <div>
+                                            <div style={{ fontSize: '0.8rem', color: '#6b21a8' }}>Available Balance</div>
+                                            <div style={{ fontSize: '1.4rem', fontWeight: '800', color: '#4c1d95' }}>₹{user.walletBalance || 0}</div>
+                                        </div>
+                                        <button
+                                            onClick={() => setActiveModal('wallet')}
+                                            style={{ background: '#9333ea', color: 'white', border: 'none', padding: '8px 20px', borderRadius: '20px', fontWeight: '600', fontSize: '0.85rem' }}
+                                        >
+                                            Add Balance
+                                        </button>
                                     </div>
                                 </div>
 
-                                {/* Mobile Logout Button */}
-                                <div className="mobile-only" style={{ marginTop: '20px' }}>
-                                    <button onClick={handleLogout} style={{ width: '100%', padding: '15px', borderRadius: '15px', background: '#fff5f5', color: '#ff4757', border: '1px solid #fee2e2', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-                                        <FaSignOutAlt /> Sign Out
-                                    </button>
+                                <div style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '15px', color: '#2d3436' }}>Your Information</div>
+                                <div className="mobile-menu-list">
+                                    <div className="mobile-menu-item" onClick={() => setActiveTab('address')}>
+                                        <div className="mobile-menu-icon" style={{ color: '#2d3436' }}><FaMapMarkerAlt /></div>
+                                        <div style={{ flex: 1 }}>Saved Addresses</div>
+                                        <div style={{ color: '#bbb' }}>&gt;</div>
+                                    </div>
+                                    <div className="mobile-menu-item" onClick={() => setActiveModal('refer')}>
+                                        <div className="mobile-menu-icon" style={{ color: '#2d3436' }}><FaGift /></div>
+                                        <div style={{ flex: 1 }}>Refer & Earn</div>
+                                        <div style={{ color: '#bbb' }}>&gt;</div>
+                                    </div>
+                                    <div className="mobile-menu-item" onClick={() => setActiveTab('wallet')}>
+                                        <div className="mobile-menu-icon" style={{ color: '#2d3436' }}><FaCreditCard /></div>
+                                        <div style={{ flex: 1 }}>Payment Methods</div>
+                                        <div style={{ color: '#bbb' }}>&gt;</div>
+                                    </div>
+                                    <div className="mobile-menu-item" onClick={handleLogout}>
+                                        <div className="mobile-menu-icon" style={{ color: '#ff4757' }}><FaSignOutAlt /></div>
+                                        <div style={{ flex: 1, color: '#ff4757' }}>Log Out</div>
+                                    </div>
                                 </div>
                             </div>
                         )}
