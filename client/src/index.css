@@ -3302,6 +3302,19 @@ body {
   margin-top: 20px;
 }
 
+.mobile-nav-grid {
+  display: contents;
+}
+
+@media (max-width: 768px) {
+  .mobile-nav-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+  }
+}
+
 .profile-nav-item {
   display: flex;
   align-items: center;
@@ -3314,6 +3327,27 @@ body {
   transition: all 0.3s;
   font-weight: 600;
   color: var(--dark);
+}
+
+@media (max-width: 768px) {
+  .profile-nav-item {
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    gap: 8px;
+    padding: 12px;
+    height: 100%;
+  }
+
+  .profile-nav-item .icon-box-mini {
+    margin-bottom: 2px;
+  }
+
+  .full-width-mobile {
+    grid-column: 1 / -1;
+    flex-direction: row !important;
+    gap: 10px !important;
+  }
 }
 
 .profile-nav-item:hover {

@@ -949,27 +949,29 @@ const Profile = ({ setView }) => {
                         </div>
 
                         <div className="profile-nav-menu">
-                            <div className={`profile-nav-item ${activeTab === 'profile' ? 'active' : ''}`} onClick={() => setActiveTab('profile')}>
+                            <div className="profile-nav-item desktop-only" onClick={() => setActiveTab('profile')}>
                                 <div className="icon-box-mini"><FaUser /></div>
                                 <span>My Profile</span>
                             </div>
-                            <div className={`profile-nav-item ${activeTab === 'wallet' ? 'active' : ''}`} onClick={() => setActiveTab('wallet')}>
-                                <div className="icon-box-mini"><FaWallet /></div>
-                                <span>Wallet & Payments</span>
+                            <div className="mobile-nav-grid">
+                                <div className={`profile-nav-item ${activeTab === 'wallet' ? 'active' : ''}`} onClick={() => setActiveTab('wallet')}>
+                                    <div className="icon-box-mini"><FaWallet /></div>
+                                    <span>Wallet</span>
+                                </div>
+                                <div className={`profile-nav-item ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => setActiveTab('orders')}>
+                                    <div className="icon-box-mini"><FaListAlt /></div>
+                                    <span>Orders</span>
+                                </div>
+                                <div className={`profile-nav-item ${activeTab === 'address' ? 'active' : ''}`} onClick={() => setActiveTab('address')}>
+                                    <div className="icon-box-mini"><FaMapMarkerAlt /></div>
+                                    <span>Address</span>
+                                </div>
+                                <div className={`profile-nav-item ${activeTab === 'help' ? 'active' : ''}`} onClick={() => setActiveTab('help')}>
+                                    <div className="icon-box-mini"><FaQuestionCircle /></div>
+                                    <span>Help</span>
+                                </div>
                             </div>
-                            <div className={`profile-nav-item ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => setActiveTab('orders')}>
-                                <div className="icon-box-mini"><FaListAlt /></div>
-                                <span>Order Logs</span>
-                            </div>
-                            <div className={`profile-nav-item ${activeTab === 'address' ? 'active' : ''}`} onClick={() => setActiveTab('address')}>
-                                <div className="icon-box-mini"><FaMapMarkerAlt /></div>
-                                <span>Delivery Address</span>
-                            </div>
-                            <div className={`profile-nav-item ${activeTab === 'help' ? 'active' : ''}`} onClick={() => setActiveTab('help')}>
-                                <div className="icon-box-mini"><FaQuestionCircle /></div>
-                                <span>Help Center</span>
-                            </div>
-                            <div className="profile-nav-item" onClick={handleLogout} style={{ marginTop: 'auto', border: '1px solid #fee2e2', color: '#ff4757' }}>
+                            <div className="profile-nav-item full-width-mobile" onClick={handleLogout} style={{ marginTop: 'auto', border: '1px solid #fee2e2', color: '#ff4757', justifyContent: 'center' }}>
                                 <div className="icon-box-mini" style={{ background: '#fff5f5', color: '#ff4757' }}><FaSignOutAlt /></div>
                                 <span>Sign Out</span>
                             </div>
@@ -1119,7 +1121,7 @@ const Profile = ({ setView }) => {
                             <div className="fade-in">
                                 <div className="section-header" style={{ marginBottom: '25px' }}>
                                     <div className="mobile-only" onClick={() => setActiveTab('profile')} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#ff4757', fontWeight: 'bold', marginBottom: '15px', cursor: 'pointer' }}>
-                                        <FaArrowLeft /> Back to Profile
+                                        <FaArrowLeft /> Back
                                     </div>
                                     <h2 style={{ fontSize: '1.5rem', fontWeight: '800' }}>Order History</h2>
                                     <p style={{ color: '#747d8c' }}>Track and review your past hunger satisfyers</p>
