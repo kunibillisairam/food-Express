@@ -21,6 +21,7 @@ import VoiceCommander from './components/VoiceCommander';
 import { initGlobalSound } from './utils/soundEffects';
 import { CartAnimationProvider } from './context/CartAnimationContext';
 import { Toaster } from 'react-hot-toast';
+import InstallPWA from './components/InstallPWA';
 
 const Main = () => {
   const { user } = useContext(AuthContext);
@@ -28,8 +29,25 @@ const Main = () => {
   useEffect(() => {
     // Initialize global click sounds
     const cleanup = initGlobalSound();
-    return cleanup;
+
+    // Online/Offline status
+    const handleOnline = () => {
+      import('react-hot-toast').then(({ toast }) => toast.success("You're back online!", { icon: '🌐' }));
+    };
+    const handleOffline = () => {
+      import('react-hot-toast').then(({ toast }) => toast.error("You're offline. App is running in offline mode.", { icon: '📶', duration: 4000 }));
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      cleanup();
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
   }, []);
+
 
   const [view, setView] = useState('home');
   const [category, setCategory] = useState('All');
@@ -108,6 +126,7 @@ const Main = () => {
           setCategory={setCategory}
         />
       )}
+      <InstallPWA />
     </div>
   );
 };
