@@ -6,14 +6,22 @@ const Login = ({ setView }) => {
     const [password, setPassword] = useState('');
     const { login } = useContext(AuthContext);
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        const res = await login(username, password);
-        if (res.success) {
-            setView('home');
-        } else {
-            setError(res.message);
+        setLoading(true);
+        setError('');
+
+        try {
+            const res = await login(username, password);
+            if (res.success) {
+                setView('home');
+            } else {
+                setError(res.message);
+            }
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -27,7 +35,9 @@ const Login = ({ setView }) => {
                         <input className="auth-input" placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} required />
                         <input className="auth-input" type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
                         {error && <p style={{ color: '#ff4757', fontWeight: 'bold' }}>{error}</p>}
-                        <button className="auth-submit-btn">Login</button>
+                        <button className="auth-submit-btn" disabled={loading}>
+                            {loading ? <div className="spinner-mini" style={{ margin: '0 auto', borderColor: '#fff', borderTopColor: 'transparent' }}></div> : 'Login'}
+                        </button>
                     </form>
                     <div className="switch-auth">
                         New here? <span onClick={() => setView('signup')}>Create an account</span>

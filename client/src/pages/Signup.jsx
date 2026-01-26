@@ -8,35 +8,49 @@ const Signup = ({ setView }) => {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const { signup } = useContext(AuthContext);
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleSignup = async (e) => {
         e.preventDefault();
+        setLoading(true);
+        setError('');
 
         if (formData.password !== formData.confirmPassword) {
             setError("Passwords do not match");
+            setLoading(false);
             return;
         }
 
         if (formData.phone.length !== 10) {
             setError("Phone number must be exactly 10 digits");
+            setLoading(false);
             return;
         }
 
         if (formData.username && formData.phone && formData.password) {
-            const res = await signup({// added await
-                username: formData.username,
-                phone: formData.phone,
-                password: formData.password
-            });
+            try {
+                const res = await signup({
+                    username: formData.username,
+                    phone: formData.phone,
+                    password: formData.password
+                });
 
-            if (res.success) {
-                alert('Signup successful! Please login.');
-                setView('login');
-            } else {
-                setError(res.message);
+                if (res.success) {
+                    alert('Signup successful! Please login.');
+                    setView('login');
+                } else {
+                    setError(res.message);
+                }
+            } catch (err) {
+                setError("An unexpected error occurred");
+            } finally {
+                setLoading(false);
             }
+        } else {
+            setLoading(false);
         }
     };
+
 
     return (
         <div className="auth-split-wrapper fade-in">
@@ -108,7 +122,9 @@ const Signup = ({ setView }) => {
                                 {showConfirmPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
                             </span>
                         </div>
-                        <button className="auth-submit-btn">Sign Up</button>
+                        <button className="auth-submit-btn" disabled={loading}>
+                            {loading ? <div className="spinner-mini" style={{ margin: '0 auto', borderColor: '#fff', borderTopColor: 'transparent' }}></div> : 'Sign Up'}
+                        </button>
 
                     </form>
                     <div className="switch-auth">

@@ -469,19 +469,31 @@ app.put('/api/users/:username', async (req, res) => {
 });
 
 // GET /api/reviews/summary -> Get average ratings for all food items
+// GET /api/reviews/summary -> Get average ratings for all food items
 app.get('/api/reviews/summary', async (req, res) => {
     try {
-        const summary = await Review.aggregate([
-            {
-                $group: {
-                    _id: "$foodId", // foodId is String or Number based on schema? The schema wasn't shown but usage implies it matches item.id
-                    averageRating: { $avg: "$rating" },
-                    count: { $sum: 1 }
-                }
+        // Fallback to JS aggregation to ensure stability
+        const allReviews = await Review.find({}, 'foodId rating').lean();
+
+        const summaryMap = {};
+        allReviews.forEach(r => {
+            const fid = r.foodId;
+            if (!summaryMap[fid]) {
+                summaryMap[fid] = { total: 0, count: 0 };
             }
-        ]);
+            summaryMap[fid].total += r.rating;
+            summaryMap[fid].count += 1;
+        });
+
+        const summary = Object.keys(summaryMap).map(fid => ({
+            _id: isNaN(Number(fid)) ? fid : Number(fid),
+            averageRating: summaryMap[fid].total / summaryMap[fid].count,
+            count: summaryMap[fid].count
+        }));
+
         res.json(summary);
     } catch (err) {
+        console.error("[Review Summary Error]", err);
         res.status(500).json({ error: err.message });
     }
 });
