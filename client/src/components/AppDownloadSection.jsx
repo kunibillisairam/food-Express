@@ -30,31 +30,52 @@ const AppDownloadSection = () => {
         <section className="app-promo-section">
             <div className="app-promo-container">
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8 }}
                     className="app-promo-content"
                 >
                     <div className="app-promo-text">
-                        <h2 className="promo-title">Get Our Official App</h2>
+                        <h2 className="promo-title">Experience <span className="text-highlight">Food Express</span> on Mobile</h2>
                         <p className="promo-subtitle">
-                            Download for faster ordering and exclusive deals.
+                            Get the fastest ordering experience with our high-performance web app. No store download needed!
                         </p>
 
+                        <div className="promo-features">
+                            <div className="p-feature">
+                                <div className="p-icon-v2"><FiZap /></div>
+                                <span>Lightning Fast Ordering</span>
+                            </div>
+                            <div className="p-feature">
+                                <div className="p-icon-v2"><FiGift /></div>
+                                <span>Exclusive Mobile Offers</span>
+                            </div>
+                            <div className="p-feature">
+                                <div className="p-icon-v2"><FiSmartphone /></div>
+                                <span>Real-time Order Tracking</span>
+                            </div>
+                        </div>
+
                         <button className="download-btn-premium" onClick={handleInstall}>
-                            <FiDownload className="btn-icon" />
-                            <div>
-                                <span className="btn-small">Web App</span>
-                                <span className="btn-large">Install Now</span>
+                            <FiDownload className="btn-icon-large" />
+                            <div className="btn-label-group">
+                                <span className="btn-tagline">Web App</span>
+                                <span className="btn-main-text">Install Now</span>
                             </div>
                         </button>
                     </div>
 
                     <div className="app-promo-visual">
-                        <div className="phone-mockup">
-                            <div className="phone-screen">
-                                <img src="/logo.png" alt="App Content" className="screen-logo" />
-                                <p style={{ fontSize: '0.6rem', color: '#94a3b8', textAlign: 'center' }}>Optimized for mobile</p>
+                        <div className="visual-glow-v2"></div>
+                        <div className="phone-mockup-v2">
+                            <div className="phone-bezel">
+                                <div className="phone-screen-v2">
+                                    <div className="app-splash">
+                                        <img src="/logo.png" alt="App Content" className="floating-logo" />
+                                        <div className="loading-bar-mini"></div>
+                                        <p className="app-tagline">Optimized for mobile</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

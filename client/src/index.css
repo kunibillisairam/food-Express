@@ -1809,144 +1809,235 @@ body {
 }
 
 /* App Promo Section */
+/* App Promo Section Revamp - Compact Version */
 .app-promo-section {
-  padding: 3rem 1rem;
-  background: #ffffff;
+  padding: 1rem 1rem;
+  background: var(--white);
+  position: relative;
+  overflow: hidden;
 }
 
 .app-promo-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  display: flex;
   align-items: center;
-  background: #f8fafc;
+  gap: 2.5rem;
+  background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
   padding: 2rem;
-  border-radius: 24px;
-  max-width: 850px;
+  border-radius: 30px;
+  max-width: 1000px;
   margin: 0 auto;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: #fff;
 }
 
+.text-highlight {
+  color: gold;
+  background: linear-gradient(to right, #fbbf24, #f59e0b);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.app-promo-text {
+  flex: 1;
+}
 
 .promo-title {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 800;
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
+  line-height: 1.2;
 }
 
 .promo-subtitle {
-  font-size: 0.95rem;
-  margin-bottom: 2rem;
+  font-size: 0.9rem;
+  color: #94a3b8;
+  margin-bottom: 1.2rem;
+  line-height: 1.5;
 }
 
 .promo-features {
-  gap: 1rem;
-  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1.5rem;
 }
 
-.p-icon {
-  width: 35px;
-  height: 35px;
-  font-size: 1rem;
+.p-feature {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  color: #e2e8f0;
+  font-size: 0.85rem;
+}
+
+.p-icon-v2 {
+  width: 28px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fbbf24;
+  font-size: 0.9rem;
 }
 
 .download-btn-premium {
-  padding: 0.7rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #ff8c00;
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1.4rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(255, 140, 0, 0.3);
+  width: fit-content;
 }
 
-.phone-mockup {
-  width: 170px;
-  height: 340px;
+.download-btn-premium:hover {
+  background: #ff9d26;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(255, 140, 0, 0.4);
+}
+
+.btn-icon-large {
+  font-size: 1.2rem;
+}
+
+.btn-label-group {
+  text-align: left;
+}
+
+.btn-tagline {
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: block;
+}
+
+.btn-main-text {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+/* Visual Mockup - Compact */
+.app-promo-visual {
+  flex: 0.6;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 280px;
+}
+
+.visual-glow-v2 {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  background: radial-gradient(circle, rgba(255, 140, 0, 0.2) 0%, transparent 70%);
+  filter: blur(30px);
+  z-index: 0;
+}
+
+.phone-mockup-v2 {
+  width: 140px;
+  height: 280px;
+  background: #111;
   border-radius: 24px;
+  padding: 5px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  position: relative;
+  z-index: 2;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transform: rotate(-2deg);
 }
 
+.phone-mockup-v2:hover {
+  transform: rotate(0deg);
+}
 
-
-.phone-screen {
+.phone-bezel {
   width: 100%;
   height: 100%;
-  background: #fff;
-  border-radius: 30px;
+  background: #000;
+  border-radius: 20px;
   overflow: hidden;
+}
+
+.phone-screen-v2 {
+  width: 100%;
+  height: 100%;
+}
+
+.app-splash {
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2rem;
-}
-
-.screen-logo {
-  width: 60px;
-  margin-bottom: 2rem;
-}
-
-.mock-bar {
-  width: 100%;
-  height: 10px;
-  background: #f1f5f9;
-  border-radius: 5px;
-  margin-bottom: 10px;
-}
-
-.mock-bar.short {
-  width: 60%;
-}
-
-.mock-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  justify-content: center;
   gap: 10px;
-  width: 100%;
-  margin-top: 2rem;
+  padding: 10px;
 }
 
-.mock-item {
-  height: 80px;
-  background: #f8fafc;
-  border-radius: 12px;
+.floating-logo {
+  width: 40px;
+  animation: float 4s ease-in-out infinite;
 }
 
-.visual-glow {
-  position: absolute;
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
-  z-index: 1;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  filter: blur(40px);
+.app-tagline {
+  font-size: 0.5rem;
+  color: #64748b;
+  text-align: center;
 }
 
 @media (max-width: 1024px) {
   .app-promo-content {
-    grid-template-columns: 1fr;
+    flex-direction: column;
     text-align: center;
-    gap: 3rem;
+    gap: 2rem;
+    padding: 2rem 1.5rem;
+  }
+
+  .download-btn-premium {
+    margin: 0 auto;
+  }
+
+  .app-promo-visual {
+    flex: 1;
+    max-width: 100%;
+  }
+
+  .phone-mockup-v2 {
+    width: 120px;
+    height: 240px;
+  }
+}
+
+@media (max-width: 480px) {
+  .promo-title {
+    font-size: 1.2rem;
+  }
+
+  .btn-tagline {
+    font-size: 0.45rem !important;
+  }
+
+  .app-tagline {
+    font-size: 0.4rem !important;
   }
 
   .p-feature {
-    text-align: left;
+    font-size: 0.75rem;
   }
 }
 
-@media (max-width: 768px) {
-  .app-promo-section {
-    padding: 4rem 1.5rem;
-  }
-
-  .app-promo-content {
-    padding: 3rem 1.5rem;
-    border-radius: 30px;
-  }
-
-  .promo-title {
-    font-size: 2.2rem;
-  }
-
-  .phone-mockup {
-    width: 220px;
-    height: 440px;
-  }
-}
 
 /* Explore Section Styling */
 
@@ -1966,14 +2057,14 @@ body {
 
 @media (max-width: 768px) {
   .hero-section {
-    padding: 4rem 1.5rem;
+    padding: 2rem 1rem;
+    min-height: auto;
   }
 
   .hero-content {
     grid-template-columns: 1fr;
     text-align: center;
   }
-
 
   .hero-text-container {
     display: flex;
@@ -1982,29 +2073,64 @@ body {
   }
 
   .hero-title {
-    font-size: 2.5rem;
+    font-size: 2.2rem;
   }
 
   .hero-subtitle {
-    margin: 0 auto 2.5rem;
+    margin: 0 auto 1.5rem;
+    font-size: 0.9rem;
   }
 
   .hero-primary-btn {
     margin: 0 auto;
+    padding: 0.7rem 1.5rem;
   }
 
   .hero-stats {
     justify-content: center;
+    gap: 1rem;
   }
 
   .hero-image-wrapper {
-    margin-top: 3rem;
+    display: none !important;
   }
 
   .navbar {
-    padding: 0.8rem 1.5rem;
+    padding: 0.5rem 1rem;
+    height: 60px;
+  }
+
+  /* Shrink About Us massively on mobile */
+  .about-us-section {
+    padding: 1rem 1rem;
+  }
+
+  .about-content {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .section-title {
+    font-size: 1.2rem !important;
+    margin-bottom: 0.5rem;
+  }
+
+  .about-description {
+    font-size: 0.8rem !important;
+    line-height: 1.4;
+    margin-bottom: 0.8rem;
+  }
+
+  .about-image-container {
+    display: none !important;
+  }
+
+  .read-more-btn {
+    padding: 0.4rem 1.2rem;
+    font-size: 0.8rem;
   }
 }
+
 
 .text-gradient {
   background: linear-gradient(135deg, var(--primary) 0%, #f59e0b 100%);
