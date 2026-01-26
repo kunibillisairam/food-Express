@@ -896,97 +896,51 @@ const Profile = ({ setView }) => {
             <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
                 <div className="profile-dashboard-container">
                     {/* LEFT PANEL: Side UI */}
-                    <div className="profile-sidebar">
-                        <div className="loyalty-card fade-in" style={{ marginTop: 0 }}>
-                            <div style={{ position: 'absolute', top: '-10px', right: '-10px', width: '100px', height: '100px', background: 'rgba(0, 242, 254, 0.1)', borderRadius: '50%', filter: 'blur(30px)' }}></div>
-
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
-                                <div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#00f2fe', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '0.65rem', fontWeight: 'bold' }}>
-                                        <FaRocket /> InterGalactic Loyalty
-                                    </div>
-                                    <h3 style={{ margin: '10px 0 0', fontSize: '1.5rem', fontWeight: '800' }}>{user.rank || 'Cadet'}</h3>
-                                </div>
-                                <div style={{ textAlign: 'right' }}>
-                                    <div style={{ fontSize: '0.65rem', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '1px' }}>Credits (CR)</div>
-                                    <div style={{ color: '#00f2fe', fontSize: '1.4rem', fontWeight: '900', textShadow: '0 0 10px rgba(0,242,254,0.3)' }}>{user.credits || 0} CR</div>
-                                </div>
-                            </div>
-
-                            <div style={{ margin: '20px 0' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.65rem', marginBottom: '8px', fontWeight: '600' }}>
-                                    <span>{user.xp || 0} XP</span>
-                                    <span style={{ opacity: 0.8 }}>Next Rank: {
-                                        (user.xp < 200) ? 'Lieutenant (200 XP)' :
-                                            (user.xp < 500) ? 'Captain (500 XP)' :
-                                                (user.xp < 1000) ? 'Commander (1000 XP)' :
-                                                    (user.xp < 2000) ? 'Admiral (2000 XP)' : 'Max Rank'
-                                    }</span>
-                                </div>
-                                <div className="loyalty-progress-container">
-                                    <div className="loyalty-progress-bar" style={{
-                                        width: `${Math.min(100, (user.xp / ((user.xp < 200) ? 200 : (user.xp < 500) ? 500 : (user.xp < 1000) ? 1000 : 2000)) * 100)}%`
-                                    }}></div>
-                                </div>
-                            </div>
-
-                            <div className="loyalty-stats-grid">
-                                <div className="loyalty-stat-item">
-                                    <FaStar style={{ color: '#f1c40f', fontSize: '1rem', marginBottom: '4px' }} />
-                                    <div style={{ fontSize: '0.65rem', opacity: 0.7, marginBottom: '2px' }}>Matter Templates</div>
-                                    <div style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>
-                                        {user.rank === 'Admiral' ? '6 unlocked' : user.rank === 'Commander' ? '4 unlocked' : user.rank === 'Captain' ? '2 unlocked' : 'Basic'}
-                                    </div>
-                                </div>
-                                <div className="loyalty-stat-item">
-                                    <FaAward style={{ color: '#00f2fe', fontSize: '1rem', marginBottom: '4px' }} />
-                                    <div style={{ fontSize: '0.65rem', opacity: 0.7, marginBottom: '2px' }}>Tier Multiplier</div>
-                                    <div style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>
-                                        {user.rank === 'Admiral' ? '2.0x' : user.rank === 'Commander' ? '1.5x' : user.rank === 'Captain' ? '1.2x' : '1.0x'}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="profile-nav-menu">
-                            <div className="profile-nav-item desktop-only" onClick={() => setActiveTab('profile')}>
-                                <div className="icon-box-mini"><FaUser /></div>
-                                <span>My Profile</span>
-                            </div>
-                            <div className="mobile-nav-grid">
-                                <div className={`profile-nav-item ${activeTab === 'wallet' ? 'active' : ''}`} onClick={() => setActiveTab('wallet')}>
-                                    <div className="icon-box-mini"><FaWallet /></div>
-                                    <span>Wallet</span>
-                                </div>
-                                <div className="profile-nav-item" onClick={() => setView('my-orders')}>
-                                    <div className="icon-box-mini"><FaMotorcycle /></div>
-                                    <span>My Orders</span>
-                                </div>
-                                <div className={`profile-nav-item ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => setActiveTab('orders')}>
-                                    <div className="icon-box-mini"><FaListAlt /></div>
-                                    <span>History</span>
-                                </div>
-                                <div className={`profile-nav-item ${activeTab === 'address' ? 'active' : ''}`} onClick={() => setActiveTab('address')}>
-                                    <div className="icon-box-mini"><FaMapMarkerAlt /></div>
-                                    <span>Address</span>
-                                </div>
-                                <div className={`profile-nav-item ${activeTab === 'help' ? 'active' : ''}`} onClick={() => setActiveTab('help')}>
-                                    <div className="icon-box-mini"><FaQuestionCircle /></div>
-                                    <span>Help</span>
-                                </div>
-                            </div>
-                            <div className="profile-nav-item full-width-mobile" onClick={handleLogout} style={{ marginTop: 'auto', border: '1px solid #fee2e2', color: '#ff4757', justifyContent: 'center' }}>
-                                <div className="icon-box-mini" style={{ background: '#fff5f5', color: '#ff4757' }}><FaSignOutAlt /></div>
-                                <span>Sign Out</span>
-                            </div>
-                        </div>
-                    </div>
+                    {/* SIDEBAR REMOVED AS PER REQUEST */}
 
                     {/* RIGHT PANEL: Main Content */}
                     <div className="profile-main-content px-4">
                         {activeTab === 'profile' && (
-                            <div className="fade-in">
-                                <div style={{ textAlign: 'center', marginBottom: '30px', animation: 'fadeIn 0.6s ease-out', position: 'relative' }}>
+                            <div className="fade-in" style={{ position: 'relative' }}>
+                                {/* Floating Top-Right Buttons */}
+                                <div style={{ position: 'absolute', top: 0, right: 0, display: 'flex', gap: '10px' }}>
+                                    <div style={{
+                                        background: 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)',
+                                        color: '#00f2fe',
+                                        padding: '8px 16px',
+                                        borderRadius: '20px',
+                                        fontSize: '0.85rem',
+                                        fontWeight: '700',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        boxShadow: '0 4px 15px rgba(48, 43, 99, 0.3)',
+                                        cursor: 'pointer'
+                                    }}>
+                                        <FaRocket /> {user.rank || 'Cadet'}
+                                        <span style={{ fontSize: '0.75rem', opacity: 0.8, marginLeft: '4px', borderLeft: '1px solid rgba(255,255,255,0.2)', paddingLeft: '8px' }}>
+                                            {user.xp || 0} XP
+                                        </span>
+                                    </div>
+                                    <button onClick={handleLogout} style={{
+                                        background: '#fff5f5',
+                                        color: '#ff4757',
+                                        border: '1px solid #fee2e2',
+                                        width: '36px',
+                                        height: '36px',
+                                        borderRadius: '50%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        cursor: 'pointer',
+                                        fontSize: '0.9rem',
+                                        transition: 'all 0.3s'
+                                    }}>
+                                        <FaSignOutAlt />
+                                    </button>
+                                </div>
+
+                                <div style={{ textAlign: 'center', marginBottom: '30px', animation: 'fadeIn 0.6s ease-out', position: 'relative', marginTop: '40px' }}>
                                     <div style={{
                                         width: '100px', height: '100px', background: 'white', borderRadius: '50%',
                                         margin: '0 auto 15px', display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -1079,7 +1033,7 @@ const Profile = ({ setView }) => {
                         {activeTab === 'wallet' && (
                             <div className="fade-in">
                                 <div className="section-header" style={{ marginBottom: '25px' }}>
-                                    <div className="mobile-only" onClick={() => setActiveTab('profile')} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#ff4757', fontWeight: 'bold', marginBottom: '15px', cursor: 'pointer' }}>
+                                    <div className="back-btn-hover" onClick={() => setActiveTab('profile')} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#ff4757', fontWeight: 'bold', marginBottom: '15px', cursor: 'pointer' }}>
                                         <FaArrowLeft /> Back to Profile
                                     </div>
                                     <h2 style={{ fontSize: '1.5rem', fontWeight: '800' }}>Wallet & Recharge</h2>
@@ -1133,7 +1087,7 @@ const Profile = ({ setView }) => {
                         {activeTab === 'orders' && (
                             <div className="fade-in">
                                 <div className="section-header" style={{ marginBottom: '25px' }}>
-                                    <div className="mobile-only" onClick={() => setActiveTab('profile')} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#ff4757', fontWeight: 'bold', marginBottom: '15px', cursor: 'pointer' }}>
+                                    <div className="back-btn-hover" onClick={() => setActiveTab('profile')} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#ff4757', fontWeight: 'bold', marginBottom: '15px', cursor: 'pointer' }}>
                                         <FaArrowLeft /> Back
                                     </div>
                                     <h2 style={{ fontSize: '1.5rem', fontWeight: '800' }}>Order History</h2>
@@ -1170,7 +1124,7 @@ const Profile = ({ setView }) => {
                         {activeTab === 'address' && (
                             <div className="fade-in">
                                 <div className="section-header" style={{ marginBottom: '25px' }}>
-                                    <div className="mobile-only" onClick={() => setActiveTab('profile')} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#ff4757', fontWeight: 'bold', marginBottom: '15px', cursor: 'pointer' }}>
+                                    <div className="back-btn-hover" onClick={() => setActiveTab('profile')} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#ff4757', fontWeight: 'bold', marginBottom: '15px', cursor: 'pointer' }}>
                                         <FaArrowLeft /> Back to Profile
                                     </div>
                                     <h2 style={{ fontSize: '1.5rem', fontWeight: '800' }}>Delivery Address</h2>
@@ -1221,7 +1175,7 @@ const Profile = ({ setView }) => {
                         {activeTab === 'help' && (
                             <div className="fade-in">
                                 <div className="section-header" style={{ marginBottom: '25px' }}>
-                                    <div className="mobile-only" onClick={() => setActiveTab('profile')} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#ff4757', fontWeight: 'bold', marginBottom: '15px', cursor: 'pointer' }}>
+                                    <div className="back-btn-hover" onClick={() => setActiveTab('profile')} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#ff4757', fontWeight: 'bold', marginBottom: '15px', cursor: 'pointer' }}>
                                         <FaArrowLeft /> Back to Profile
                                     </div>
                                     <h2 style={{ fontSize: '1.5rem', fontWeight: '800' }}>Help & Support</h2>
