@@ -916,7 +916,7 @@ const Profile = ({ setView }) => {
                         </div>
                     )}
                 </div>
-            </div >
+            </div>
         );
     };
 
@@ -1040,21 +1040,6 @@ const Profile = ({ setView }) => {
                                                 {user.xp || 0} XP
                                             </span>
                                         </div>
-                                        <button onClick={handleLogout} className="logout-btn-minimal" style={{
-                                            background: '#fff5f5',
-                                            color: '#ff4757',
-                                            border: '1px solid #fee2e2',
-                                            width: '42px',
-                                            height: '42px',
-                                            borderRadius: '50%',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            cursor: 'pointer',
-                                            fontSize: '1rem'
-                                        }}>
-                                            <FaSignOutAlt />
-                                        </button>
                                     </div>
 
                                     {/* Welcome Header */}
@@ -1237,6 +1222,30 @@ const Profile = ({ setView }) => {
                                                 Share and get rewards
                                             </p>
                                         </div>
+                                    </div>
+
+                                    {/* Small Logout Button at Bottom */}
+                                    <div style={{ display: 'flex', justifyContent: 'center', marginTop: '30px', paddingBottom: '20px' }}>
+                                        <button
+                                            onClick={handleLogout}
+                                            style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '8px',
+                                                background: 'transparent',
+                                                color: '#ff4757',
+                                                border: '1px solid #fee2e2',
+                                                padding: '8px 16px',
+                                                borderRadius: '20px',
+                                                fontSize: '0.85rem',
+                                                fontWeight: '600',
+                                                cursor: 'pointer',
+                                                transition: 'all 0.3s'
+                                            }}
+                                            className="nav-btn-hover"
+                                        >
+                                            <FaSignOutAlt /> Log Out
+                                        </button>
                                     </div>
                                 </div>
                             </>
