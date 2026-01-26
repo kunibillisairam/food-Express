@@ -1058,19 +1058,19 @@ const Profile = ({ setView }) => {
                                     </div>
 
                                     {/* Welcome Header */}
-                                    <div style={{ textAlign: 'center', marginBottom: '40px', paddingTop: '20px' }}>
+                                    <div style={{ textAlign: 'center', marginBottom: '30px', paddingTop: '15px' }}>
                                         <div style={{
-                                            width: '120px', height: '120px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                            borderRadius: '50%', margin: '0 auto 20px', display: 'flex', alignItems: 'center',
-                                            justifyContent: 'center', fontSize: '3.5rem', color: 'white', fontWeight: '800',
-                                            boxShadow: '0 15px 35px rgba(102, 126, 234, 0.3)', border: '5px solid white'
+                                            width: '90px', height: '90px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                            borderRadius: '50%', margin: '0 auto 15px', display: 'flex', alignItems: 'center',
+                                            justifyContent: 'center', fontSize: '2.5rem', color: 'white', fontWeight: '800',
+                                            boxShadow: '0 10px 25px rgba(102, 126, 234, 0.3)', border: '4px solid white'
                                         }}>
                                             {user.username.charAt(0).toUpperCase()}
                                         </div>
-                                        <h2 style={{ fontSize: '2.2rem', margin: 0, fontWeight: '800', color: '#2f3542' }}>
+                                        <h2 style={{ fontSize: '1.6rem', margin: 0, fontWeight: '800', color: '#2f3542' }}>
                                             Welcome, {user.username}!
                                         </h2>
-                                        <p style={{ margin: '8px 0 0', color: '#747d8c', fontSize: '1.1rem' }}>
+                                        <p style={{ margin: '6px 0 0', color: '#747d8c', fontSize: '0.95rem' }}>
                                             +91 {user.phone}
                                         </p>
                                     </div>
@@ -1097,12 +1097,12 @@ const Profile = ({ setView }) => {
                                             className="desktop-action-card">
                                             <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '120px', height: '120px', background: 'rgba(255,255,255,0.1)', borderRadius: '50%', filter: 'blur(40px)' }}></div>
                                             <div style={{ position: 'relative', zIndex: 2 }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-                                                    <FaWallet style={{ fontSize: '2rem' }} />
-                                                    <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: '700' }}>Wallet</h3>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
+                                                    <FaWallet style={{ fontSize: '1.5rem' }} />
+                                                    <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '700' }}>Wallet</h3>
                                                 </div>
-                                                <div style={{ fontSize: '0.9rem', opacity: 0.9, marginBottom: '10px' }}>Available Balance</div>
-                                                <div style={{ fontSize: '2.5rem', fontWeight: '900', marginBottom: '15px' }}>₹{user.walletBalance || 0}</div>
+                                                <div style={{ fontSize: '0.8rem', opacity: 0.9, marginBottom: '8px' }}>Available Balance</div>
+                                                <div style={{ fontSize: '2rem', fontWeight: '900', marginBottom: '12px' }}>₹{user.walletBalance || 0}</div>
                                                 <button onClick={(e) => { e.stopPropagation(); setActiveModal('wallet'); }}
                                                     style={{
                                                         background: 'rgba(255,255,255,0.2)',
@@ -1134,14 +1134,14 @@ const Profile = ({ setView }) => {
                                             className="desktop-action-card">
                                             <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '120px', height: '120px', background: 'rgba(255,255,255,0.1)', borderRadius: '50%', filter: 'blur(40px)' }}></div>
                                             <div style={{ position: 'relative', zIndex: 2 }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-                                                    <FaMotorcycle style={{ fontSize: '2rem' }} />
-                                                    <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: '700' }}>My Orders</h3>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
+                                                    <FaMotorcycle style={{ fontSize: '1.5rem' }} />
+                                                    <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '700' }}>My Orders</h3>
                                                 </div>
-                                                <p style={{ fontSize: '1rem', opacity: 0.95, margin: '0 0 20px', lineHeight: '1.6' }}>
+                                                <p style={{ fontSize: '0.85rem', opacity: 0.95, margin: '0 0 15px', lineHeight: '1.5' }}>
                                                     Track your live orders and view delivery status in real-time
                                                 </p>
-                                                <div style={{ fontSize: '0.9rem', opacity: 0.8 }}>→ Track Now</div>
+                                                <div style={{ fontSize: '0.8rem', opacity: 0.8 }}>→ Track Now</div>
                                             </div>
                                         </div>
 
@@ -1160,14 +1160,14 @@ const Profile = ({ setView }) => {
                                             className="desktop-action-card">
                                             <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '120px', height: '120px', background: 'rgba(255,255,255,0.1)', borderRadius: '50%', filter: 'blur(40px)' }}></div>
                                             <div style={{ position: 'relative', zIndex: 2 }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-                                                    <FaListAlt style={{ fontSize: '2rem' }} />
-                                                    <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: '700' }}>History</h3>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
+                                                    <FaListAlt style={{ fontSize: '1.5rem' }} />
+                                                    <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '700' }}>History</h3>
                                                 </div>
-                                                <p style={{ fontSize: '1rem', opacity: 0.95, margin: '0 0 20px', lineHeight: '1.6' }}>
+                                                <p style={{ fontSize: '0.85rem', opacity: 0.95, margin: '0 0 15px', lineHeight: '1.5' }}>
                                                     View all your past orders and reorder your favorites
                                                 </p>
-                                                <div style={{ fontSize: '0.9rem', opacity: 0.8 }}>→ View Logs</div>
+                                                <div style={{ fontSize: '0.8rem', opacity: 0.8 }}>→ View Logs</div>
                                             </div>
                                         </div>
 
@@ -1182,13 +1182,13 @@ const Profile = ({ setView }) => {
                                             border: '1px solid rgba(0,0,0,0.05)'
                                         }}
                                             className="desktop-action-card-white">
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '15px' }}>
-                                                <div style={{ padding: '12px', background: '#fff5f5', borderRadius: '15px', color: '#ff4757' }}>
-                                                    <FaMapMarkerAlt style={{ fontSize: '1.5rem' }} />
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+                                                <div style={{ padding: '10px', background: '#fff5f5', borderRadius: '12px', color: '#ff4757' }}>
+                                                    <FaMapMarkerAlt style={{ fontSize: '1.2rem' }} />
                                                 </div>
-                                                <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '700', color: '#2f3542' }}>Saved Addresses</h3>
+                                                <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: '700', color: '#2f3542' }}>Saved Addresses</h3>
                                             </div>
-                                            <p style={{ fontSize: '0.95rem', color: '#747d8c', margin: 0, lineHeight: '1.5' }}>
+                                            <p style={{ fontSize: '0.85rem', color: '#747d8c', margin: 0, lineHeight: '1.4' }}>
                                                 Manage your delivery locations
                                             </p>
                                         </div>
@@ -1204,13 +1204,13 @@ const Profile = ({ setView }) => {
                                             border: '1px solid rgba(0,0,0,0.05)'
                                         }}
                                             className="desktop-action-card-white">
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '15px' }}>
-                                                <div style={{ padding: '12px', background: '#f0f7ff', borderRadius: '15px', color: '#0984e3' }}>
-                                                    <FaQuestionCircle style={{ fontSize: '1.5rem' }} />
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+                                                <div style={{ padding: '10px', background: '#f0f7ff', borderRadius: '12px', color: '#0984e3' }}>
+                                                    <FaQuestionCircle style={{ fontSize: '1.2rem' }} />
                                                 </div>
-                                                <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '700', color: '#2f3542' }}>Help & Support</h3>
+                                                <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: '700', color: '#2f3542' }}>Help & Support</h3>
                                             </div>
-                                            <p style={{ fontSize: '0.95rem', color: '#747d8c', margin: 0, lineHeight: '1.5' }}>
+                                            <p style={{ fontSize: '0.85rem', color: '#747d8c', margin: 0, lineHeight: '1.4' }}>
                                                 Get assistance and FAQs
                                             </p>
                                         </div>
@@ -1226,13 +1226,13 @@ const Profile = ({ setView }) => {
                                             border: '1px solid rgba(0,0,0,0.05)'
                                         }}
                                             className="desktop-action-card-white">
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '15px' }}>
-                                                <div style={{ padding: '12px', background: '#fff9ee', borderRadius: '15px', color: '#ff9f43' }}>
-                                                    <FaGift style={{ fontSize: '1.5rem' }} />
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+                                                <div style={{ padding: '10px', background: '#fff9ee', borderRadius: '12px', color: '#ff9f43' }}>
+                                                    <FaGift style={{ fontSize: '1.2rem' }} />
                                                 </div>
-                                                <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '700', color: '#2f3542' }}>Refer & Earn</h3>
+                                                <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: '700', color: '#2f3542' }}>Refer & Earn</h3>
                                             </div>
-                                            <p style={{ fontSize: '0.95rem', color: '#747d8c', margin: 0, lineHeight: '1.5' }}>
+                                            <p style={{ fontSize: '0.85rem', color: '#747d8c', margin: 0, lineHeight: '1.4' }}>
                                                 Share and get rewards
                                             </p>
                                         </div>
