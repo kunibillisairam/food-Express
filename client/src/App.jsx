@@ -97,8 +97,8 @@ const Main = () => {
         {renderView()}
       </div>
 
-      {/* Footer */}
-      {showNavbar && <Footer />}
+      {/* Footer - Only show on Home page */}
+      {view === 'home' && <Footer />}
 
       {/* Voice Commander */}
       {showNavbar && (
