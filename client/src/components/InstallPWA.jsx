@@ -33,7 +33,9 @@ const InstallPWA = () => {
         promptInstall.userChoice.then((choiceResult) => {
             if (choiceResult.outcome === 'accepted') {
                 console.log('User accepted the PWA install');
+                localStorage.setItem('pwa_installed', 'true');
             } else {
+
                 console.log('User dismissed the PWA install');
             }
             setIsVisible(false);

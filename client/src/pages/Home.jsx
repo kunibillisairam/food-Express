@@ -11,9 +11,39 @@ import { AuthContext } from '../context/AuthContext';
 const Home = ({ activeCategory, setCategory, searchTerm, setSearchTerm, setView }) => {
     const { user } = useContext(AuthContext);
     const { addToCart } = useContext(CartContext);
+    const [isStandalone, setIsStandalone] = useState(false);
 
-    // Detect if app is running in standalone mode (installed)
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    useEffect(() => {
+        const checkStandalone = () => {
+            const standalone = window.matchMedia('(display-mode: standalone)').matches ||
+                window.navigator.standalone ||
+                document.referrer.includes('android-app://');
+            setIsStandalone(standalone);
+        };
+
+        checkStandalone();
+
+        const handleInstall = () => {
+            setIsStandalone(true);
+            localStorage.setItem('pwa_installed', 'true');
+        };
+
+        window.addEventListener('appinstalled', handleInstall);
+
+        // Listen for changes
+        const mql = window.matchMedia('(display-mode: standalone)');
+        const listener = (e) => setIsStandalone(e.matches || localStorage.getItem('pwa_installed') === 'true');
+        mql.addEventListener('change', listener);
+
+        return () => {
+            window.removeEventListener('appinstalled', handleInstall);
+            mql.removeEventListener('change', listener);
+        };
+    }, []);
+
+    const showHero = !user && !isStandalone && (localStorage.getItem('pwa_installed') !== 'true');
+    const showAppSection = !isStandalone && (localStorage.getItem('pwa_installed') !== 'true');
+
 
 
     // Filter logic
@@ -29,7 +59,8 @@ const Home = ({ activeCategory, setCategory, searchTerm, setSearchTerm, setView 
 
     return (
         <div className="home-page fade-in">
-            {!user && <Hero setView={setView} />}
+            {showHero && <Hero setView={setView} />}
+
 
 
             <div id="food-explore" className="explore-section">
@@ -81,9 +112,10 @@ const Home = ({ activeCategory, setCategory, searchTerm, setSearchTerm, setView 
                     </div>
                 )}
 
-                {!isStandalone && <AppDownloadSection />}
+                {showAppSection && <AppDownloadSection />}
 
                 <AboutUs />
+
 
             </div>
         </div>
