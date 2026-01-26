@@ -958,9 +958,13 @@ const Profile = ({ setView }) => {
                                     <div className="icon-box-mini"><FaWallet /></div>
                                     <span>Wallet</span>
                                 </div>
+                                <div className="profile-nav-item" onClick={() => setView('my-orders')}>
+                                    <div className="icon-box-mini"><FaMotorcycle /></div>
+                                    <span>My Orders</span>
+                                </div>
                                 <div className={`profile-nav-item ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => setActiveTab('orders')}>
                                     <div className="icon-box-mini"><FaListAlt /></div>
-                                    <span>Orders</span>
+                                    <span>History</span>
                                 </div>
                                 <div className={`profile-nav-item ${activeTab === 'address' ? 'active' : ''}`} onClick={() => setActiveTab('address')}>
                                     <div className="icon-box-mini"><FaMapMarkerAlt /></div>

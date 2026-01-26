@@ -3313,6 +3313,10 @@ body {
     gap: 10px;
     width: 100%;
   }
+
+  .mobile-nav-grid>.profile-nav-item:last-child:nth-child(odd) {
+    grid-column: span 2;
+  }
 }
 
 .profile-nav-item {
