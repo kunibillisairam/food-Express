@@ -3,6 +3,7 @@ import axios from 'axios';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import API_BASE_URL from '../config';
 
 // Fix for default Leaflet marker icons in React
 import icon from 'leaflet/dist/images/marker-icon.png';
@@ -32,7 +33,7 @@ const DeliveryDashboard = ({ setView }) => {
 
     const fetchOrders = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/orders');
+            const res = await axios.get(`${API_BASE_URL}/api/orders`);
             // Filter only active orders for simulation or show all but highlight active
             setOrders(res.data);
         } catch (err) {
@@ -55,7 +56,7 @@ const DeliveryDashboard = ({ setView }) => {
     const updateStatus = async (status) => {
         if (!selectedOrder) return;
         try {
-            await axios.put(`http://localhost:5000/api/orders/${selectedOrder._id}/status`, { status });
+            await axios.put(`${API_BASE_URL}/api/orders/${selectedOrder._id}/status`, { status });
             // Optimistic update
             const updated = { ...selectedOrder, status };
             setSelectedOrder(updated);

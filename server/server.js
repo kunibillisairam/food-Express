@@ -63,6 +63,25 @@ mongoose.connect(MONGO_URI)
     .then(() => console.log('MongoDB Connected'))
     .catch(err => console.error('MongoDB Connection Error:', err));
 
+// Debugging: Log that routes are initializing
+console.log("Initializing Routes...");
+
+// Health Check - MOVED TO TOP
+app.get('/api/health', (req, res) => {
+    res.json({
+        status: 'ok',
+        mongoConnected: mongoose.connection.readyState === 1,
+        socketActive: !!io,
+        timestamp: new Date()
+    });
+});
+
+// Root Route
+app.get('/', (req, res) => {
+    res.send('API is Running');
+});
+
+
 // Routes
 
 // GET /api/orders
@@ -469,7 +488,7 @@ app.use(express.static(path.join(__dirname, '../client/dist')));
 // API Routes (Orders, Auth, Reviews) are defined above...
 
 // Handle React Routing (Catch-All) - MUST BE LAST
-app.get('*', (req, res) => {
+app.get(/(.*)/, (req, res) => {
     const indexPath = path.join(__dirname, '../client/dist/index.html');
     if (require('fs').existsSync(indexPath)) {
         res.sendFile(indexPath);
