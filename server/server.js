@@ -469,7 +469,6 @@ app.put('/api/users/:username', async (req, res) => {
 });
 
 // GET /api/reviews/summary -> Get average ratings for all food items
-// GET /api/reviews/summary -> Get average ratings for all food items
 app.get('/api/reviews/summary', async (req, res) => {
     try {
         // Fallback to JS aggregation to ensure stability
