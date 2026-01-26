@@ -63,21 +63,25 @@ const Navbar = ({ setView, activeCategory, setCategory, setSearchTerm }) => {
                 onClick={() => { playSound('click'); setView('home'); setSearchTerm(''); setCategory('All'); }}
                 onMouseEnter={() => playSound('hover')}
             >
-                FoodExpress
+                <span className="logo-text">Food</span><span className="logo-accent">Express</span>
             </div>
+
 
             <div className="nav-links">
                 {/* Category Buttons for Home View */}
-                {categories.slice(0, 4).map(cat => (
-                    <button
-                        key={cat}
-                        className={`nav-btn ${activeCategory === cat ? 'active' : ''} ${cat !== 'All' ? 'desktop-only' : ''}`}
-                        onMouseEnter={() => playSound('hover')}
-                        onClick={() => handleCategoryClick(cat)}
-                    >
-                        {cat}
-                    </button>
-                ))}
+                <div className="nav-categories desktop-only">
+                    {categories.slice(0, 5).map(cat => (
+                        <button
+                            key={cat}
+                            className={`nav-cat-link ${activeCategory === cat ? 'active' : ''}`}
+                            onMouseEnter={() => playSound('hover')}
+                            onClick={() => handleCategoryClick(cat)}
+                        >
+                            {cat}
+                        </button>
+                    ))}
+                </div>
+
 
                 <button
                     className="nav-btn fabricator-btn"

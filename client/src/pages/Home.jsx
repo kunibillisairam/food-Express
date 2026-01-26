@@ -4,8 +4,9 @@ import { CartContext } from '../context/CartContext';
 
 import AboutUs from '../components/AboutUs';
 import HolographicCard from '../components/HolographicCard';
+import Hero from '../components/Hero';
 
-const Home = ({ activeCategory, setCategory, searchTerm, setSearchTerm }) => {
+const Home = ({ activeCategory, setCategory, searchTerm, setSearchTerm, setView }) => {
     const { addToCart } = useContext(CartContext);
 
     // Filter logic
@@ -21,57 +22,59 @@ const Home = ({ activeCategory, setCategory, searchTerm, setSearchTerm }) => {
 
     return (
         <div className="home-page fade-in">
-            <div className="search-container">
-                <input
-                    type="text"
-                    placeholder="Search for food (e.g. Burger, Noodles)..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="search-bar"
-                />
-            </div>
+            <Hero setView={setView} />
 
-            <div className="categories">
-                {categories.map(cat => (
-                    <button
-                        key={cat}
-                        className={`cat-btn ${activeCategory === cat ? 'active' : ''}`}
-                        onClick={() => {
-                            setCategory(cat);
-                            setSearchTerm('');
-                        }}
-                    >
-                        {cat}
-                    </button>
-                ))}
-            </div>
-
-            {activeCategory !== 'All' && (
-                <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-                    <span className="link-text" onClick={() => { setCategory('All'); setSearchTerm(''); }} style={{ fontSize: '0.9rem' }}>Currently viewing {activeCategory}. Click here to View All</span>
-                </div>
-            )}
-
-            <div className="food-grid">
-                {filteredFood.map(item => (
-                    <HolographicCard
-                        key={item.id}
-                        item={item}
-                        handleAdd={handleAdd}
-                        setCategory={setCategory}
+            <div id="food-explore" className="explore-section">
+                <div className="search-container">
+                    <input
+                        type="text"
+                        placeholder="Search for food (e.g. Burger, Noodles)..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="search-bar"
                     />
-                ))}
-            </div>
-
-            {filteredFood.length === 0 && (
-                <div style={{ textAlign: 'center', fontSize: '1.2rem', color: '#888', marginTop: '3rem' }}>
-                    No items found. Try a different search.
                 </div>
-            )}
 
-            <AboutUs />
+                <div className="categories">
+                    {categories.map(cat => (
+                        <button
+                            key={cat}
+                            className={`cat-btn ${activeCategory === cat ? 'active' : ''}`}
+                            onClick={() => {
+                                setCategory(cat);
+                                setSearchTerm('');
+                            }}
+                        >
+                            {cat}
+                        </button>
+                    ))}
+                </div>
 
-            {/* Removed old toast div */}
+                {activeCategory !== 'All' && (
+                    <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                        <span className="link-text" onClick={() => { setCategory('All'); setSearchTerm(''); }} style={{ fontSize: '0.9rem' }}>Currently viewing {activeCategory}. Click here to View All</span>
+                    </div>
+                )}
+
+                <div className="food-grid">
+                    {filteredFood.map(item => (
+                        <HolographicCard
+                            key={item.id}
+                            item={item}
+                            handleAdd={handleAdd}
+                            setCategory={setCategory}
+                        />
+                    ))}
+                </div>
+
+                {filteredFood.length === 0 && (
+                    <div style={{ textAlign: 'center', fontSize: '1.2rem', color: '#888', marginTop: '3rem' }}>
+                        No items found. Try a different search.
+                    </div>
+                )}
+
+                <AboutUs />
+            </div>
         </div>
     );
 };
