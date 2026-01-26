@@ -43,9 +43,11 @@ const Navbar = ({ setView, activeCategory, setCategory, setSearchTerm }) => {
     }, [totalItems, bounceControls]);
 
     const handleLogout = () => {
-        playSound('click');
-        logout();
-        setView('login');
+        if (window.confirm("Are you sure you want to logout?")) {
+            playSound('click');
+            logout();
+            setView('login');
+        }
     };
 
     const handleCategoryClick = (cat) => {

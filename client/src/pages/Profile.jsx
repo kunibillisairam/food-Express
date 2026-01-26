@@ -111,8 +111,10 @@ const Profile = ({ setView }) => {
     };
 
     const handleLogout = () => {
-        logout();
-        setView('login');
+        if (window.confirm("Are you sure you want to logout?")) {
+            logout();
+            setView('login');
+        }
     };
 
     const handleAddMoney = () => {
