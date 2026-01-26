@@ -1058,19 +1058,19 @@ const Profile = ({ setView }) => {
                                     </div>
 
                                     {/* Welcome Header */}
-                                    <div style={{ textAlign: 'center', marginBottom: '30px', paddingTop: '15px' }}>
+                                    <div style={{ textAlign: 'center', marginBottom: '20px', paddingTop: '10px' }}>
                                         <div style={{
-                                            width: '90px', height: '90px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                            borderRadius: '50%', margin: '0 auto 15px', display: 'flex', alignItems: 'center',
-                                            justifyContent: 'center', fontSize: '2.5rem', color: 'white', fontWeight: '800',
-                                            boxShadow: '0 10px 25px rgba(102, 126, 234, 0.3)', border: '4px solid white'
+                                            width: '60px', height: '60px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                            borderRadius: '50%', margin: '0 auto 10px', display: 'flex', alignItems: 'center',
+                                            justifyContent: 'center', fontSize: '1.5rem', color: 'white', fontWeight: '800',
+                                            boxShadow: '0 5px 15px rgba(102, 126, 234, 0.3)', border: '3px solid white'
                                         }}>
                                             {user.username.charAt(0).toUpperCase()}
                                         </div>
-                                        <h2 style={{ fontSize: '1.6rem', margin: 0, fontWeight: '800', color: '#2f3542' }}>
+                                        <h2 style={{ fontSize: '1.1rem', margin: 0, fontWeight: '800', color: '#2f3542' }}>
                                             Welcome, {user.username}!
                                         </h2>
-                                        <p style={{ margin: '6px 0 0', color: '#747d8c', fontSize: '0.95rem' }}>
+                                        <p style={{ margin: '4px 0 0', color: '#747d8c', fontSize: '0.75rem' }}>
                                             +91 {user.phone}
                                         </p>
                                     </div>
@@ -1078,41 +1078,42 @@ const Profile = ({ setView }) => {
                                     {/* Dashboard Grid */}
                                     <div className="desktop-dashboard-grid" style={{
                                         display: 'grid',
-                                        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                                        gap: '25px',
-                                        marginTop: '35px'
+                                        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+                                        gap: '15px',
+                                        marginTop: '20px'
                                     }}>
                                         {/* Wallet Card */}
                                         <div onClick={() => setActiveTab('wallet')} style={{
                                             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                                             color: 'white',
-                                            padding: '30px',
-                                            borderRadius: '24px',
+                                            padding: '18px',
+                                            borderRadius: '16px',
                                             cursor: 'pointer',
                                             transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-                                            boxShadow: '0 10px 30px rgba(102, 126, 234, 0.3)',
+                                            boxShadow: '0 8px 20px rgba(102, 126, 234, 0.3)',
                                             position: 'relative',
                                             overflow: 'hidden'
                                         }}
                                             className="desktop-action-card">
                                             <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '120px', height: '120px', background: 'rgba(255,255,255,0.1)', borderRadius: '50%', filter: 'blur(40px)' }}></div>
                                             <div style={{ position: 'relative', zIndex: 2 }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
-                                                    <FaWallet style={{ fontSize: '1.5rem' }} />
-                                                    <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '700' }}>Wallet</h3>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                                                    <FaWallet style={{ fontSize: '1rem' }} />
+                                                    <h3 style={{ margin: 0, fontSize: '0.9rem', fontWeight: '700' }}>Wallet</h3>
                                                 </div>
-                                                <div style={{ fontSize: '0.8rem', opacity: 0.9, marginBottom: '8px' }}>Available Balance</div>
-                                                <div style={{ fontSize: '2rem', fontWeight: '900', marginBottom: '12px' }}>₹{user.walletBalance || 0}</div>
+                                                <div style={{ fontSize: '0.65rem', opacity: 0.9, marginBottom: '6px' }}>Available Balance</div>
+                                                <div style={{ fontSize: '1.5rem', fontWeight: '900', marginBottom: '10px' }}>₹{user.walletBalance || 0}</div>
                                                 <button onClick={(e) => { e.stopPropagation(); setActiveModal('wallet'); }}
                                                     style={{
                                                         background: 'rgba(255,255,255,0.2)',
                                                         color: 'white',
                                                         border: '1px solid rgba(255,255,255,0.3)',
-                                                        padding: '10px 20px',
-                                                        borderRadius: '15px',
+                                                        padding: '6px 14px',
+                                                        borderRadius: '10px',
                                                         fontWeight: '600',
                                                         cursor: 'pointer',
-                                                        backdropFilter: 'blur(10px)'
+                                                        backdropFilter: 'blur(10px)',
+                                                        fontSize: '0.75rem'
                                                     }}>
                                                     + Add Money
                                                 </button>
@@ -1123,25 +1124,25 @@ const Profile = ({ setView }) => {
                                         <div onClick={() => setView('my-orders')} style={{
                                             background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
                                             color: 'white',
-                                            padding: '30px',
-                                            borderRadius: '24px',
+                                            padding: '18px',
+                                            borderRadius: '16px',
                                             cursor: 'pointer',
                                             transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-                                            boxShadow: '0 10px 30px rgba(245, 87, 108, 0.3)',
+                                            boxShadow: '0 8px 20px rgba(245, 87, 108, 0.3)',
                                             position: 'relative',
                                             overflow: 'hidden'
                                         }}
                                             className="desktop-action-card">
                                             <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '120px', height: '120px', background: 'rgba(255,255,255,0.1)', borderRadius: '50%', filter: 'blur(40px)' }}></div>
                                             <div style={{ position: 'relative', zIndex: 2 }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
-                                                    <FaMotorcycle style={{ fontSize: '1.5rem' }} />
-                                                    <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '700' }}>My Orders</h3>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                                                    <FaMotorcycle style={{ fontSize: '1rem' }} />
+                                                    <h3 style={{ margin: 0, fontSize: '0.9rem', fontWeight: '700' }}>My Orders</h3>
                                                 </div>
-                                                <p style={{ fontSize: '0.85rem', opacity: 0.95, margin: '0 0 15px', lineHeight: '1.5' }}>
-                                                    Track your live orders and view delivery status in real-time
+                                                <p style={{ fontSize: '0.7rem', opacity: 0.95, margin: '0 0 10px', lineHeight: '1.4' }}>
+                                                    Track your live orders and view delivery status
                                                 </p>
-                                                <div style={{ fontSize: '0.8rem', opacity: 0.8 }}>→ Track Now</div>
+                                                <div style={{ fontSize: '0.65rem', opacity: 0.8 }}>→ Track Now</div>
                                             </div>
                                         </div>
 
@@ -1149,68 +1150,68 @@ const Profile = ({ setView }) => {
                                         <div onClick={() => setActiveTab('orders')} style={{
                                             background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
                                             color: 'white',
-                                            padding: '30px',
-                                            borderRadius: '24px',
+                                            padding: '18px',
+                                            borderRadius: '16px',
                                             cursor: 'pointer',
                                             transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-                                            boxShadow: '0 10px 30px rgba(0, 242, 254, 0.3)',
+                                            boxShadow: '0 8px 20px rgba(0, 242, 254, 0.3)',
                                             position: 'relative',
                                             overflow: 'hidden'
                                         }}
                                             className="desktop-action-card">
                                             <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '120px', height: '120px', background: 'rgba(255,255,255,0.1)', borderRadius: '50%', filter: 'blur(40px)' }}></div>
                                             <div style={{ position: 'relative', zIndex: 2 }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
-                                                    <FaListAlt style={{ fontSize: '1.5rem' }} />
-                                                    <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '700' }}>History</h3>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                                                    <FaListAlt style={{ fontSize: '1rem' }} />
+                                                    <h3 style={{ margin: 0, fontSize: '0.9rem', fontWeight: '700' }}>History</h3>
                                                 </div>
-                                                <p style={{ fontSize: '0.85rem', opacity: 0.95, margin: '0 0 15px', lineHeight: '1.5' }}>
-                                                    View all your past orders and reorder your favorites
+                                                <p style={{ fontSize: '0.7rem', opacity: 0.95, margin: '0 0 10px', lineHeight: '1.4' }}>
+                                                    View past orders and reorder favorites
                                                 </p>
-                                                <div style={{ fontSize: '0.8rem', opacity: 0.8 }}>→ View Logs</div>
+                                                <div style={{ fontSize: '0.65rem', opacity: 0.8 }}>→ View Logs</div>
                                             </div>
                                         </div>
 
                                         {/* Address Card */}
                                         <div onClick={() => setActiveTab('address')} style={{
                                             background: 'white',
-                                            padding: '30px',
-                                            borderRadius: '24px',
+                                            padding: '16px',
+                                            borderRadius: '16px',
                                             cursor: 'pointer',
                                             transition: 'all 0.3s',
-                                            boxShadow: '0 5px 20px rgba(0,0,0,0.08)',
+                                            boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
                                             border: '1px solid rgba(0,0,0,0.05)'
                                         }}
                                             className="desktop-action-card-white">
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-                                                <div style={{ padding: '10px', background: '#fff5f5', borderRadius: '12px', color: '#ff4757' }}>
-                                                    <FaMapMarkerAlt style={{ fontSize: '1.2rem' }} />
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                                                <div style={{ padding: '8px', background: '#fff5f5', borderRadius: '10px', color: '#ff4757' }}>
+                                                    <FaMapMarkerAlt style={{ fontSize: '0.9rem' }} />
                                                 </div>
-                                                <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: '700', color: '#2f3542' }}>Saved Addresses</h3>
+                                                <h3 style={{ margin: 0, fontSize: '0.85rem', fontWeight: '700', color: '#2f3542' }}>Saved Addresses</h3>
                                             </div>
-                                            <p style={{ fontSize: '0.85rem', color: '#747d8c', margin: 0, lineHeight: '1.4' }}>
-                                                Manage your delivery locations
+                                            <p style={{ fontSize: '0.7rem', color: '#747d8c', margin: 0, lineHeight: '1.3' }}>
+                                                Manage delivery locations
                                             </p>
                                         </div>
 
                                         {/* Help & Support Card */}
                                         <div onClick={() => setActiveTab('help')} style={{
                                             background: 'white',
-                                            padding: '30px',
-                                            borderRadius: '24px',
+                                            padding: '16px',
+                                            borderRadius: '16px',
                                             cursor: 'pointer',
                                             transition: 'all 0.3s',
-                                            boxShadow: '0 5px 20px rgba(0,0,0,0.08)',
+                                            boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
                                             border: '1px solid rgba(0,0,0,0.05)'
                                         }}
                                             className="desktop-action-card-white">
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-                                                <div style={{ padding: '10px', background: '#f0f7ff', borderRadius: '12px', color: '#0984e3' }}>
-                                                    <FaQuestionCircle style={{ fontSize: '1.2rem' }} />
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                                                <div style={{ padding: '8px', background: '#f0f7ff', borderRadius: '10px', color: '#0984e3' }}>
+                                                    <FaQuestionCircle style={{ fontSize: '0.9rem' }} />
                                                 </div>
-                                                <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: '700', color: '#2f3542' }}>Help & Support</h3>
+                                                <h3 style={{ margin: 0, fontSize: '0.85rem', fontWeight: '700', color: '#2f3542' }}>Help & Support</h3>
                                             </div>
-                                            <p style={{ fontSize: '0.85rem', color: '#747d8c', margin: 0, lineHeight: '1.4' }}>
+                                            <p style={{ fontSize: '0.7rem', color: '#747d8c', margin: 0, lineHeight: '1.3' }}>
                                                 Get assistance and FAQs
                                             </p>
                                         </div>
@@ -1218,21 +1219,21 @@ const Profile = ({ setView }) => {
                                         {/* Refer & Earn Card */}
                                         <div onClick={() => setActiveModal('refer')} style={{
                                             background: 'white',
-                                            padding: '30px',
-                                            borderRadius: '24px',
+                                            padding: '16px',
+                                            borderRadius: '16px',
                                             cursor: 'pointer',
                                             transition: 'all 0.3s',
-                                            boxShadow: '0 5px 20px rgba(0,0,0,0.08)',
+                                            boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
                                             border: '1px solid rgba(0,0,0,0.05)'
                                         }}
                                             className="desktop-action-card-white">
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-                                                <div style={{ padding: '10px', background: '#fff9ee', borderRadius: '12px', color: '#ff9f43' }}>
-                                                    <FaGift style={{ fontSize: '1.2rem' }} />
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                                                <div style={{ padding: '8px', background: '#fff9ee', borderRadius: '10px', color: '#ff9f43' }}>
+                                                    <FaGift style={{ fontSize: '0.9rem' }} />
                                                 </div>
-                                                <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: '700', color: '#2f3542' }}>Refer & Earn</h3>
+                                                <h3 style={{ margin: 0, fontSize: '0.85rem', fontWeight: '700', color: '#2f3542' }}>Refer & Earn</h3>
                                             </div>
-                                            <p style={{ fontSize: '0.85rem', color: '#747d8c', margin: 0, lineHeight: '1.4' }}>
+                                            <p style={{ fontSize: '0.7rem', color: '#747d8c', margin: 0, lineHeight: '1.3' }}>
                                                 Share and get rewards
                                             </p>
                                         </div>
