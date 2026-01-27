@@ -25,8 +25,8 @@ const NotificationPrompt = () => {
             if (storedStatus || browserPermission !== 'default') {
                 setIsVisible(false);
             } else {
-                // Show after delay
-                setTimeout(() => setIsVisible(true), 1500);
+                // Show immediately (slight delay for render)
+                setTimeout(() => setIsVisible(true), 500);
             }
         };
 
