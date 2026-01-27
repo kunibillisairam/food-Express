@@ -26,7 +26,7 @@ import InstallPWA from './components/InstallPWA';
 import NotificationPrompt from './components/NotificationPrompt';
 import { onMessageListener } from './firebase';
 
-
+// FCM Notification System - Foreground message handler
 const Main = () => {
   const { user } = useContext(AuthContext);
 
