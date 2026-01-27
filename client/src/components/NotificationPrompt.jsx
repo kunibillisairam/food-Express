@@ -251,3 +251,4 @@ const NotificationPrompt = () => {
 };
 
 export default NotificationPrompt;
+// End of component
