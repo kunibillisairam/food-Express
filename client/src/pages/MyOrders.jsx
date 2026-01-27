@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import API_BASE_URL from '../config';
+
 const ReviewModal = ({ item, onSubmit, onClose }) => {
     const [rating, setRating] = useState(5);
 
@@ -53,12 +54,13 @@ const MyOrders = ({ setView }) => {
         if (user) {
             fetchOrders(true);
             intervalId = setInterval(() => fetchOrders(false), 8000);
+        } else {
+            setLoading(false); // If no user, stop loading
         }
         return () => {
             if (intervalId) clearInterval(intervalId);
         };
     }, [user]);
-
 
     const handleRate = (item) => {
         setReviewItem(item);
@@ -66,14 +68,6 @@ const MyOrders = ({ setView }) => {
 
     const submitReview = async (item, rating) => {
         try {
-            // Find food ID logic - matching item.name to foodData ID would be ideal, 
-            // but for now we'll assume item object has what we need or we map it.
-            // Wait - the Order item schema needs to be checked. It likely has 'id' or we match by name.
-            // Let's assume we pass a foodId. If not, we use name.
-            // For robustness, let's use a dummy ID if missing, or better, log it.
-
-            // Actually, best to fetch foodData and find ID.
-            // Importing foodData here would be heavy? No, it's local.
             await axios.post(`${API_BASE_URL}/api/reviews`, {
                 foodId: item.id || 999, // Fallback
                 userName: user.username,
@@ -88,24 +82,34 @@ const MyOrders = ({ setView }) => {
         }
     };
 
-    // ... render return
-
-
-
     const fetchOrders = async (isInitial = false) => {
+        if (!user) return;
+
         if (isInitial) setLoading(true);
         try {
+            console.log(`Fetching orders for user: ${user.username} from ${API_BASE_URL}`);
             const res = await axios.get(`${API_BASE_URL}/api/orders/user/${user.username}`);
-            setOrders(res.data);
+            console.log("Orders received:", res.data);
+
+            if (Array.isArray(res.data)) {
+                setOrders(res.data);
+            } else {
+                console.error("Received non-array data for orders:", res.data);
+                setOrders([]);
+            }
             setError(null);
         } catch (err) {
             console.error("Polling Error:", err);
-            if (isInitial) setError("Failed to load orders. Please check your connection.");
+            if (isInitial) {
+                setError(`Failed to load orders. ${err.message}`);
+                if (err.response && err.response.status === 404) {
+                    // Maybe the user endpoint doesn't exist? (Unlikely given server.js)
+                }
+            }
         } finally {
             if (isInitial) setLoading(false);
         }
     };
-
 
     const handleCancel = async (orderId, amount) => {
         if (!window.confirm('Are you sure you want to cancel this order? Amount will be refunded to your wallet.')) return;
@@ -145,6 +149,16 @@ const MyOrders = ({ setView }) => {
         }
     };
 
+    if (!user && !loading) {
+        return (
+            <div className="page-container fade-in" style={{ textAlign: 'center', padding: '5rem 2rem' }}>
+                <h2 style={{ color: '#ff4757' }}>Please Log In</h2>
+                <p style={{ marginBottom: '2rem' }}>You need to be logged in to view your order history.</p>
+                <button className="nav-btn" onClick={() => setView('login')}>Login Now</button>
+            </div>
+        );
+    }
+
     return (
         <div className="page-container fade-in">
             <h2 className="page-title">My Orders 📦</h2>
@@ -170,7 +184,6 @@ const MyOrders = ({ setView }) => {
                     <p>Hungry? <span style={{ color: '#ff4757', cursor: 'pointer', fontWeight: 'bold' }} onClick={() => setView('home')}>Order something delicious!</span></p>
                 </div>
             )}
-
 
             {orders.map(order => (
                 <div key={order._id} className="order-card" style={{ borderLeft: '5px solid #2f3542' }}>
@@ -264,3 +277,4 @@ const MyOrders = ({ setView }) => {
 };
 
 export default MyOrders;
+
