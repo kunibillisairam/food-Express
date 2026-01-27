@@ -14,6 +14,7 @@ import Profile from './pages/Profile';
 import DeliveryTracker from './pages/DeliveryTracker';
 import Fabricator from './pages/Fabricator';
 import DeliveryDashboard from './pages/DeliveryDashboard';
+import CampaignManager from './pages/CampaignManager';
 
 import Footer from './components/Footer';
 import StarfieldBackground from './components/StarfieldBackground';
@@ -23,6 +24,7 @@ import { CartAnimationProvider } from './context/CartAnimationContext';
 import { Toaster } from 'react-hot-toast';
 import InstallPWA from './components/InstallPWA';
 import NotificationPrompt from './components/NotificationPrompt';
+import { onMessageListener } from './firebase';
 
 
 const Main = () => {
@@ -42,6 +44,19 @@ const Main = () => {
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
+
+    // FCM Foreground Message Listener
+    onMessageListener().then((payload) => {
+      console.log('[FCM] Foreground message received:', payload);
+      if (payload && payload.notification) {
+        // Show notification when app is open
+        new Notification(payload.notification.title, {
+          body: payload.notification.body,
+          icon: '/logo.png',
+          tag: payload.data?.orderId || 'food-express'
+        });
+      }
+    }).catch(err => console.log('[FCM] Listener error:', err));
 
     return () => {
       cleanup();
@@ -91,6 +106,7 @@ const Main = () => {
       case 'quantum-tracker': return <DeliveryTracker setView={handleViewChange} orderId={selectedOrderId} />;
       case 'fabricator': return <Fabricator setView={handleViewChange} />;
       case 'delivery-partner': return <DeliveryDashboard setView={handleViewChange} />;
+      case 'campaign-manager': return <CampaignManager setView={handleViewChange} />;
       default: return <Home activeCategory={category} setCategory={setCategory} setView={handleViewChange} />;
     }
   };

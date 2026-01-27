@@ -9,6 +9,7 @@ import HolographicCard from '../components/HolographicCard';
 import Hero from '../components/Hero';
 import AppDownloadSection from '../components/AppDownloadSection';
 import { AuthContext } from '../context/AuthContext';
+import CampaignBanner from '../components/CampaignBanner';
 
 const Home = ({ activeCategory, setCategory, searchTerm, setSearchTerm, setView }) => {
     const { user } = useContext(AuthContext);
@@ -81,7 +82,8 @@ const Home = ({ activeCategory, setCategory, searchTerm, setSearchTerm, setView 
         <div className="home-page fade-in">
             {showHero && <Hero setView={setView} />}
 
-
+            {/* Campaign Banner */}
+            <CampaignBanner />
 
             <div id="food-explore" className="explore-section">
                 <div className="search-container">

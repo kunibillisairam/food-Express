@@ -47,6 +47,8 @@ require('dotenv').config();
 const Order = require('./models/Order');
 const User = require('./models/User');
 const Review = require('./models/Review');
+const Campaign = require('./models/Campaign');
+const { startCampaignScheduler, sendCampaignNotification, INDIAN_FESTIVALS } = require('./campaignScheduler');
 
 const http = require('http');
 const { Server } = require('socket.io');
@@ -106,7 +108,11 @@ app.use(bodyParser.json());
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/restaurant_app';
 
 mongoose.connect(MONGO_URI)
-    .then(() => console.log('MongoDB Connected'))
+    .then(() => {
+        console.log('MongoDB Connected');
+        // Start Campaign Scheduler
+        startCampaignScheduler();
+    })
     .catch(err => console.error('MongoDB Connection Error:', err));
 
 // Debugging: Log that routes are initializing
@@ -431,8 +437,14 @@ app.post('/api/orders', async (req, res) => {
 
         // --- FCM NOTIFICATION LOGIC ---
         // Send Push Notification if User has Token
+        console.log('[FCM Debug] Checking notification prerequisites:');
+        console.log('[FCM Debug] User exists:', !!user);
+        console.log('[FCM Debug] User has FCM token:', !!user?.fcmToken);
+        console.log('[FCM Debug] Firebase Admin initialized:', admin.apps.length > 0);
+
         if (user && user.fcmToken && admin.apps.length > 0) {
             try {
+                console.log(`[FCM] Attempting to send notification to ${userName} with token: ${user.fcmToken.substring(0, 20)}...`);
                 const message = {
                     token: user.fcmToken,
                     notification: {
@@ -447,7 +459,7 @@ app.post('/api/orders', async (req, res) => {
                 };
 
                 await admin.messaging().send(message);
-                console.log(`[FCM] Notification sent to ${userName}`);
+                console.log(`[FCM] ✓ Notification sent successfully to ${userName}`);
             } catch (fcmError) {
                 console.error(`[FCM Error] Failed to send notification to ${userName}:`, fcmError.message);
             }
@@ -461,6 +473,134 @@ app.post('/api/orders', async (req, res) => {
         res.status(201).json({ ...savedOrder._doc, earnedXp, earnedCredits, xpUsed: xpDeducted });
     } catch (err) {
         console.error(err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ========== CAMPAIGN ROUTES ==========
+
+// GET /api/campaigns - Get all campaigns
+app.get('/api/campaigns', async (req, res) => {
+    try {
+        const campaigns = await Campaign.find().sort({ createdAt: -1 });
+        res.json(campaigns);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// GET /api/campaigns/active - Get currently active campaigns
+app.get('/api/campaigns/active', async (req, res) => {
+    try {
+        const now = new Date();
+        const dayOfWeek = now.getDay();
+        const dayOfMonth = now.getDate();
+        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+        const isEndOfMonth = dayOfMonth >= daysInMonth - 2;
+
+        const activeCampaigns = [];
+
+        // Get all active campaigns
+        const allActive = await Campaign.find({ isActive: true });
+
+        for (const campaign of allActive) {
+            let shouldInclude = false;
+
+            // Check based on campaign type
+            if (campaign.type === 'friday' && dayOfWeek === 5) {
+                shouldInclude = true;
+            } else if (campaign.type === 'monday' && dayOfWeek === 1) {
+                shouldInclude = true;
+            } else if (campaign.type === 'end_of_month' && isEndOfMonth) {
+                shouldInclude = true;
+            } else if (campaign.type === 'festival' && campaign.festivalDate) {
+                const festDate = new Date(campaign.festivalDate);
+                festDate.setHours(0, 0, 0, 0);
+                const today = new Date(now);
+                today.setHours(0, 0, 0, 0);
+
+                // Show if today is festival or 1 day before
+                const diffDays = Math.floor((festDate - today) / (1000 * 60 * 60 * 24));
+                if (diffDays >= 0 && diffDays <= 1) {
+                    shouldInclude = true;
+                }
+            } else if (campaign.type === 'custom') {
+                // Check date range for custom campaigns
+                if (campaign.startDate && campaign.endDate) {
+                    if (now >= new Date(campaign.startDate) && now <= new Date(campaign.endDate)) {
+                        shouldInclude = true;
+                    }
+                } else {
+                    shouldInclude = true; // Always active custom campaigns
+                }
+            }
+
+            if (shouldInclude) {
+                activeCampaigns.push(campaign);
+            }
+        }
+
+        res.json(activeCampaigns);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// GET /api/campaigns/festivals - Get festival calendar
+app.get('/api/campaigns/festivals', (req, res) => {
+    res.json(INDIAN_FESTIVALS);
+});
+
+// POST /api/campaigns - Create new campaign (Admin)
+app.post('/api/campaigns', async (req, res) => {
+    try {
+        const campaignData = req.body;
+        const newCampaign = new Campaign(campaignData);
+        const savedCampaign = await newCampaign.save();
+        res.status(201).json(savedCampaign);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// PUT /api/campaigns/:id - Update campaign (Admin)
+app.put('/api/campaigns/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updates = req.body;
+        const campaign = await Campaign.findByIdAndUpdate(id, updates, { new: true });
+        if (!campaign) {
+            return res.status(404).json({ message: 'Campaign not found' });
+        }
+        res.json(campaign);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// DELETE /api/campaigns/:id - Delete campaign (Admin)
+app.delete('/api/campaigns/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        await Campaign.findByIdAndDelete(id);
+        res.json({ message: 'Campaign deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// POST /api/campaigns/:id/send - Manually send campaign notification (Admin)
+app.post('/api/campaigns/:id/send', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const campaign = await Campaign.findById(id);
+        if (!campaign) {
+            return res.status(404).json({ message: 'Campaign not found' });
+        }
+
+        await sendCampaignNotification(campaign);
+        res.json({ message: 'Campaign notification sent successfully', campaign });
+    } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });

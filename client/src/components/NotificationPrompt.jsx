@@ -43,11 +43,14 @@ const NotificationPrompt = () => {
             if (permission === 'granted') {
                 // Get FCM Token
                 const token = await requestForToken();
+                console.log('🔔 [FCM TOKEN GENERATED]:', token ? token.substring(0, 30) + '...' : 'NULL');
                 if (token) {
                     console.log('FCM Token generated:', token);
                     if (user) {
+                        console.log('✓ Saving token to user profile:', user.username);
                         await updateUser({ fcmToken: token });
                     } else {
+                        console.log('⚠️ No user logged in, saving to localStorage');
                         // If no user is logged in, we might store it in localStorage 
                         // and sync it later when they log in.
                         localStorage.setItem('tempFcmToken', token);
