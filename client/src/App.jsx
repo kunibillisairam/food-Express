@@ -22,6 +22,7 @@ import { initGlobalSound } from './utils/soundEffects';
 import { CartAnimationProvider } from './context/CartAnimationContext';
 import { Toaster } from 'react-hot-toast';
 import InstallPWA from './components/InstallPWA';
+import NotificationPrompt from './components/NotificationPrompt';
 
 const Main = () => {
   const { user } = useContext(AuthContext);
@@ -127,6 +128,7 @@ const Main = () => {
         />
       )}
       <InstallPWA />
+      <NotificationPrompt />
     </div>
   );
 };
