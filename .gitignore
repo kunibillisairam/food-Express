@@ -1,2 +1,8 @@
 node_modules
 .env
+*.env
+server/serviceAccountKey.json
+serviceAccountKey.json
+.DS_Store
+dist
+coverage

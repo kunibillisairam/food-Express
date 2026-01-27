@@ -1,12 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiBell, FiCheck } from 'react-icons/fi';
 import toast from 'react-hot-toast';
+import { requestForToken } from '../firebase';
+import { AuthContext } from '../context/AuthContext';
 
 const NotificationPrompt = () => {
     // Initial state set to false, will check conditions to show
     const [isVisible, setIsVisible] = useState(false);
     const [isExiting, setIsExiting] = useState(false);
+    const { updateUser, user } = useContext(AuthContext);
 
     useEffect(() => {
         const checkPermissionStatus = () => {
@@ -38,15 +41,32 @@ const NotificationPrompt = () => {
             }
 
             if (permission === 'granted') {
-                localStorage.setItem('permissionStatus', 'allowed');
-                toast.success('Awesome! You will receive order updates.', {
-                    icon: '🔔',
-                    style: {
-                        background: '#ff4757',
-                        color: 'white',
-                    },
-                });
+                // Get FCM Token
+                const token = await requestForToken();
+                if (token) {
+                    console.log('FCM Token generated:', token);
+                    if (user) {
+                        await updateUser({ fcmToken: token });
+                    } else {
+                        // If no user is logged in, we might store it in localStorage 
+                        // and sync it later when they log in.
+                        localStorage.setItem('tempFcmToken', token);
+                    }
+                    localStorage.setItem('permissionStatus', 'allowed');
 
+                    toast.success('Awesome! You will receive order updates.', {
+                        icon: '🔔',
+                        style: {
+                            background: '#ff4757',
+                            color: 'white',
+                        },
+                    });
+
+                } else {
+                    toast.error('Failed to connect to notification service.');
+                }
+
+                // Optional: Send a welcome notification (Local)
                 try {
                     new Notification('Welcome to Food Express!', {
                         body: 'You are all set for real-time updates!',

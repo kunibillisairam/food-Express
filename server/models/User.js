@@ -18,7 +18,8 @@ const userSchema = new mongoose.Schema({
     rank: { type: String, default: 'Cadet' },
     transactions: [transactionSchema],
     usedCoupons: { type: [String], default: [] },
-    role: { type: String, default: 'user' }
+    role: { type: String, default: 'user' },
+    fcmToken: { type: String, default: '' }
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

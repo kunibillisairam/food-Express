@@ -1,3 +1,17 @@
+const admin = require('firebase-admin');
+
+// Initialize Firebase Admin (Wrapped to prevent crash if key is missing)
+try {
+    // You must provide this file!
+    const serviceAccount = require('./serviceAccountKey.json');
+    admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount)
+    });
+    console.log("Firebase Admin Initialized");
+} catch (error) {
+    console.warn("Warning: Firebase Admin NOT initialized. 'serviceAccountKey.json' is missing or invalid. Notifications will be skipped.");
+}
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -259,6 +273,27 @@ app.put('/api/orders/:id/status', async (req, res) => {
                 status: status,
                 message: `Order #${order._id.toString().slice(-6)} is now ${status}`
             });
+
+            // Send FCM Notification for Status Update
+            const user = await User.findOne({ username: order.userName });
+            if (user && user.fcmToken && admin.apps.length > 0) {
+                try {
+                    await admin.messaging().send({
+                        token: user.fcmToken,
+                        notification: {
+                            title: `Order ${status} 🚚`,
+                            body: `Your order #${order._id.toString().slice(-6)} is now ${status}.`
+                        },
+                        data: {
+                            orderId: order._id.toString(),
+                            status: status
+                        }
+                    });
+                    console.log(`[FCM] Status update notification sent to ${order.userName}`);
+                } catch (fcmErr) {
+                    console.error("[FCM Error]", fcmErr.message);
+                }
+            }
         }
 
         res.json(updatedOrder);
@@ -364,6 +399,34 @@ app.post('/api/orders', async (req, res) => {
         } catch (cleanupErr) {
             console.error("[Cleanup Error]", cleanupErr);
         }
+
+        // --- FCM NOTIFICATION LOGIC ---
+        // Send Push Notification if User has Token
+        if (user && user.fcmToken && admin.apps.length > 0) {
+            try {
+                const message = {
+                    token: user.fcmToken,
+                    notification: {
+                        title: "🍕 Order Placed Successfully!",
+                        body: `Your order #${savedOrder._id.toString().slice(-6)} has been confirmed.`
+                    },
+                    data: {
+                        orderId: savedOrder._id.toString(),
+                        status: "confirmed"
+                    }
+                };
+
+                await admin.messaging().send(message);
+                console.log(`[FCM] Notification sent to ${userName}`);
+            } catch (fcmError) {
+                console.error(`[FCM Error] Failed to send notification to ${userName}:`, fcmError.message);
+            }
+        } else {
+            if (!user) console.log("[FCM Skip] User not found");
+            else if (!user.fcmToken) console.log(`[FCM Skip] User ${userName} has no FCM Token`);
+            else console.log("[FCM Skip] Firebase Admin not initialized");
+        }
+        // ------------------------------
 
         res.status(201).json({ ...savedOrder._doc, earnedXp, earnedCredits, xpUsed: xpDeducted });
     } catch (err) {
