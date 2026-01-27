@@ -19,6 +19,19 @@ export const AuthProvider = ({ children }) => {
             const res = await axios.post(`${API_BASE_URL}/api/auth/login`, { username, password });
             if (res.data.success) {
                 const loggedInUser = res.data.user;
+
+                // Sync FCM Token if exists in temp storage
+                const tempToken = localStorage.getItem('tempFcmToken');
+                if (tempToken) {
+                    try {
+                        await axios.put(`${API_BASE_URL}/api/users/${loggedInUser.username}`, { fcmToken: tempToken });
+                        loggedInUser.fcmToken = tempToken; // Update local object
+                        localStorage.removeItem('tempFcmToken');
+                    } catch (syncErr) {
+                        console.error("Failed to sync FCM token on login", syncErr);
+                    }
+                }
+
                 setUser(loggedInUser);
                 localStorage.setItem('user', JSON.stringify(loggedInUser));
                 return { success: true, role: loggedInUser.role };

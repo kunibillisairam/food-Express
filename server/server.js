@@ -375,6 +375,8 @@ app.post('/api/orders', async (req, res) => {
             await user.save();
         }
 
+        const randomOrderId = Math.floor(100000 + Math.random() * 900000).toString();
+
         const newOrder = new Order({
             userName,
             items,
@@ -383,7 +385,8 @@ app.post('/api/orders', async (req, res) => {
             paymentMethod,
             earnedXp,
             earnedCredits,
-            xpUsed: xpDeducted
+            xpUsed: xpDeducted,
+            orderId: randomOrderId
         });
         const savedOrder = await newOrder.save();
 
@@ -407,11 +410,12 @@ app.post('/api/orders', async (req, res) => {
                 const message = {
                     token: user.fcmToken,
                     notification: {
-                        title: "🍕 Order Placed Successfully!",
-                        body: `Your order #${savedOrder._id.toString().slice(-6)} has been confirmed.`
+                        title: "✅ Order Confirmed!",
+                        body: `Your order #${randomOrderId} has been placed successfully and is being prepared.`
                     },
                     data: {
                         orderId: savedOrder._id.toString(),
+                        shortId: randomOrderId,
                         status: "confirmed"
                     }
                 };
