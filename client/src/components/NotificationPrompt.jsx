@@ -1,135 +1,187 @@
 import React, { useEffect, useState } from 'react';
-import { FiBell, FiX, FiCheck } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
+import { FiBell, FiMapPin, FiCheck, FiX } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
 const NotificationPrompt = () => {
-    const [isVisible, setIsVisible] = useState(false);
+    // Initial state true to "block" until we verify. 
+    // We'll flip it to false immediately if we find permissions are already handled.
+    const [isVisible, setIsVisible] = useState(true);
+    const [isExiting, setIsExiting] = useState(false);
 
     useEffect(() => {
-        const checkPermission = () => {
-            // Check if app is in standalone mode (installed)
-            const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
-                window.navigator.standalone ||
-                document.referrer.includes('android-app://');
+        const checkPermissionStatus = () => {
+            const storedStatus = localStorage.getItem('permissionStatus');
+            const browserPermission = Notification.permission;
 
-            // Check if permission is not yet granted or denied
-            const isPermissionDefault = Notification.permission === 'default';
-
-            // Check if we haven't dismissed it recently (optional, good UX)
-            const hasDismissed = localStorage.getItem('notification-prompt-dismissed');
-
-            // For testing purposes, we might want to skip isStandalone check or make it optional
-            // But per user request "if the user is downloaded and opened an app", we should keep it.
-            // However, to ensure it works for many users, we usually ask on mobile even if not installed.
-            // Let's stick strict to "downloaded and opened" for now, which implies standalone.
-
-            if (isStandalone && isPermissionDefault && !hasDismissed) {
-                // Show after a small delay to not overwhelm on launch
-                const timer = setTimeout(() => {
-                    setIsVisible(true);
-                }, 3000);
-                return () => clearTimeout(timer);
+            // If user already made a choice in our app, or browser permission is already settled (granted/denied)
+            // We consider the flow complete.
+            if (storedStatus || browserPermission !== 'default') {
+                setIsVisible(false);
+            } else {
+                // No stored status AND browser is 'default', so we must ask
+                setIsVisible(true);
             }
         };
 
-        checkPermission();
+        checkPermissionStatus();
     }, []);
 
     const handleAllow = async () => {
         try {
             const permission = await Notification.requestPermission();
+
             if (permission === 'granted') {
-                toast.success('Notifications enabled! We will keep you updated.', {
+                localStorage.setItem('permissionStatus', 'allowed');
+                toast.success('Notifications enabled! You\'re all set.', {
                     icon: '🔔',
                     style: {
                         background: '#10B981',
                         color: 'white',
                     },
                 });
-                // Send a test notification
+
+                // Optional: Send a welcome notification
                 new Notification('Welcome to Food Express!', {
-                    body: 'You will now receive updates about your orders and offers.',
-                    icon: '/logo.png'
+                    body: 'You will now receive updates about your orders.',
+                    icon: '/pwa-192x192.png' // Assuming standard PWA icon name
                 });
+
             } else {
-                toast.error('Notifications denied.', {
-                    icon: '🔕'
-                });
+                // User clicked "Allow" on our UI but "Block" on browser prompt
+                localStorage.setItem('permissionStatus', 'denied');
+                toast.error('Notifications were denied by browser settings.');
             }
         } catch (error) {
-            console.error('Error requesting notification permission:', error);
+            console.error('Permission request error:', error);
+            // Fallback: save as denied so we don't loop
+            localStorage.setItem('permissionStatus', 'denied');
         } finally {
-            setIsVisible(false);
+            closeModal();
         }
     };
 
-    const handleDeny = () => {
-        setIsVisible(false);
-        localStorage.setItem('notification-prompt-dismissed', 'true');
-        toast('Maybe later!', {
-            icon: '👋',
-        });
+    const handleNotNow = () => {
+        localStorage.setItem('permissionStatus', 'denied'); // Or 'later' if you want to re-ask in future sessions
+        toast('Maybe next time!', { icon: '👋' });
+        closeModal();
     };
+
+    const closeModal = () => {
+        setIsExiting(true);
+        setTimeout(() => setIsVisible(false), 500); // Wait for animation
+    };
+
+    if (!isVisible && !isExiting) return null;
 
     return (
         <AnimatePresence>
             {isVisible && (
-                <>
-                    {/* Backdrop */}
+                <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center pointer-events-auto">
+
+                    {/* 
+                      1. Background Blur / Overlay
+                      "Background website should be blurred and disabled" 
+                    */}
                     <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[2000]"
-                        onClick={handleDeny}
+                        initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+                        animate={{ opacity: 1, backdropFilter: "blur(12px)" }}
+                        exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+                        transition={{ duration: 0.5 }}
+                        className="absolute inset-0 bg-slate-900/60"
+                    // We block clicks here so they MUST choose an option
                     />
 
-                    {/* Modal */}
+                    {/* 
+                      2. Permission Card 
+                      Bottom Sheet on Mobile, Center Card on Desktop
+                    */}
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[2001] w-[90%] max-w-sm"
+                        initial={{ y: "100%", opacity: 0, scale: 0.95 }}
+                        animate={{ y: 0, opacity: 1, scale: 1 }}
+                        exit={{ y: "100%", opacity: 0, scale: 0.95 }}
+                        transition={{
+                            type: "spring",
+                            damping: 25,
+                            stiffness: 300,
+                            mass: 0.8
+                        }}
+                        className="
+                            relative z-10 w-full sm:w-auto sm:max-w-md sm:rounded-3xl 
+                            rounded-t-3xl bg-white/90 dark:bg-slate-900/90 
+                            backdrop-blur-xl border-t border-x sm:border border-white/20 
+                            shadow-2xl overflow-hidden
+                        "
+                        style={{
+                            boxShadow: "0 -20px 40px -10px rgba(0,0,0,0.5)"
+                        }}
                     >
-                        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-2xl relative overflow-hidden">
-                            {/* Decorative background element */}
-                            <div className="absolute -top-10 -right-10 w-32 h-32 bg-orange-500/10 rounded-full blur-3xl"></div>
-                            <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl"></div>
+                        {/* Decorative Gradient Orb */}
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-24 bg-gradient-to-b from-orange-500/20 to-transparent opacity-60 pointer-events-none" />
 
-                            <div className="relative z-10 flex flex-col items-center text-center">
-                                <div className="w-16 h-16 bg-orange-100 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400 rounded-full flex items-center justify-center mb-4 text-2xl">
+                        <div className="p-8 flex flex-col items-center text-center relative">
+
+                            {/* Icon with Ring Animation */}
+                            <div className="relative mb-6">
+                                <motion.div
+                                    animate={{
+                                        boxShadow: ["0 0 0 0px rgba(249, 115, 22, 0.4)", "0 0 0 20px rgba(249, 115, 22, 0)"]
+                                    }}
+                                    transition={{ duration: 2, repeat: Infinity }}
+                                    className="w-20 h-20 bg-gradient-to-tr from-orange-500 to-red-600 rounded-full flex items-center justify-center shadow-lg shadow-orange-500/40 text-white text-3xl"
+                                >
                                     <FiBell />
-                                </div>
-
-                                <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">
-                                    Enable Notifications?
-                                </h3>
-
-                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
-                                    Stay updated with your order status, exclusive offers, and lightning-fast delivery alerts!
-                                </p>
-
-                                <div className="flex flex-col w-full gap-3">
-                                    <button
-                                        onClick={handleAllow}
-                                        className="w-full py-3 px-4 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-xl font-semibold shadow-lg shadow-orange-500/25 flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02]"
-                                    >
-                                        <FiCheck size={18} />
-                                        Allow Notifications
-                                    </button>
-
-                                    <button
-                                        onClick={handleDeny}
-                                        className="w-full py-3 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl font-medium transition-colors"
-                                    >
-                                        Don't Allow
-                                    </button>
+                                </motion.div>
+                                <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm border-2 border-slate-900 shadow-sm">
+                                    <FiMapPin />
                                 </div>
                             </div>
+
+                            {/* Title */}
+                            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">
+                                Enable Notifications 🔔
+                            </h2>
+
+                            {/* Subtitle */}
+                            <p className="text-slate-600 dark:text-slate-300 mb-8 leading-relaxed">
+                                Get real-time updates about your orders, exclusive offers, and live delivery tracking status.
+                            </p>
+
+                            {/* Action Buttons */}
+                            <div className="w-full space-y-3">
+                                <button
+                                    onClick={handleAllow}
+                                    className="
+                                        w-full py-4 px-6 rounded-xl font-bold text-lg
+                                        bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700
+                                        text-white shadow-lg shadow-orange-500/30
+                                        transform active:scale-[0.98] transition-all
+                                        flex items-center justify-center gap-2
+                                    "
+                                >
+                                    Allow Access
+                                </button>
+
+                                <button
+                                    onClick={handleNotNow}
+                                    className="
+                                        w-full py-4 px-6 rounded-xl font-medium text-base
+                                        text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200
+                                        hover:bg-slate-100/50 dark:hover:bg-slate-800/50
+                                        active:scale-[0.98] transition-all
+                                    "
+                                >
+                                    Not Now
+                                </button>
+                            </div>
+
+                            {/* Footer micro-copy */}
+                            <p className="mt-6 text-xs text-slate-400">
+                                You can change this anytime in settings.
+                            </p>
                         </div>
                     </motion.div>
-                </>
+                </div>
             )}
         </AnimatePresence>
     );

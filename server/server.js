@@ -253,14 +253,17 @@ app.put('/api/orders/:id/status', async (req, res) => {
         const updatedOrder = await order.save();
 
         // Notify User via Socket
-        io.to(order.userName).emit('order-update', {
-            orderId: order._id,
-            status: status,
-            message: `Order #${order._id.toString().slice(-6)} is now ${status}`
-        });
+        if (order.userName) {
+            io.to(order.userName).emit('order-update', {
+                orderId: order._id,
+                status: status,
+                message: `Order #${order._id.toString().slice(-6)} is now ${status}`
+            });
+        }
 
         res.json(updatedOrder);
     } catch (err) {
+        console.error("[Order Status Update Error]", err);
         res.status(500).json({ error: err.message });
     }
 });
