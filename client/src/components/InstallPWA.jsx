@@ -71,49 +71,139 @@ const InstallPWA = () => {
         setIsVisible(false);
     };
 
+    // Inline Styles for Consistency & Premium Look
+    const styles = {
+        overlay: {
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: 'rgba(15, 23, 42, 0.8)', // slate-900/80
+            backdropFilter: 'blur(8px)',
+            zIndex: 10000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: 1
+        },
+        card: {
+            position: 'relative',
+            width: '90%',
+            maxWidth: '400px',
+            background: '#ffffff',
+            borderRadius: '24px',
+            overflow: 'hidden',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+            zIndex: 10001,
+            padding: '2rem',
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
+        },
+        iconContainer: {
+            width: '64px',
+            height: '64px',
+            background: '#ff4757',
+            borderRadius: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: '1.5rem',
+            boxShadow: '0 10px 15px -3px rgba(255, 71, 87, 0.3)'
+        },
+        icon: {
+            width: '32px',
+            height: '32px',
+            objectFit: 'contain'
+        },
+        title: {
+            fontSize: '1.5rem',
+            fontWeight: '800',
+            color: '#1e293b',
+            marginBottom: '0.5rem'
+        },
+        description: {
+            fontSize: '1rem',
+            color: '#64748b',
+            marginBottom: '2rem',
+            lineHeight: 1.5
+        },
+        buttonPrimary: {
+            width: '100%',
+            padding: '1rem',
+            borderRadius: '12px',
+            border: 'none',
+            background: 'linear-gradient(to right, #ff4757, #ff6b81)',
+            color: 'white',
+            fontSize: '1rem',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            boxShadow: '0 10px 20px rgba(255, 71, 87, 0.3)',
+            marginBottom: '0.5rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px'
+        },
+        buttonSecondary: {
+            width: '100%',
+            padding: '0.8rem',
+            borderRadius: '12px',
+            border: 'none',
+            background: 'transparent',
+            color: '#94a3b8',
+            fontSize: '0.9rem',
+            fontWeight: '600',
+            cursor: 'pointer'
+        }
+    };
+
     if (!supportsPWA) return null;
 
     return (
         <AnimatePresence>
             {isVisible && (
-                <motion.div
-                    initial={{ y: 100, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: 100, opacity: 0 }}
-                    className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[1000] w-[90%] max-w-md"
-                >
-                    <div className="bg-white/80 dark:bg-slate-900/90 backdrop-blur-xl border border-white/20 dark:border-slate-800 p-4 rounded-2xl shadow-2xl flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center text-white shadow-lg">
-                                <img src="/logo.png" alt="App Icon" className="w-8 h-8 object-contain" />
-                            </div>
-                            <div>
-                                <h3 className="text-sm font-bold text-slate-800 dark:text-white">
-                                    {isIOS ? 'Install on iOS' : 'Install Food Express'}
-                                </h3>
-                                <p className="text-xs text-slate-500 dark:text-slate-400">
-                                    {isIOS ? "Tap 'Share' ⎋ then 'Add to Home Screen' ➕" : "Get the best experience on your phone!"}
-                                </p>
-                            </div>
+                <div style={styles.overlay}>
+                    <motion.div
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0.9, opacity: 0 }}
+                        transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                        style={styles.card}
+                    >
+                        <div style={styles.iconContainer}>
+                            <img src="/logo.png" alt="App Icon" style={styles.icon} />
                         </div>
-                        <div className="flex items-center gap-2">
-                            {!isIOS && (
-                                <button
-                                    onClick={onClick}
-                                    className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2"
-                                >
-                                    <FiDownload /> Install
-                                </button>
-                            )}
+
+                        <h3 style={styles.title}>
+                            {isIOS ? 'Install on iOS' : 'Install App'}
+                        </h3>
+
+                        <p style={styles.description}>
+                            {isIOS
+                                ? "Tap 'Share' then 'Add to Home Screen' to get the best experience."
+                                : "Install Food Express for a faster, premium experience on your device."}
+                        </p>
+
+                        {!isIOS && (
                             <button
-                                onClick={dismissPrompt}
-                                className="text-slate-400 hover:text-slate-600 dark:hover:text-white p-2"
+                                onClick={onClick}
+                                style={styles.buttonPrimary}
                             >
-                                <FiX size={20} />
+                                <FiDownload /> Install Now
                             </button>
-                        </div>
-                    </div>
-                </motion.div>
+                        )}
+
+                        <button
+                            onClick={dismissPrompt}
+                            style={styles.buttonSecondary}
+                        >
+                            <FiX style={{ marginRight: 4 }} /> Maybe Later
+                        </button>
+                    </motion.div>
+                </div>
             )}
         </AnimatePresence>
     );
