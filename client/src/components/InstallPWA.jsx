@@ -12,13 +12,11 @@ const InstallPWA = () => {
             e.preventDefault();
             setSupportsPWA(true);
             setPromptInstall(e);
-            // Show the prompt after 5 seconds of the user being on the page
+            // Show the prompt after 3 seconds of the user being on the page
             setTimeout(() => {
-                const dismissed = localStorage.getItem('pwa-prompt-dismissed');
-                if (!dismissed) {
-                    setIsVisible(true);
-                }
-            }, 5000);
+                // We show it EVERY time the browser allows us (beforeinstallprompt fired)
+                setIsVisible(true);
+            }, 3000);
         };
 
         window.addEventListener('beforeinstallprompt', handler);
@@ -35,7 +33,6 @@ const InstallPWA = () => {
                 console.log('User accepted the PWA install');
                 localStorage.setItem('pwa_installed', 'true');
             } else {
-
                 console.log('User dismissed the PWA install');
             }
             setIsVisible(false);
@@ -44,7 +41,6 @@ const InstallPWA = () => {
 
     const dismissPrompt = () => {
         setIsVisible(false);
-        localStorage.setItem('pwa-prompt-dismissed', 'true');
     };
 
     if (!supportsPWA) return null;
