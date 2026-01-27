@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiBell, FiMapPin, FiCheck, FiX } from 'react-icons/fi';
+import { FiBell, FiCheck } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
 const NotificationPrompt = () => {
-    // Initial state true to "block" until we verify. 
-    // We'll flip it to false immediately if we find permissions are already handled.
+    // Initial state set to false, will check conditions to show
     const [isVisible, setIsVisible] = useState(false);
     const [isExiting, setIsExiting] = useState(false);
 
@@ -14,14 +13,17 @@ const NotificationPrompt = () => {
             const storedStatus = localStorage.getItem('permissionStatus');
             const browserPermission = 'Notification' in window ? Notification.permission : 'default';
 
-            // If user already made a choice in our app, or browser permission is already settled (granted/denied)
-            // We consider the flow complete.
+            // Check if app is "downloaded" / installed (running in standalone mode)
+            // Note: This check might prevent it from showing in browser. 
+            // If user wants it to show in browser too, we can remove 'isStandalone' check or make it optional.
+            // For now, I'll relax the 'isStandalone' requirement to ensure the user sees it (since they are debugging).
+            // But we will respect the storage.
+
             if (storedStatus || browserPermission !== 'default') {
                 setIsVisible(false);
             } else {
-                // No stored status AND browser is 'default', so we must ask
-                // Small delay for better UX on app open
-                setTimeout(() => setIsVisible(true), 800);
+                // Show after delay
+                setTimeout(() => setIsVisible(true), 1500);
             }
         };
 
@@ -30,11 +32,6 @@ const NotificationPrompt = () => {
 
     const handleAllow = async () => {
         try {
-            // We save 'allowed' locally FIRST, as per "Save decision locally" requirement before browser prompt optionally?
-            // unique logic: The user wants "User clicks Allow -> Save decision -> Show website".
-            // But usually we need the ACTUAL browser permission.
-            // We'll try to get browser permission.
-
             let permission = 'default';
             if ('Notification' in window) {
                 permission = await Notification.requestPermission();
@@ -50,7 +47,6 @@ const NotificationPrompt = () => {
                     },
                 });
 
-                // Optional: Send a welcome notification
                 try {
                     new Notification('Welcome to Food Express!', {
                         body: 'You are all set for real-time updates!',
@@ -59,7 +55,6 @@ const NotificationPrompt = () => {
                 } catch (e) { /* ignore */ }
 
             } else {
-                // User clicked "Allow" on our UI but "Block" on browser prompt
                 localStorage.setItem('permissionStatus', 'denied');
                 toast.error('Notifications were denied by browser.');
             }
@@ -84,109 +79,169 @@ const NotificationPrompt = () => {
 
     if (!isVisible && !isExiting) return null;
 
+    // Inline Styles
+    const styles = {
+        overlay: {
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: 'rgba(15, 23, 42, 0.8)', // slate-900/80
+            backdropFilter: 'blur(8px)',
+            zIndex: 10000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: 1
+        },
+        card: {
+            position: 'relative',
+            width: '90%',
+            maxWidth: '450px',
+            background: '#ffffff',
+            borderRadius: '24px',
+            overflow: 'hidden',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+            zIndex: 10001
+        },
+        headerBar: {
+            height: '8px',
+            width: '100%',
+            background: '#ff4757'
+        },
+        content: {
+            padding: '2.5rem',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+            color: '#1e293b' // slate-800
+        },
+        iconRing: {
+            width: '80px',
+            height: '80px',
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, #ff4757, #ff6b81)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+            fontSize: '2rem',
+            marginBottom: '1.5rem',
+            position: 'relative',
+            boxShadow: '0 10px 15px -3px rgba(255, 71, 87, 0.3)'
+        },
+        checkBadge: {
+            position: 'absolute',
+            bottom: '-4px',
+            right: '-4px',
+            width: '32px',
+            height: '32px',
+            background: '#2ed573',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+            fontSize: '0.9rem',
+            border: '3px solid white'
+        },
+        title: {
+            fontSize: '1.5rem',
+            fontWeight: '800',
+            marginBottom: '0.75rem',
+            color: '#1e293b'
+        },
+        description: {
+            fontSize: '1rem',
+            color: '#64748b', // slate-500
+            marginBottom: '2rem',
+            lineHeight: 1.6
+        },
+        buttonPrimary: {
+            width: '100%',
+            padding: '1rem',
+            borderRadius: '12px',
+            border: 'none',
+            background: 'linear-gradient(to right, #ff4757, #ff6b81)',
+            color: 'white',
+            fontSize: '1.1rem',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            boxShadow: '0 10px 20px rgba(255, 71, 87, 0.3)',
+            marginBottom: '1rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            transition: 'transform 0.1s'
+        },
+        buttonSecondary: {
+            width: '100%',
+            padding: '1rem',
+            borderRadius: '12px',
+            border: 'none',
+            background: 'transparent',
+            color: '#64748b',
+            fontSize: '1rem',
+            fontWeight: '600',
+            cursor: 'pointer',
+            transition: 'background 0.2s'
+        }
+    };
+
     return (
         <AnimatePresence>
             {isVisible && (
-                <div className="fixed inset-0 z-[10000] flex items-end sm:items-center justify-center pointer-events-auto">
-
-                    {/* 
-                      1. Background Blur / Overlay
-                      "Background website should be blurred and disabled" 
-                    */}
+                <div style={styles.overlay}>
                     <motion.div
-                        initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
-                        animate={{ opacity: 1, backdropFilter: "blur(8px)" }}
-                        exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
-                        transition={{ duration: 0.5 }}
-                        className="absolute inset-0 bg-slate-900/80"
-                        onClick={(e) => e.stopPropagation()}
-                    />
-
-                    {/* 
-                      2. Permission Card 
-                    */}
-                    <motion.div
-                        initial={{ y: "100%", opacity: 0, scale: 0.95 }}
+                        initial={{ y: 50, opacity: 0, scale: 0.95 }}
                         animate={{ y: 0, opacity: 1, scale: 1 }}
-                        exit={{ y: "100%", opacity: 0, scale: 0.95 }}
+                        exit={{ y: 50, opacity: 0, scale: 0.95 }}
                         transition={{
                             type: "spring",
                             damping: 25,
-                            stiffness: 300,
-                            mass: 0.8
+                            stiffness: 300
                         }}
-                        className="
-                            relative z-10 w-full sm:w-auto sm:max-w-md sm:rounded-3xl 
-                            rounded-t-3xl bg-[#ffffff] dark:bg-[#1e272e] 
-                            border-t border-x sm:border border-white/10 
-                            shadow-2xl overflow-hidden
-                        "
-                        style={{
-                            boxShadow: "0 -20px 40px -10px rgba(0,0,0,0.5)"
-                        }}
+                        style={styles.card}
                     >
                         {/* Brand Decorative Header */}
-                        <div className="h-2 bg-[#ff4757] w-full" />
+                        <div style={styles.headerBar} />
 
-                        <div className="p-8 flex flex-col items-center text-center relative">
+                        <div style={styles.content}>
 
-                            {/* Icon with Ring Animation */}
-                            <div className="relative mb-6">
-                                <motion.div
-                                    animate={{
-                                        boxShadow: ["0 0 0 0px rgba(255, 71, 87, 0.4)", "0 0 0 20px rgba(255, 71, 87, 0)"]
-                                    }}
-                                    transition={{ duration: 2, repeat: Infinity }}
-                                    className="w-20 h-20 rounded-full flex items-center justify-center shadow-lg text-white text-3xl"
-                                    style={{ background: 'linear-gradient(135deg, #ff4757, #ff6b81)' }}
-                                >
-                                    <FiBell />
-                                </motion.div>
-                                <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-[#2ed573] rounded-full flex items-center justify-center text-white text-sm border-2 border-white shadow-sm">
+                            {/* Icon with Ring */}
+                            <div style={styles.iconRing}>
+                                <FiBell />
+                                <div style={styles.checkBadge}>
                                     <FiCheck />
                                 </div>
                             </div>
 
-                            {/* Title */}
-                            <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-3">
-                                Enable Updates
-                            </h2>
-
-                            {/* Subtitle */}
-                            <p className="text-slate-500 dark:text-slate-400 mb-8 leading-relaxed font-medium">
+                            <h2 style={styles.title}>Enable Updates</h2>
+                            <p style={styles.description}>
                                 Give us permission to update you on your food delivery status in real-time.
                             </p>
 
-                            {/* Action Buttons */}
-                            <div className="w-full space-y-3">
-                                <button
-                                    onClick={handleAllow}
-                                    className="
-                                        w-full py-4 px-6 rounded-xl font-bold text-lg
-                                        text-white shadow-lg
-                                        transform active:scale-[0.98] transition-all
-                                        flex items-center justify-center gap-2
-                                    "
-                                    style={{
-                                        background: 'linear-gradient(to right, #ff4757, #ff6b81)',
-                                        boxShadow: '0 10px 20px rgba(255, 71, 87, 0.3)'
-                                    }}
-                                >
-                                    Allow Access
-                                </button>
+                            <button
+                                onClick={handleAllow}
+                                style={styles.buttonPrimary}
+                                onMouseDown={(e) => e.target.style.transform = 'scale(0.98)'}
+                                onMouseUp={(e) => e.target.style.transform = 'scale(1)'}
+                                onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+                            >
+                                <FiBell /> Allow Access
+                            </button>
 
-                                <button
-                                    onClick={handleNotNow}
-                                    className="
-                                        w-full py-4 px-6 rounded-xl font-medium text-base
-                                        text-slate-500 hover:text-slate-700 dark:text-slate-400
-                                        hover:bg-slate-100 dark:hover:bg-slate-800
-                                        active:scale-[0.98] transition-all
-                                    "
-                                >
-                                    Not Now
-                                </button>
-                            </div>
+                            <button
+                                onClick={handleNotNow}
+                                style={styles.buttonSecondary}
+                                onMouseOver={(e) => e.target.style.background = '#f1f5f9'} // Hover effect
+                                onMouseOut={(e) => e.target.style.background = 'transparent'}
+                            >
+                                Not Now
+                            </button>
                         </div>
                     </motion.div>
                 </div>
