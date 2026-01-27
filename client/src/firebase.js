@@ -15,12 +15,23 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const messaging = getMessaging(app);
-const auth = getAuth(app);
-const analytics = getAnalytics(app);
+let app, messaging, auth, analytics;
+
+if (firebaseConfig.apiKey) {
+    try {
+        app = initializeApp(firebaseConfig);
+        messaging = getMessaging(app);
+        auth = getAuth(app);
+        analytics = getAnalytics(app);
+    } catch (error) {
+        console.error("Firebase Initialization Error:", error);
+    }
+} else {
+    console.error("Firebase API Key is missing! Check your .env setup.");
+}
 
 export const requestForToken = async () => {
+    if (!messaging) return null;
     try {
         const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY;
         if (!vapidKey || vapidKey === 'REPLACE_WITH_YOUR_VAPID_KEY') {
@@ -42,6 +53,7 @@ export const requestForToken = async () => {
 
 export const onMessageListener = () =>
     new Promise((resolve) => {
+        if (!messaging) return resolve(null);
         onMessage(messaging, (payload) => {
             resolve(payload);
         });
