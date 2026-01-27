@@ -1,15 +1,41 @@
 const admin = require('firebase-admin');
 
 // Initialize Firebase Admin (Wrapped to prevent crash if key is missing)
+// Initialize Firebase Admin
 try {
-    // You must provide this file!
-    const serviceAccount = require('./serviceAccountKey.json');
-    admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
-    });
-    console.log("Firebase Admin Initialized");
+    let serviceAccount;
+    if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+        // Production: Load from Environment Variable
+        try {
+            // Handle cases where newlines might be escaped in some environments
+            const rawJson = process.env.FIREBASE_SERVICE_ACCOUNT.replace(/\\n/g, '\n');
+            serviceAccount = JSON.parse(rawJson);
+            console.log("Loaded Firebase Credentials from Environment Variable");
+        } catch (e) {
+            console.error("Failed to parse FIREBASE_SERVICE_ACCOUNT env var:", e);
+        }
+    }
+
+    if (!serviceAccount) {
+        // Local Development: Load from file
+        try {
+            serviceAccount = require('./serviceAccountKey.json');
+            console.log("Loaded Firebase Credentials from local file");
+        } catch (e) {
+            console.log("Local serviceAccountKey.json not found.");
+        }
+    }
+
+    if (serviceAccount) {
+        admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount)
+        });
+        console.log("Firebase Admin Initialized Successfully");
+    } else {
+        console.warn("Warning: Firebase Admin NOT initialized. Missing credentials.");
+    }
 } catch (error) {
-    console.warn("Warning: Firebase Admin NOT initialized. 'serviceAccountKey.json' is missing or invalid. Notifications will be skipped.");
+    console.warn("Warning: Firebase Admin initialization failed:", error.message);
 }
 
 const express = require('express');
