@@ -5,14 +5,14 @@ const admin = require('firebase-admin');
 try {
     let serviceAccount;
     if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-        // Production: Load from Environment Variable
+        // Production: Load from Environment Variable (Base64 encoded)
         try {
-            // Handle cases where newlines might be escaped in some environments
-            const rawJson = process.env.FIREBASE_SERVICE_ACCOUNT.replace(/\\n/g, '\n');
-            serviceAccount = JSON.parse(rawJson);
-            console.log("Loaded Firebase Credentials from Environment Variable");
+            const base64Data = process.env.FIREBASE_SERVICE_ACCOUNT;
+            const jsonString = Buffer.from(base64Data, 'base64').toString('utf-8');
+            serviceAccount = JSON.parse(jsonString);
+            console.log("✓ Loaded Firebase Credentials from Environment Variable (Base64)");
         } catch (e) {
-            console.error("Failed to parse FIREBASE_SERVICE_ACCOUNT env var:", e);
+            console.error("❌ Failed to decode FIREBASE_SERVICE_ACCOUNT env var:", e.message);
         }
     }
 
