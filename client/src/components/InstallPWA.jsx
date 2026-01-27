@@ -7,22 +7,50 @@ const InstallPWA = () => {
     const [promptInstall, setPromptInstall] = useState(null);
     const [isVisible, setIsVisible] = useState(false);
 
+    const [isIOS, setIsIOS] = useState(false);
+
     useEffect(() => {
+        // Android / Chrome
         const handler = (e) => {
             e.preventDefault();
             setSupportsPWA(true);
             setPromptInstall(e);
-            // Show the prompt after 3 seconds of the user being on the page
-            setTimeout(() => {
-                // We show it EVERY time the browser allows us (beforeinstallprompt fired)
-                setIsVisible(true);
-            }, 3000);
         };
-
         window.addEventListener('beforeinstallprompt', handler);
 
-        return () => window.removeEventListener('beforeinstallprompt', handler);
+        // iOS Detection
+        const userAgent = window.navigator.userAgent.toLowerCase();
+        const isIosDevice = /iphone|ipad|ipod/.test(userAgent);
+        const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+
+        if (isIosDevice && !isStandalone) {
+            setIsIOS(true);
+            setSupportsPWA(true); // Treat as supported so UI shows
+        }
+
+        // Show prompt after 3s
+        const timer = setTimeout(() => {
+            if (isIosDevice && !isStandalone) {
+                setIsVisible(true);
+            } else if (promptInstall) {
+                // Logic handled by the event listener effect implicitly? 
+                // Actually promptInstall state might update later. 
+                // Let's rely on the existence of promptInstall or isIOS to trigger visibility
+            }
+        }, 3000);
+
+        return () => {
+            window.removeEventListener('beforeinstallprompt', handler);
+            clearTimeout(timer);
+        };
     }, []);
+
+    // Watch for changes to trigger visibility for Android
+    useEffect(() => {
+        if (promptInstall) {
+            setTimeout(() => setIsVisible(true), 3000);
+        }
+    }, [promptInstall]);
 
     const onClick = (e) => {
         e.preventDefault();
@@ -60,17 +88,23 @@ const InstallPWA = () => {
                                 <img src="/logo.png" alt="App Icon" className="w-8 h-8 object-contain" />
                             </div>
                             <div>
-                                <h3 className="text-sm font-bold text-slate-800 dark:text-white">Install Food Express</h3>
-                                <p className="text-xs text-slate-500 dark:text-slate-400">Get the best experience on your phone!</p>
+                                <h3 className="text-sm font-bold text-slate-800 dark:text-white">
+                                    {isIOS ? 'Install on iOS' : 'Install Food Express'}
+                                </h3>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">
+                                    {isIOS ? "Tap 'Share' ⎋ then 'Add to Home Screen' ➕" : "Get the best experience on your phone!"}
+                                </p>
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
-                            <button
-                                onClick={onClick}
-                                className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2"
-                            >
-                                <FiDownload /> Install
-                            </button>
+                            {!isIOS && (
+                                <button
+                                    onClick={onClick}
+                                    className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2"
+                                >
+                                    <FiDownload /> Install
+                                </button>
+                            )}
                             <button
                                 onClick={dismissPrompt}
                                 className="text-slate-400 hover:text-slate-600 dark:hover:text-white p-2"
