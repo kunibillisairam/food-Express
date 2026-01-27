@@ -38,6 +38,12 @@ io.on('connection', (socket) => {
         });
     });
 
+    // User Room for Personal Notifications
+    socket.on('join-user-room', (username) => {
+        socket.join(username);
+        console.log(`[Socket] User ${socket.id} joined personal room: ${username}`);
+    });
+
     socket.on('sync-cart', ({ fleetCode, cartItems, senderName }) => {
         // Broadcast the updated cart to everyone in the room EXCEPT the sender
         socket.to(fleetCode).emit('cart-updated', {
@@ -245,6 +251,14 @@ app.put('/api/orders/:id/status', async (req, res) => {
         }
 
         const updatedOrder = await order.save();
+
+        // Notify User via Socket
+        io.to(order.userName).emit('order-update', {
+            orderId: order._id,
+            status: status,
+            message: `Order #${order._id.toString().slice(-6)} is now ${status}`
+        });
+
         res.json(updatedOrder);
     } catch (err) {
         res.status(500).json({ error: err.message });

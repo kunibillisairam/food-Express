@@ -23,6 +23,7 @@ import { CartAnimationProvider } from './context/CartAnimationContext';
 import { Toaster } from 'react-hot-toast';
 import InstallPWA from './components/InstallPWA';
 import NotificationPrompt from './components/NotificationPrompt';
+import NotificationController from './components/NotificationController';
 
 const Main = () => {
   const { user } = useContext(AuthContext);
@@ -129,6 +130,7 @@ const Main = () => {
       )}
       <InstallPWA />
       <NotificationPrompt />
+      <NotificationController />
     </div>
   );
 };
