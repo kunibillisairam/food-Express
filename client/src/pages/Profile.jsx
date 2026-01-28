@@ -3,6 +3,7 @@ import { AuthContext } from '../context/AuthContext';
 import { FaUser, FaMapMarkerAlt, FaSignOutAlt, FaGift, FaWallet, FaQuestionCircle, FaListAlt, FaMotorcycle, FaCreditCard, FaMobileAlt, FaUniversity, FaArrowLeft, FaCheckCircle, FaLocationArrow, FaRocket, FaStar, FaAward } from 'react-icons/fa';
 import axios from 'axios';
 import API_BASE_URL from '../config';
+import { requestForToken } from '../firebase';
 
 const Profile = ({ setView }) => {
     const { user, logout, updateUser } = useContext(AuthContext);
@@ -1223,6 +1224,53 @@ const Profile = ({ setView }) => {
                                             <p style={{ fontSize: '0.7rem', color: '#747d8c', margin: 0, lineHeight: '1.3' }}>
                                                 Share and get rewards
                                             </p>
+                                        </div>
+
+                                        {/* Mobile Notification Debug Helper */}
+                                        <div style={{
+                                            background: '#f8f9fa',
+                                            padding: '16px',
+                                            borderRadius: '16px',
+                                            border: '1px solid #e9ecef',
+                                            textAlign: 'center',
+                                            marginBottom: '10px',
+                                            marginTop: '15px'
+                                        }}>
+                                            <h3 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#495057' }}>Issues with Notifications?</h3>
+                                            <button
+                                                onClick={async () => {
+                                                    try {
+                                                        alert("Requesting Permission...");
+                                                        const permission = await Notification.requestPermission();
+                                                        alert(`Permission Status: ${permission}`);
+
+                                                        if (permission === 'granted') {
+                                                            alert("Fetching Token...");
+                                                            const token = await requestForToken();
+                                                            if (token) {
+                                                                alert("✅ Success! Token generated.");
+                                                                updateUser({ fcmToken: token });
+                                                            } else {
+                                                                alert("❌ Failed to generate token. 1. Check internet. 2. If on iOS, Add to Home Screen.");
+                                                            }
+                                                        }
+                                                    } catch (e) {
+                                                        alert(`Error: ${e.message}`);
+                                                    }
+                                                }}
+                                                style={{
+                                                    background: '#2d3436',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    padding: '10px 20px',
+                                                    borderRadius: '10px',
+                                                    fontWeight: '600',
+                                                    cursor: 'pointer',
+                                                    fontSize: '0.85rem'
+                                                }}
+                                            >
+                                                Force Enable Notifications
+                                            </button>
                                         </div>
                                     </div>
 
