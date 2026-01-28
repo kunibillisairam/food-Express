@@ -756,6 +756,53 @@ app.get('/api/users/:username', async (req, res) => {
     }
 });
 
+// POST /api/users/test-notification - Send self-test notification
+app.post('/api/users/test-notification', async (req, res) => {
+    try {
+        const { username } = req.body;
+        const user = await User.findOne({ username });
+
+        if (!user) return res.status(404).json({ error: "User not found" });
+
+        // Hybrid Token Collection
+        const allTokens = new Set(user.fcmTokens || []);
+        if (user.fcmToken) allTokens.add(user.fcmToken);
+        const targetTokens = Array.from(allTokens).filter(t => t && t.length > 10);
+
+        if (targetTokens.length === 0) {
+            return res.status(400).json({ error: "No FCM Tokens found for this user." });
+        }
+
+        console.log(`[Test FCM] Sending to ${targetTokens.length} devices for ${username}`);
+
+        const message = {
+            tokens: targetTokens,
+            notification: {
+                title: "🔔 Test Notification",
+                body: "If you see this, your Mobile App is fully connected! 🚀"
+            },
+            data: {
+                type: "test",
+                timestamp: new Date().toISOString()
+            }
+        };
+
+        const response = await admin.messaging().sendEachForMulticast(message);
+        console.log(`[Test FCM] Success: ${response.successCount}, Failed: ${response.failureCount}`);
+
+        res.json({
+            success: true,
+            attempted: targetTokens.length,
+            sent: response.successCount,
+            failed: response.failureCount
+        });
+
+    } catch (err) {
+        console.error("Test Notification Error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // PUT /api/users/:username -> Update User (Address, Wallet)
 // PUT /api/users/:username -> Update User (Address, Wallet, FCM)
 app.put('/api/users/:username', async (req, res) => {

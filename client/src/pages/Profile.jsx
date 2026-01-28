@@ -1271,6 +1271,42 @@ const Profile = ({ setView }) => {
                                             >
                                                 Force Enable Notifications
                                             </button>
+
+                                            <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #e9ecef' }}>
+                                                <button
+                                                    onClick={async () => {
+                                                        try {
+                                                            alert("🚀 Sending Test Notification...");
+                                                            const res = await axios.post(`${API_BASE_URL}/api/users/test-notification`, { username: user.username });
+                                                            if (res.data.success) {
+                                                                alert(`✅ Done! Sent to ${res.data.sent} device(s). Check your status bar!`);
+                                                            } else {
+                                                                alert(`⚠️ Server received request but no devices found.`);
+                                                            }
+                                                        } catch (e) {
+                                                            alert(`❌ Error: ${e.response?.data?.error || e.message}`);
+                                                        }
+                                                    }}
+                                                    style={{
+                                                        background: '#6c5ce7',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        padding: '10px 20px',
+                                                        borderRadius: '10px',
+                                                        fontWeight: '600',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.85rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        gap: '8px',
+                                                        margin: '0 auto',
+                                                        width: '100%'
+                                                    }}
+                                                >
+                                                    🔔 Send Test Alert
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
 
