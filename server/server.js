@@ -607,6 +607,35 @@ app.post('/api/campaigns/:id/send', async (req, res) => {
 
 // Review Routes
 
+// GET /api/reviews/summary -> Get average ratings for all food items
+app.get('/api/reviews/summary', async (req, res) => {
+    try {
+        // Fallback to JS aggregation to ensure stability
+        const allReviews = await Review.find({}, 'foodId rating').lean(); // Optimization: Only fetch needed fields
+
+        const summaryMap = {};
+        allReviews.forEach(r => {
+            const fid = r.foodId;
+            if (!summaryMap[fid]) {
+                summaryMap[fid] = { total: 0, count: 0 };
+            }
+            summaryMap[fid].total += r.rating;
+            summaryMap[fid].count += 1;
+        });
+
+        const summary = Object.keys(summaryMap).map(fid => ({
+            _id: isNaN(Number(fid)) ? fid : Number(fid),
+            averageRating: summaryMap[fid].total / summaryMap[fid].count,
+            count: summaryMap[fid].count
+        }));
+
+        res.json(summary);
+    } catch (err) {
+        console.error("[Review Summary Error]", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // GET /api/reviews/:foodId
 app.get('/api/reviews/:foodId', async (req, res) => {
     try {
@@ -718,34 +747,7 @@ app.put('/api/users/:username', async (req, res) => {
     }
 });
 
-// GET /api/reviews/summary -> Get average ratings for all food items
-app.get('/api/reviews/summary', async (req, res) => {
-    try {
-        // Fallback to JS aggregation to ensure stability
-        const allReviews = await Review.find({}, 'foodId rating').lean();
 
-        const summaryMap = {};
-        allReviews.forEach(r => {
-            const fid = r.foodId;
-            if (!summaryMap[fid]) {
-                summaryMap[fid] = { total: 0, count: 0 };
-            }
-            summaryMap[fid].total += r.rating;
-            summaryMap[fid].count += 1;
-        });
-
-        const summary = Object.keys(summaryMap).map(fid => ({
-            _id: isNaN(Number(fid)) ? fid : Number(fid),
-            averageRating: summaryMap[fid].total / summaryMap[fid].count,
-            count: summaryMap[fid].count
-        }));
-
-        res.json(summary);
-    } catch (err) {
-        console.error("[Review Summary Error]", err);
-        res.status(500).json({ error: err.message });
-    }
-});
 
 // GET /api/reviews -> Get all reviews (for averages)
 app.get('/api/reviews', async (req, res) => {
