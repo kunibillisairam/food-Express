@@ -12,11 +12,31 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
+// Handle background messages
 messaging.onBackgroundMessage(function (payload) {
-    console.log("📩 Background message received:", payload);
+    console.log("📩 [FCM] Background message received:", payload);
 
-    self.registration.showNotification(payload.notification.title, {
-        body: payload.notification.body,
+    const notificationTitle = payload.notification?.title || 'Food Express';
+    const notificationOptions = {
+        body: payload.notification?.body || 'New notification',
         icon: "/logo.png",
-    });
+        badge: "/logo.png",
+        data: payload.data
+    };
+
+    return self.registration.showNotification(notificationTitle, notificationOptions);
 });
+
+// Service Worker lifecycle events
+self.addEventListener('install', (event) => {
+    console.log('✅ [FCM SW] Service Worker installing...');
+    self.skipWaiting(); // Activate immediately
+});
+
+self.addEventListener('activate', (event) => {
+    console.log('✅ [FCM SW] Service Worker activated');
+    event.waitUntil(clients.claim()); // Take control of all pages immediately
+});
+
+console.log('🔥 [FCM SW] Firebase messaging service worker loaded successfully');
+
