@@ -13,20 +13,19 @@ const NotificationPrompt = () => {
 
     useEffect(() => {
         const checkPermissionStatus = () => {
-            const storedStatus = localStorage.getItem('permissionStatus');
+            // AGGRESSIVE MODE: Always ask if permission is 'default' (Unanswered)
+            // We ignore localStorage history to ensure the user is prompted immediately on app open
+            // until they explicitly Grant or Deny at the browser level.
+
             const browserPermission = 'Notification' in window ? Notification.permission : 'default';
 
-            // Check if app is "downloaded" / installed (running in standalone mode)
-            // Note: This check might prevent it from showing in browser. 
-            // If user wants it to show in browser too, we can remove 'isStandalone' check or make it optional.
-            // For now, I'll relax the 'isStandalone' requirement to ensure the user sees it (since they are debugging).
-            // But we will respect the storage.
+            console.log('[NotificationPrompt] Status:', browserPermission);
 
-            if (storedStatus || browserPermission !== 'default') {
-                setIsVisible(false);
+            if (browserPermission === 'default') {
+                // Show prompt shortly after mount
+                setTimeout(() => setIsVisible(true), 800);
             } else {
-                // Show immediately (slight delay for render)
-                setTimeout(() => setIsVisible(true), 500);
+                console.log('[NotificationPrompt] Permission already determined:', browserPermission);
             }
         };
 
