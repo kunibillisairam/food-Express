@@ -19,7 +19,8 @@ const userSchema = new mongoose.Schema({
     transactions: [transactionSchema],
     usedCoupons: { type: [String], default: [] },
     role: { type: String, default: 'user' },
-    fcmTokens: { type: [String], default: [] } // Multi-device support
+    fcmTokens: { type: [String], default: [] }, // Multi-device support
+    fcmToken: { type: String, default: '' } // Legacy Fallback
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

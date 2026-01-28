@@ -319,12 +319,18 @@ app.put('/api/orders/:id/status', async (req, res) => {
                 message: `Order #${order._id.toString().slice(-6)} is now ${status}`
             });
 
-            // Send FCM Notification for Status Update (Multi-Device)
+            // Send FCM Notification for Status Update (Multi-Device + Legacy Fallback)
             const user = await User.findOne({ username: order.userName });
-            if (user && user.fcmTokens && user.fcmTokens.length > 0 && admin.apps.length > 0) {
+
+            // Collect all valid tokens (Array + Legacy String)
+            const allTokens = new Set(user?.fcmTokens || []);
+            if (user?.fcmToken) allTokens.add(user.fcmToken);
+            const targetTokens = Array.from(allTokens).filter(t => t && t.length > 10);
+
+            if (user && targetTokens.length > 0 && admin.apps.length > 0) {
                 try {
                     const response = await admin.messaging().sendEachForMulticast({
-                        tokens: user.fcmTokens,
+                        tokens: targetTokens,
                         notification: {
                             title: `Order ${status} 🚚`,
                             body: `Your order #${order._id.toString().slice(-6)} is now ${status}.`
@@ -335,6 +341,8 @@ app.put('/api/orders/:id/status', async (req, res) => {
                         }
                     });
                     console.log(`[FCM] Status update sent to ${response.successCount} devices for ${order.userName}`);
+
+                    // Cleanup failed tokens (Optional enhancement for later)
                 } catch (fcmErr) {
                     console.error("[FCM Error]", fcmErr.message);
                 }
@@ -448,18 +456,23 @@ app.post('/api/orders', async (req, res) => {
             console.error("[Cleanup Error]", cleanupErr);
         }
 
-        // --- FCM NOTIFICATION LOGIC (MULTI-DEVICE) ---
-        // Send Push Notification if User has tokens
-        console.log('[FCM Debug] Checking notification prerequisites:');
-        console.log('[FCM Debug] User exists:', !!user);
-        console.log('[FCM Debug] User has FCM tokens:', user?.fcmTokens?.length || 0);
-        console.log('[FCM Debug] Firebase Admin initialized:', admin.apps.length > 0);
+        // --- FCM NOTIFICATION LOGIC (MULTI-DEVICE + LEGACY) ---
+        // Collect all tokens
+        const allTokens = new Set(user?.fcmTokens || []);
+        if (user?.fcmToken) allTokens.add(user.fcmToken);
+        const targetTokens = Array.from(allTokens).filter(t => t && t.length > 10);
 
-        if (user && user.fcmTokens && user.fcmTokens.length > 0 && admin.apps.length > 0) {
+        console.log('[FCM Debug] Notification target check:');
+        console.log(`[FCM Debug] User: ${user?.username}`);
+        console.log(`[FCM Debug] Array Tokens: ${user?.fcmTokens?.length || 0}`);
+        console.log(`[FCM Debug] Legacy Token: ${user?.fcmToken ? 'Yes' : 'No'}`);
+        console.log(`[FCM Debug] Final Target Count: ${targetTokens.length}`);
+
+        if (user && targetTokens.length > 0 && admin.apps.length > 0) {
             try {
-                console.log(`[FCM] Attempting to send notification to ${userName} on ${user.fcmTokens.length} devices...`);
+                console.log(`[FCM] Sending to ${targetTokens.length} devices...`);
                 const message = {
-                    tokens: user.fcmTokens,
+                    tokens: targetTokens,
                     notification: {
                         title: "✅ Order Confirmed!",
                         body: `Your order #${randomOrderId} has been placed successfully and is being prepared.`
@@ -472,17 +485,12 @@ app.post('/api/orders', async (req, res) => {
                 };
 
                 const response = await admin.messaging().sendEachForMulticast(message);
-                console.log(`[FCM] ✓ Notification sent successfully to ${response.successCount} devices for ${userName}`);
-                if (response.failureCount > 0) {
-                    console.log(`[FCM] ⚠️ ${response.failureCount} messages failed.`);
-                }
+                console.log(`[FCM] ✓ Notification sent successfully to ${response.successCount} / ${targetTokens.length} devices.`);
             } catch (fcmError) {
-                console.error(`[FCM Error] Failed to send notification to ${userName}:`, fcmError.message);
+                console.error(`[FCM Error] Failed to send notification:`, fcmError.message);
             }
         } else {
-            if (!user) console.log("[FCM Skip] User not found");
-            else if (!user.fcmTokens || user.fcmTokens.length === 0) console.log(`[FCM Skip] User ${userName} has no FCM Tokens`);
-            else console.log("[FCM Skip] Firebase Admin not initialized");
+            console.log("[FCM Skip] No valid tokens found or Admin not initialized.");
         }
         // ------------------------------
 
