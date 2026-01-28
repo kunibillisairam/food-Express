@@ -4,33 +4,46 @@ const admin = require('firebase-admin');
 // Initialize Firebase Admin
 try {
     let serviceAccount;
-    if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-        // Production: Load from Environment Variable (Base64 encoded)
+
+    // Check for Base64 Encoded Environment Variable (Render Fix)
+    if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
         try {
-            const base64Data = process.env.FIREBASE_SERVICE_ACCOUNT;
-            const jsonString = Buffer.from(base64Data, 'base64').toString('utf-8');
-            serviceAccount = JSON.parse(jsonString);
-            console.log("✓ Loaded Firebase Credentials from Environment Variable (Base64)");
+            const json = Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, 'base64').toString('utf-8');
+            serviceAccount = JSON.parse(json);
+            console.log("✅ Loaded Firebase credentials from Base64 env");
         } catch (e) {
-            console.error("❌ Failed to decode FIREBASE_SERVICE_ACCOUNT env var:", e.message);
+            console.error("❌ Failed to decode FIREBASE_SERVICE_ACCOUNT_BASE64:", e.message);
+        }
+    }
+    // Fallback: Check for legacy variable
+    else if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+        try {
+            // Attempt to decode assuming it is base64
+            const jsonString = Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT, 'base64').toString('utf-8');
+            serviceAccount = JSON.parse(jsonString);
+            console.log("✓ Loaded Firebase Credentials from legacy Env variable");
+        } catch (e) {
+            console.error("❌ Failed to decode legacy FIREBASE_SERVICE_ACCOUNT:", e.message);
         }
     }
 
+    // Local Development Fallback
     if (!serviceAccount) {
-        // Local Development: Load from file
         try {
             serviceAccount = require('./serviceAccountKey.json');
-            console.log("Loaded Firebase Credentials from local file");
+            console.log("✅ Loaded Firebase credentials from local file");
         } catch (e) {
             console.log("Local serviceAccountKey.json not found.");
         }
     }
 
     if (serviceAccount) {
-        admin.initializeApp({
-            credential: admin.credential.cert(serviceAccount)
-        });
-        console.log("Firebase Admin Initialized Successfully");
+        if (!admin.apps.length) { // Prevent double initialization
+            admin.initializeApp({
+                credential: admin.credential.cert(serviceAccount)
+            });
+            console.log("🔥 Firebase Admin Initialized Successfully");
+        }
     } else {
         console.warn("Warning: Firebase Admin NOT initialized. Missing credentials.");
     }

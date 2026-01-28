@@ -6,3 +6,5 @@ serviceAccountKey.json
 .DS_Store
 dist
 coverage
+
+server/firebase_base64.txt
