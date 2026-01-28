@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema({
     transactions: [transactionSchema],
     usedCoupons: { type: [String], default: [] },
     role: { type: String, default: 'user' },
-    fcmToken: { type: String, default: '' }
+    fcmTokens: { type: [String], default: [] } // Multi-device support
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);
