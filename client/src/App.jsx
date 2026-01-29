@@ -47,17 +47,37 @@ const Main = () => {
     window.addEventListener('offline', handleOffline);
 
     // FCM Foreground Message Listener
-    onMessageListener().then((payload) => {
+    // FCM Foreground Message Listener
+    onMessageListener((payload) => {
       console.log('[FCM] Foreground message received:', payload);
       if (payload && payload.notification) {
         // Show notification when app is open
-        new Notification(payload.notification.title, {
-          body: payload.notification.body,
-          icon: '/logo.png',
-          tag: payload.data?.orderId || 'food-express'
+        // Using Toast for better in-app experience + System Notification
+        import('react-hot-toast').then(({ toast }) => {
+          toast(
+            (t) => (
+              <div onClick={() => {
+                toast.dismiss(t.id);
+                if (payload.data?.orderId) handleViewChange('my-orders');
+              }}>
+                <div style={{ fontWeight: 'bold' }}>{payload.notification.title}</div>
+                <div style={{ fontSize: '0.9em' }}>{payload.notification.body}</div>
+              </div>
+            ),
+            { duration: 4000, icon: '🔔' }
+          );
         });
+
+        // Also try system notification if visible
+        if (Notification.permission === 'granted') {
+          new Notification(payload.notification.title, {
+            body: payload.notification.body,
+            icon: '/logo.png',
+            tag: payload.data?.orderId || 'food-express'
+          });
+        }
       }
-    }).catch(err => console.log('[FCM] Listener error:', err));
+    });
 
     return () => {
       cleanup();
