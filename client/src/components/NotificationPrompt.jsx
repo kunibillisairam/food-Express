@@ -7,8 +7,7 @@ import { AuthContext } from '../context/AuthContext';
 
 const NotificationPrompt = () => {
     // Initial state set to false, will check conditions to show
-    const [isVisible, setIsVisible] = useState(false);
-    const [isExiting, setIsExiting] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const { updateUser, user } = useContext(AuthContext);
 
     useEffect(() => {
@@ -22,8 +21,8 @@ const NotificationPrompt = () => {
             console.log('[NotificationPrompt] Status:', browserPermission);
 
             if (browserPermission === 'default') {
-                // Show prompt shortly after mount
-                setTimeout(() => setIsVisible(true), 800);
+                // Show prompt immediately for faster engagement (100ms)
+                setTimeout(() => setIsVisible(true), 100);
             } else {
                 console.log('[NotificationPrompt] Permission already determined:', browserPermission);
             }
@@ -33,6 +32,7 @@ const NotificationPrompt = () => {
     }, []);
 
     const handleAllow = async () => {
+        setIsLoading(true);
         try {
             let permission = 'default';
             if ('Notification' in window) {
@@ -84,6 +84,7 @@ const NotificationPrompt = () => {
             console.error('Permission request error:', error);
             localStorage.setItem('permissionStatus', 'denied');
         } finally {
+            setIsLoading(false);
             closeModal();
         }
     };
@@ -186,18 +187,19 @@ const NotificationPrompt = () => {
             padding: '1rem',
             borderRadius: '12px',
             border: 'none',
-            background: 'linear-gradient(to right, #ff4757, #ff6b81)',
+            background: isLoading ? '#bdc3c7' : 'linear-gradient(to right, #ff4757, #ff6b81)',
             color: 'white',
             fontSize: '1.1rem',
             fontWeight: 'bold',
-            cursor: 'pointer',
-            boxShadow: '0 10px 20px rgba(255, 71, 87, 0.3)',
+            cursor: isLoading ? 'wait' : 'pointer',
+            boxShadow: isLoading ? 'none' : '0 10px 20px rgba(255, 71, 87, 0.3)',
             marginBottom: '1rem',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             gap: '8px',
-            transition: 'transform 0.1s'
+            transition: 'transform 0.1s',
+            opacity: isLoading ? 0.7 : 1
         },
         buttonSecondary: {
             width: '100%',
@@ -223,8 +225,8 @@ const NotificationPrompt = () => {
                         exit={{ y: 50, opacity: 0, scale: 0.95 }}
                         transition={{
                             type: "spring",
-                            damping: 25,
-                            stiffness: 300
+                            damping: 20, // Reduced for snappier feel
+                            stiffness: 400 // Increased for snappier feel
                         }}
                         style={styles.card}
                     >
@@ -248,12 +250,17 @@ const NotificationPrompt = () => {
 
                             <button
                                 onClick={handleAllow}
+                                disabled={isLoading}
                                 style={styles.buttonPrimary}
-                                onMouseDown={(e) => e.target.style.transform = 'scale(0.98)'}
-                                onMouseUp={(e) => e.target.style.transform = 'scale(1)'}
-                                onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+                                onMouseDown={(e) => !isLoading && (e.target.style.transform = 'scale(0.98)')}
+                                onMouseUp={(e) => !isLoading && (e.target.style.transform = 'scale(1)')}
+                                onMouseLeave={(e) => !isLoading && (e.target.style.transform = 'scale(1)')}
                             >
-                                <FiBell /> Allow Access
+                                {isLoading ? (
+                                    <>⏳ Enabling...</>
+                                ) : (
+                                    <><FiBell /> Allow Access</>
+                                )}
                             </button>
 
                             <button
