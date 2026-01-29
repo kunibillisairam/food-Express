@@ -1,9 +1,10 @@
+
 import React, { useState, useContext, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { FaEye, FaEyeSlash, FaMobileAlt, FaHamburger, FaPizzaSlice, FaUtensils, FaIceCream } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
-import { LuBike } from "react-icons/lu";
 import { registerForPush } from '../utils/notifications';
+import toast from 'react-hot-toast';
 import './Auth.css';
 
 const Login = ({ setView }) => {
@@ -32,13 +33,16 @@ const Login = ({ setView }) => {
             }
 
             if (res.success) {
+                toast.success('Welcome back, ' + username + '!');
                 await registerForPush(username); // 🔔 Enable Mobile Push
                 setView('home');
             } else {
                 setError(res.message);
+                toast.error(res.message);
             }
         } catch (err) {
             setError("An unexpected error occurred.");
+            toast.error("An unexpected error occurred.");
         } finally {
             setLoading(false);
         }

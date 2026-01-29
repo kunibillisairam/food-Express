@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { CartContext } from '../context/CartContext';
-import { FaShoppingCart, FaUser, FaSignOutAlt, FaListAlt } from 'react-icons/fa';
+import { FaShoppingCart, FaUser, FaSignOutAlt, FaListAlt, FaHome } from 'react-icons/fa';
 import { categories } from '../data/foodData';
 import useSound from '../hooks/useSound';
 import { useCartAnimation } from '../context/CartAnimationContext';
@@ -68,6 +68,13 @@ const Navbar = ({ setView, activeCategory, setCategory, setSearchTerm }) => {
 
 
             <div className="nav-links">
+                <button
+                    className="nav-btn"
+                    onClick={() => { playSound('click'); setView('home'); setCategory('All'); }}
+                    onMouseEnter={() => playSound('hover')}
+                >
+                    <FaHome /> <span className="desktop-only">Home</span>
+                </button>
 
 
 
@@ -80,7 +87,7 @@ const Navbar = ({ setView, activeCategory, setCategory, setSearchTerm }) => {
                 </button>
 
                 <button
-                    className="nav-btn"
+                    className="nav-btn desktop-only"
                     onClick={() => { playSound('click'); setView('company'); }}
                     onMouseEnter={() => playSound('hover')}
                 >

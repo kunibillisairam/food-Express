@@ -1763,6 +1763,13 @@ body {
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
 }
 
+@media (max-width: 768px) {
+  .hero-main-img {
+    max-width: 250px;
+    margin: 0 auto 2rem auto;
+  }
+}
+
 
 
 .floating-card {

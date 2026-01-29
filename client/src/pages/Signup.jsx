@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { FaEye, FaEyeSlash, FaMobileAlt, FaHamburger, FaPizzaSlice, FaUtensils, FaIceCream, FaUser, FaPhone } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
+import toast from 'react-hot-toast';
 import './Auth.css';
 
 const Signup = ({ setView }) => {
@@ -43,12 +44,14 @@ const Signup = ({ setView }) => {
 
         if (formData.password !== formData.confirmPassword) {
             setError("Passwords do not match");
+            toast.error("Passwords do not match");
             setLoading(false);
             return;
         }
 
         if (formData.phone.length !== 10) {
             setError("Phone number must be exactly 10 digits");
+            toast.error("Phone number must be exactly 10 digits");
             setLoading(false);
             return;
         }
@@ -71,15 +74,15 @@ const Signup = ({ setView }) => {
                 }
 
                 if (res.success) {
-                    // Show success state briefly before switching? 
-                    // For now direct switch is fine, or we could add a success toast
-                    alert('Signup successful! Please login.');
+                    toast.success('Account created! Please login.');
                     setView('login');
                 } else {
                     setError(res.message);
+                    toast.error(res.message);
                 }
             } catch (err) {
                 setError("An unexpected error occurred");
+                toast.error("An unexpected error occurred");
             } finally {
                 setLoading(false);
             }
