@@ -750,6 +750,10 @@ body {
     display: none;
   }
 
+  .mobile-hide-icon {
+    display: none !important;
+  }
+
   .view-home .footer-section {
     display: block;
   }

@@ -83,7 +83,7 @@ const Navbar = ({ setView, activeCategory, setCategory, setSearchTerm }) => {
                     onClick={() => { playSound('scan'); setView('fabricator'); }}
                     onMouseEnter={() => playSound('hover')}
                 >
-                    🔮 FABRICATOR
+                    <span className="mobile-hide-icon">🔮</span> FABRICATOR
                 </button>
 
                 <button
