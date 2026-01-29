@@ -4,12 +4,14 @@ const getBaseUrl = () => {
     if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
 
     const hostname = window.location.hostname;
-    // If we're on mobile accessing via IP, or just not on localhost, use that IP/host
-    if (hostname !== 'localhost' && hostname !== '127.0.0.1' && hostname !== '') {
-        return `http://${hostname}:5000`;
+
+    // If running on localhost or local network IP, assume local backend
+    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.')) {
+        return "http://localhost:5000";
     }
 
-    return "http://127.0.0.1:5000";
+    // PRODUCTION BACKEND
+    return "https://food-express-1-00az.onrender.com";
 };
 
 const API_BASE_URL = getBaseUrl();

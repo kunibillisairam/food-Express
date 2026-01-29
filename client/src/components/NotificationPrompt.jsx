@@ -13,6 +13,7 @@ const NotificationPrompt = () => {
     const { updateUser, user } = useContext(AuthContext);
 
     useEffect(() => {
+        console.log('[NotificationPrompt] Component Mounted - vRefreshed');
         const checkPermissionStatus = () => {
             // AGGRESSIVE MODE: Always ask if permission is 'default' (Unanswered)
             // We ignore localStorage history to ensure the user is prompted immediately on app open
@@ -36,57 +37,68 @@ const NotificationPrompt = () => {
     const handleAllow = async () => {
         setIsLoading(true);
         try {
+            // 1. Request Permission immediately
             let permission = 'default';
             if ('Notification' in window) {
                 permission = await Notification.requestPermission();
             }
 
-            if (permission === 'granted') {
-                // Get FCM Token
-                const token = await requestForToken();
-                console.log('🔔 [FCM TOKEN GENERATED]:', token ? token.substring(0, 30) + '...' : 'NULL');
-                if (token) {
-                    console.log('FCM Token generated:', token);
-                    if (user) {
-                        console.log('✓ Saving token to user profile:', user.username);
-                        await updateUser({ fcmToken: token });
-                    } else {
-                        console.log('⚠️ No user logged in, saving to localStorage');
-                        // If no user is logged in, we might store it in localStorage 
-                        // and sync it later when they log in.
-                        localStorage.setItem('tempFcmToken', token);
-                    }
-                    localStorage.setItem('permissionStatus', 'allowed');
-
-                    toast.success('Awesome! You will receive order updates.', {
-                        icon: '🔔',
-                        style: {
-                            background: '#ff4757',
-                            color: 'white',
-                        },
-                    });
-
-                } else {
-                    toast.error('Failed to connect to notification service.');
-                }
-
-                // Optional: Send a welcome notification (Local)
-                try {
-                    new Notification('Welcome to Food Express!', {
-                        body: 'You are all set for real-time updates!',
-                        icon: '/pwa-192x192.png'
-                    });
-                } catch (e) { /* ignore */ }
-
-            } else {
+            if (permission !== 'granted') {
                 localStorage.setItem('permissionStatus', 'denied');
-                toast.error('Notifications were denied by browser.');
+                toast.error('Notifications were denied.');
+                setIsLoading(false);
+                closeModal();
+                return;
             }
+
+            // 2. Permission Granted! 
+            // Optimistic UI: Close modal immediately so user feels it's done.
+            localStorage.setItem('permissionStatus', 'allowed');
+            closeModal();
+
+            // Show a loading toast that we will update later
+            const toastId = toast.loading('Connecting to notification server...');
+
+            // 3. Background: Get Token & Save (This takes time, but user is already back in app)
+            setTimeout(async () => {
+                try {
+                    const token = await requestForToken();
+                    console.log('🔔 [FCM TOKEN]:', token ? 'Generated' : 'Failed');
+
+                    if (token) {
+                        if (user) {
+                            await updateUser({ fcmToken: token });
+                        } else {
+                            localStorage.setItem('tempFcmToken', token);
+                        }
+
+                        // Update the loading toast to success
+                        toast.success('You are all set for updates!', {
+                            id: toastId,
+                            icon: '🔔',
+                            style: { background: '#ff4757', color: 'white' }
+                        });
+
+                        // Send welcome ping
+                        try {
+                            new Notification('Welcome to Food Express!', {
+                                body: 'Real-time updates enabled!',
+                                icon: '/pwa-192x192.png'
+                            });
+                        } catch (e) { }
+
+                    } else {
+                        toast.error('Could not generate token.', { id: toastId });
+                    }
+                } catch (bgError) {
+                    console.error('Background Token Error:', bgError);
+                    toast.error('Setup failed slightly.', { id: toastId });
+                }
+            }, 100);
+
         } catch (error) {
             console.error('Permission request error:', error);
-            localStorage.setItem('permissionStatus', 'denied');
-        } finally {
-            setIsLoading(false);
+            setIsLoading(false); // Only needed if we crashed before optimistic close
             closeModal();
         }
     };
