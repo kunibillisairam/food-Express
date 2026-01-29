@@ -1117,6 +1117,88 @@ const Profile = ({ setView }) => {
                                             <div style={{ flex: 1, color: '#ff4757' }}>Log Out</div>
                                         </div>
                                     </div>
+
+                                    {/* Mobile Notification Debug Helper */}
+                                    <div style={{
+                                        background: '#fff',
+                                        padding: '16px',
+                                        borderRadius: '16px',
+                                        border: '1px solid #e9ecef',
+                                        textAlign: 'center',
+                                        marginTop: '20px',
+                                        boxShadow: '0 4px 15px rgba(0,0,0,0.05)'
+                                    }}>
+                                        <h3 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#495057' }}>Notification Settings</h3>
+                                        <button
+                                            onClick={async () => {
+                                                try {
+                                                    alert("Requesting Permission...");
+                                                    const permission = await Notification.requestPermission();
+                                                    alert(`Permission Status: ${permission}`);
+
+                                                    if (permission === 'granted') {
+                                                        alert("Fetching Token...");
+                                                        const token = await requestForToken();
+                                                        if (token) {
+                                                            alert("✅ Success! Token generated.");
+                                                            updateUser({ fcmToken: token });
+                                                        } else {
+                                                            alert("❌ Failed to generate token. 1. Check internet. 2. If on iOS, Add to Home Screen.");
+                                                        }
+                                                    }
+                                                } catch (e) {
+                                                    alert(`Error: ${e.message}`);
+                                                }
+                                            }}
+                                            style={{
+                                                background: '#2d3436',
+                                                color: 'white',
+                                                border: 'none',
+                                                padding: '10px 20px',
+                                                borderRadius: '10px',
+                                                fontWeight: '600',
+                                                cursor: 'pointer',
+                                                fontSize: '0.85rem',
+                                                width: '100%',
+                                                marginBottom: '10px'
+                                            }}
+                                        >
+                                            Force Enable Notifications
+                                        </button>
+
+                                        <button
+                                            onClick={async () => {
+                                                try {
+                                                    alert("🚀 Sending Test Notification...");
+                                                    const res = await axios.post(`${API_BASE_URL}/api/users/test-notification`, { username: user.username });
+                                                    if (res.data.success) {
+                                                        alert(`✅ Done! Sent to ${res.data.sent} device(s). Check your status bar!`);
+                                                    } else {
+                                                        alert(`⚠️ Server received request but no devices found.`);
+                                                    }
+                                                } catch (e) {
+                                                    alert(`❌ Error: ${e.response?.data?.error || e.message}`);
+                                                }
+                                            }}
+                                            style={{
+                                                background: '#6c5ce7',
+                                                color: 'white',
+                                                border: 'none',
+                                                padding: '10px 20px',
+                                                borderRadius: '10px',
+                                                fontWeight: '600',
+                                                cursor: 'pointer',
+                                                fontSize: '0.85rem',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                gap: '8px',
+                                                width: '100%'
+                                            }}
+                                        >
+                                            🚀 Test Notification
+                                        </button>
+                                    </div>
                                 </div>
 
                                 {/* DESKTOP VIEW */}
