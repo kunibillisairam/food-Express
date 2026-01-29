@@ -8,6 +8,8 @@ import { AuthContext } from '../context/AuthContext';
 const NotificationPrompt = () => {
     // Initial state set to false, will check conditions to show
     const [isLoading, setIsLoading] = useState(false);
+    const [isVisible, setIsVisible] = useState(false);
+    const [isExiting, setIsExiting] = useState(false);
     const { updateUser, user } = useContext(AuthContext);
 
     useEffect(() => {
