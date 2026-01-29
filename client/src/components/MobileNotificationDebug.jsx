@@ -42,7 +42,7 @@ const MobileNotificationDebug = ({ user, updateUser }) => {
                     {status === 'granted' ? '✅ PERMISSION GRANTED' : (status === 'denied' ? '❌ BLOCKED' : '⚠️ ' + status.toUpperCase())}
                 </div>
                 <div style={{ padding: '5px 10px', borderRadius: '8px', background: tokenExists ? '#dbeafe' : '#f3f4f6', color: tokenExists ? '#1e40af' : '#6b7280', fontSize: '0.75rem', fontWeight: 'bold' }}>
-                    {tokenExists ? '📡 LINKED' : '🔌 NO TOKEN'}
+                    {tokenExists ? `📡 LINKED (${user?.fcmTokens?.length || (user?.fcmToken ? 1 : 0)})` : '🔌 NO TOKEN'}
                 </div>
             </div>
 
