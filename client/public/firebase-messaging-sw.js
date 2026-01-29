@@ -40,3 +40,29 @@ self.addEventListener('activate', (event) => {
 
 console.log('🔥 [FCM SW] Firebase messaging service worker loaded successfully');
 
+
+// Handle notification click
+self.addEventListener('notificationclick', function (event) {
+    console.log('[FCM SW] Notification click Received.', event);
+    event.notification.close();
+
+    // This looks to see if the current is already open and focuses if it is
+    event.waitUntil(
+        clients.matchAll({
+            type: 'window',
+            includeUncontrolled: true
+        }).then(function (clientList) {
+            // Check if there's already a tab open
+            for (var i = 0; i < clientList.length; i++) {
+                var client = clientList[i];
+                if (client.url.indexOf('/') > -1 && 'focus' in client) {
+                    return client.focus();
+                }
+            }
+            // If not, open a new window
+            if (clients.openWindow) {
+                return clients.openWindow('/');
+            }
+        })
+    );
+});
