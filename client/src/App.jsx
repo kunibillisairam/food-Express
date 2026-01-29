@@ -15,6 +15,7 @@ import DeliveryTracker from './pages/DeliveryTracker';
 import Fabricator from './pages/Fabricator';
 import DeliveryDashboard from './pages/DeliveryDashboard';
 import CampaignManager from './pages/CampaignManager';
+import Company from './pages/Company';
 
 import Footer from './components/Footer';
 import StarfieldBackground from './components/StarfieldBackground';
@@ -107,6 +108,7 @@ const Main = () => {
       case 'fabricator': return <Fabricator setView={handleViewChange} />;
       case 'delivery-partner': return <DeliveryDashboard setView={handleViewChange} />;
       case 'campaign-manager': return <CampaignManager setView={handleViewChange} />;
+      case 'company': return <Company />;
       default: return <Home activeCategory={category} setCategory={setCategory} setView={handleViewChange} />;
     }
   };

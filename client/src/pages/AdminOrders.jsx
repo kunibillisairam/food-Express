@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../config';
+import NotificationSender from '../components/NotificationSender';
 
 const AdminOrders = ({ setView }) => {
     const [orders, setOrders] = useState([]);
@@ -72,6 +73,20 @@ const AdminOrders = ({ setView }) => {
                 >
                     User Database
                 </button>
+                <button
+                    onClick={() => setActiveTab('notifications')}
+                    style={{
+                        padding: '0.5rem 2rem',
+                        background: activeTab === 'notifications' ? '#2f3542' : 'transparent',
+                        color: activeTab === 'notifications' ? '#fff' : '#2f3542',
+                        border: '2px solid #2f3542',
+                        borderRadius: '30px',
+                        cursor: 'pointer',
+                        fontWeight: 'bold'
+                    }}
+                >
+                    📢 Broadcast
+                </button>
             </div>
 
             {loading && <div style={{ textAlign: 'center', padding: '2rem' }}>Loading...</div>}
@@ -140,6 +155,14 @@ const AdminOrders = ({ setView }) => {
                             </div>
                         </div>
                     ))}
+                </div>
+            )}
+
+            {/* NOTIFICATIONS VIEW */}
+            {!loading && activeTab === 'notifications' && (
+                <div style={{ maxWidth: '600px', margin: '0 auto', background: 'white', padding: '2rem', borderRadius: '20px', boxShadow: '0 10px 40px rgba(0,0,0,0.1)' }}>
+                    <h3 style={{ textAlign: 'center', marginBottom: '1.5rem', color: '#6c5ce7' }}>📢 Send Push Notification</h3>
+                    <NotificationSender userId={null} />
                 </div>
             )}
 

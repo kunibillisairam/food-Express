@@ -68,19 +68,7 @@ const Navbar = ({ setView, activeCategory, setCategory, setSearchTerm }) => {
 
 
             <div className="nav-links">
-                {/* Category Buttons for Home View */}
-                <div className="nav-categories desktop-only">
-                    {categories.slice(0, 5).map(cat => (
-                        <button
-                            key={cat}
-                            className={`nav-cat-link ${activeCategory === cat ? 'active' : ''}`}
-                            onMouseEnter={() => playSound('hover')}
-                            onClick={() => handleCategoryClick(cat)}
-                        >
-                            {cat}
-                        </button>
-                    ))}
-                </div>
+
 
 
                 <button
@@ -89,6 +77,14 @@ const Navbar = ({ setView, activeCategory, setCategory, setSearchTerm }) => {
                     onMouseEnter={() => playSound('hover')}
                 >
                     🔮 FABRICATOR
+                </button>
+
+                <button
+                    className="nav-btn"
+                    onClick={() => { playSound('click'); setView('company'); }}
+                    onMouseEnter={() => playSound('hover')}
+                >
+                    🏢 Company
                 </button>
 
                 <motion.div

@@ -1,0 +1,258 @@
+.company-page {
+    width: 100%;
+    min-height: 100vh;
+    color: #333;
+    background: white;
+    padding-bottom: 4rem;
+    font-family: 'Inter', sans-serif;
+    animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Hero Section */
+.company-hero {
+    position: relative;
+    height: 60vh;
+    background: linear-gradient(135deg, #ff4757 0%, #ff6b81 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+    overflow: hidden;
+    border-bottom-left-radius: 50px;
+    border-bottom-right-radius: 50px;
+    box-shadow: 0 10px 30px rgba(255, 71, 87, 0.3);
+}
+
+.company-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('/images/about_us.png') center/cover no-repeat;
+    opacity: 0.2;
+    mix-blend-mode: overlay;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 2rem;
+    max-width: 800px;
+}
+
+.hero-title {
+    font-size: 4rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    text-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    letter-spacing: -1px;
+}
+
+.hero-subtitle {
+    font-size: 1.5rem;
+    font-weight: 300;
+    opacity: 0.9;
+}
+
+/* Sections */
+.company-section {
+    max-width: 1200px;
+    margin: 4rem auto;
+    padding: 0 2rem;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.section-title {
+    font-size: 2.5rem;
+    color: #2d3436;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    position: relative;
+    display: inline-block;
+}
+
+.section-title::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: #ff4757;
+    margin: 0.5rem auto 0;
+    border-radius: 2px;
+}
+
+/* Story Grid */
+.story-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+.story-text {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #636e72;
+}
+
+.story-text p {
+    margin-bottom: 1.5rem;
+}
+
+.story-stats {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #ff4757;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #b2bec3;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.story-img-wrapper {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    transform: rotate(2deg);
+    transition: transform 0.3s ease;
+}
+
+.story-img-wrapper:hover {
+    transform: rotate(0deg) scale(1.02);
+}
+
+.story-img-wrapper img {
+    width: 100%;
+    display: block;
+}
+
+/* Values */
+.values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.value-card {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: 1px solid #eee;
+}
+
+.value-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 40px rgba(255, 71, 87, 0.15);
+    border-color: #ff4757;
+}
+
+.value-icon {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+    display: inline-block;
+    background: #fff0f1;
+    width: 80px;
+    height: 80px;
+    line-height: 80px;
+    border-radius: 50%;
+    color: #ff4757;
+}
+
+.value-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #2d3436;
+}
+
+.value-desc {
+    color: #636e72;
+    line-height: 1.6;
+}
+
+/* Contact Strip */
+.contact-strip {
+    background: #1e272e;
+    padding: 4rem 2rem;
+    color: white;
+    text-align: center;
+    margin-top: 4rem;
+}
+
+.contact-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.contact-title {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+}
+
+.contact-info {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    flex-wrap: wrap;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+
+    .story-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .story-img-wrapper {
+        transform: rotate(0);
+        margin-top: 2rem;
+    }
+}

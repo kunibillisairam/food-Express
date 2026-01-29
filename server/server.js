@@ -428,6 +428,43 @@ app.post('/api/orders', async (req, res) => {
             await user.save();
         }
 
+        // --- REFERRAL & CASHBACK SYSTEM ---
+        if (user && user.referredBy && !user.isReferralRewardClaimed && finalAmount >= 100) {
+            try {
+                // Award Referrer
+                const referrer = await User.findOne({ username: user.referredBy });
+                if (referrer) {
+                    referrer.walletBalance = (referrer.walletBalance || 0) + 50;
+                    referrer.transactions.push({
+                        type: 'Credit',
+                        amount: 50,
+                        description: `Referral Bonus: ${user.username} placed first order!`,
+                        date: new Date()
+                    });
+                    await referrer.save();
+
+                    // Notify Referrer (Optional: Add FCM here specifically for them)
+                }
+
+                // Award Current User (Cashback)
+                user.walletBalance = (user.walletBalance || 0) + 50;
+                user.transactions.push({
+                    type: 'Credit',
+                    amount: 50,
+                    description: `Welcome Bonus: First Order Cashback`,
+                    date: new Date()
+                });
+
+                user.isReferralRewardClaimed = true;
+                await user.save(); // Save user again with new balance
+
+                console.log(`[Referral] Awarded ₹50 to ${referrer?.username} and ${user.username}`);
+            } catch (refErr) {
+                console.error("[Referral Error]", refErr);
+            }
+        }
+        // ----------------------------------
+
         const randomOrderId = Math.floor(100000 + Math.random() * 900000).toString();
 
         const newOrder = new Order({
@@ -629,6 +666,75 @@ app.post('/api/campaigns/:id/send', async (req, res) => {
     }
 });
 
+// POST /api/notifications/send - Send Direct Message (Admin)
+app.post('/api/notifications/send', async (req, res) => {
+    try {
+        const { title, body, targetGroup, targetUserId } = req.body;
+        console.log(`[Notification] Sending '${title}' to group: ${targetGroup}`);
+
+        let query = {};
+
+        // Target Logic
+        if (targetGroup === 'active') {
+            // Users with orders in last 30 days
+            const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+            const recentOrders = await Order.find({ createdAt: { $gte: thirtyDaysAgo } }).distinct('userName');
+            query = { username: { $in: recentOrders } };
+        } else if (targetGroup === 'inactive') {
+            // Users with NO orders in last 30 days
+            const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+            const recentOrders = await Order.find({ createdAt: { $gte: thirtyDaysAgo } }).distinct('userName');
+            query = { username: { $nin: recentOrders } };
+        } else if (targetGroup === 'specific' && targetUserId) {
+            query = { _id: targetUserId };
+        }
+        // 'all' is default empty query {}
+
+        const users = await User.find(query);
+
+        // Collect tokens
+        let tokens = [];
+        users.forEach(u => {
+            if (u.fcmTokens && u.fcmTokens.length > 0) tokens.push(...u.fcmTokens);
+            if (u.fcmToken) tokens.push(u.fcmToken);
+        });
+
+        // Remove duplicates and invalid
+        tokens = [...new Set(tokens)].filter(t => t && t.length > 10);
+
+        if (tokens.length === 0) {
+            return res.json({ success: false, message: 'No accessible devices found for this target group.' });
+        }
+
+        // Send via FCM
+        const message = {
+            tokens: tokens,
+            notification: {
+                title: title,
+                body: body
+            },
+            data: {
+                type: 'admin_broadcast',
+                timestamp: new Date().toISOString()
+            }
+        };
+
+        const response = await admin.messaging().sendEachForMulticast(message);
+        console.log(`[Notification] Sent to ${response.successCount} devices.`);
+
+        res.json({
+            success: true,
+            sentCount: response.successCount,
+            failureCount: response.failureCount,
+            targetCount: users.length
+        });
+
+    } catch (err) {
+        console.error("[Notification Error]", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Review Routes
 
 // GET /api/reviews/summary -> Get average ratings for all food items
@@ -699,10 +805,50 @@ app.get('/api/users', async (req, res) => {
     }
 });
 
+// POST /api/users/redeem-xp - Redeem XP for Wallet Balance
+app.post('/api/users/redeem-xp', async (req, res) => {
+    try {
+        const { username, xpAmount } = req.body;
+        const user = await User.findOne({ username });
+
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        if ((user.xp || 0) < xpAmount) return res.status(400).json({ message: 'Insufficient XP' });
+
+        // Rate: 10 XP = 1 Credit (Rupee)
+        const redeemAmount = Math.floor(xpAmount / 10);
+        if (redeemAmount < 1) return res.status(400).json({ message: 'Minimum 10 XP required to redeem ₹1.' });
+
+        user.xp -= (redeemAmount * 10);
+        user.walletBalance = (user.walletBalance || 0) + redeemAmount;
+
+        user.transactions.push({
+            type: 'Credit',
+            amount: redeemAmount,
+            description: `Redeemed ${redeemAmount * 10} XP`,
+            date: new Date()
+        });
+
+        // Recalculate Rank
+        user.rank = calculateRank(user.xp);
+
+        await user.save();
+        res.json({
+            success: true,
+            newBalance: user.walletBalance,
+            newXp: user.xp,
+            newRank: user.rank,
+            message: `Successfully redeemed ₹${redeemAmount}!`
+        });
+
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // POST /api/auth/signup
 app.post('/api/auth/signup', async (req, res) => {
     try {
-        const { username, password, phone } = req.body;
+        const { username, password, phone, referralCode } = req.body;
 
         // Check if user exists
         const existingUser = await User.findOne({ username });
@@ -710,7 +856,25 @@ app.post('/api/auth/signup', async (req, res) => {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        const newUser = new User({ username, password, phone });
+        // Generate unique referral code for new user (e.g. SAI932)
+        const myReferralCode = (username.substring(0, 3).toUpperCase() + Math.floor(100 + Math.random() * 900)).replace(/\s/g, '');
+
+        let referredBy = null;
+        if (referralCode) {
+            const referrer = await User.findOne({ referralCode: referralCode });
+            if (referrer) {
+                referredBy = referrer.username;
+            }
+        }
+
+        const newUser = new User({
+            username,
+            password,
+            phone,
+            referralCode: myReferralCode,
+            referredBy: referredBy
+        });
+
         await newUser.save();
         res.status(201).json({ success: true, message: 'User registered successfully' });
     } catch (err) {
@@ -800,6 +964,39 @@ app.post('/api/users/test-notification', async (req, res) => {
     } catch (err) {
         console.error("Test Notification Error:", err);
         res.status(500).json({ error: err.message });
+    }
+});
+
+// POST /api/users/save-fcm-token -> Save Multi-Device Token
+app.post('/api/users/save-fcm-token', async (req, res) => {
+    try {
+        const { username, token } = req.body;
+
+        if (!token) return res.status(400).json({ message: "Token missing" });
+        if (!username) return res.status(400).json({ message: "Username missing" });
+
+        const user = await User.findOne({ username });
+
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        // Ensure array exists
+        if (!user.fcmTokens) {
+            user.fcmTokens = [];
+        }
+
+        // Add token if not exists
+        if (!user.fcmTokens.includes(token)) {
+            user.fcmTokens.push(token);
+            await user.save();
+            console.log(`✅ FCM TOKEN SAVED for ${username}:`, token.slice(0, 20) + "...");
+        } else {
+            console.log(`ℹ️ FCM Token already exists for ${username}`);
+        }
+
+        res.json({ success: true });
+    } catch (err) {
+        console.error("Save token error:", err);
+        res.status(500).json({ message: "Failed to save token" });
     }
 });
 

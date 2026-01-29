@@ -1,6 +1,8 @@
 import React, { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaMobileAlt, FaHamburger, FaPizzaSlice, FaUtensils, FaIceCream, FaUser, FaPhone } from 'react-icons/fa';
+import { FcGoogle } from 'react-icons/fc';
+import './Auth.css';
 
 const Signup = ({ setView }) => {
     const [formData, setFormData] = useState({ username: '', phone: '', password: '', confirmPassword: '' });
@@ -9,6 +11,30 @@ const Signup = ({ setView }) => {
     const { signup } = useContext(AuthContext);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [passwordStrength, setPasswordStrength] = useState(0);
+
+    const calculateStrength = (pass) => {
+        let score = 0;
+        if (!pass) return 0;
+        if (pass.length > 5) score += 1;
+        if (pass.length > 8) score += 1;
+        if (/[A-Z]/.test(pass)) score += 1;
+        if (/[0-9]/.test(pass)) score += 1;
+        if (/[^A-Za-z0-9]/.test(pass)) score += 1;
+        return score;
+    };
+
+    const handlePasswordChange = (e) => {
+        const val = e.target.value;
+        setFormData({ ...formData, password: val });
+        setPasswordStrength(calculateStrength(val));
+    };
+
+    const getStrengthColor = () => {
+        if (passwordStrength < 2) return '#ff4757';
+        if (passwordStrength < 4) return '#ffa502';
+        return '#2ed573';
+    };
 
     const handleSignup = async (e) => {
         e.preventDefault();
@@ -29,13 +55,24 @@ const Signup = ({ setView }) => {
 
         if (formData.username && formData.phone && formData.password) {
             try {
+                // Simulate minimum loading time for animation
+                const start = Date.now();
+
                 const res = await signup({
                     username: formData.username,
                     phone: formData.phone,
                     password: formData.password
                 });
 
+                const duration = Date.now() - start;
+                const minTime = 1000;
+                if (duration < minTime) {
+                    await new Promise(resolve => setTimeout(resolve, minTime - duration));
+                }
+
                 if (res.success) {
+                    // Show success state briefly before switching? 
+                    // For now direct switch is fine, or we could add a success toast
                     alert('Signup successful! Please login.');
                     setView('login');
                 } else {
@@ -51,102 +88,167 @@ const Signup = ({ setView }) => {
         }
     };
 
-
     return (
-        <div className="auth-split-wrapper fade-in">
-            <div className="auth-split-left"></div>
-            <div className="auth-split-right">
-                <div className="auth-card">
-                    <h2 className="auth-header">Create Account</h2>
-                    <form onSubmit={handleSignup}>
-                        <input className="auth-input" placeholder="Username" value={formData.username} onChange={e => setFormData({ ...formData, username: e.target.value })} required />
-                        <input
-                            className="auth-input"
-                            placeholder="Phone Number"
-                            value={formData.phone}
-                            onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                            style={{
-                                borderBottom: formData.phone && formData.phone.length !== 10 ? '2px solid red' : '1px solid rgba(0, 255, 255, 0.2)'
-                            }}
-                            required
+        <div className="auth-page-container fade-in">
+            {/* Left Side - Hero */}
+            <div className="auth-hero-section">
+                <div className="auth-hero-bg"></div>
+                <div className="hero-content">
+                    <div className="hero-image-container">
+                        <img
+                            src="/images/food_delivery_hero.png"
+                            alt="Food Delivery"
+                            className="hero-image"
+                            style={{ animationDelay: '-2s' }} // Offset animation
                         />
-                        <div style={{ position: 'relative', width: '100%' }}>
+                    </div>
+                    <div className="hero-text">
+                        <h1>Join the <br /><span className="highlight-text">Revolution.</span></h1>
+                        <p>Create your account and start ordering instantly from the best restaurants.</p>
+                    </div>
+                </div>
+
+                <div className="floating-shapes">
+                    <FaPizzaSlice className="shape s1" color="rgba(255,255,255,0.2)" />
+                    <FaUtensils className="shape s2" color="rgba(255,255,255,0.2)" />
+                    <FaHamburger className="shape s3" color="rgba(255,255,255,0.2)" />
+                    <FaIceCream className="shape s4" color="rgba(255,255,255,0.2)" />
+                </div>
+            </div>
+
+            {/* Right Side - Form */}
+            <div className="auth-form-section">
+                {/* Mobile Background Shapes */}
+                <div className="mobile-bg-shapes">
+                    <div className="floating-shapes">
+                        <FaIceCream className="shape s1" color="rgba(255,255,255,0.05)" />
+                        <FaHamburger className="shape s2" color="rgba(255,255,255,0.05)" />
+                    </div>
+                </div>
+
+                <div className="auth-glass-card">
+                    <div className="auth-title-box">
+                        <h2>Create Account 🚀</h2>
+                        <p>Fast signup. Delicious rewards.</p>
+                    </div>
+
+                    <form onSubmit={handleSignup}>
+                        <div className="form-group">
                             <input
-                                className="auth-input"
+                                className="form-input"
+                                placeholder="Username"
+                                value={formData.username}
+                                onChange={e => setFormData({ ...formData, username: e.target.value })}
+                                required
+                            />
+                            <FaUser className="input-icon" />
+                        </div>
+
+                        <div className="form-group">
+                            <input
+                                className="form-input"
+                                placeholder="Phone Number"
+                                type="tel"
+                                value={formData.phone}
+                                onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                                style={{
+                                    borderColor: formData.phone && formData.phone.length !== 10 ? '#ff4757' : ''
+                                }}
+                                required
+                            />
+                            <FaPhone className="input-icon" />
+                        </div>
+
+                        <div className="form-group">
+                            <input
+                                className="form-input"
                                 type={showPassword ? "text" : "password"}
                                 placeholder="Password"
                                 value={formData.password}
-                                onChange={e => setFormData({ ...formData, password: e.target.value })}
+                                onChange={handlePasswordChange}
                                 required
-                                style={{ width: '100%', paddingRight: '40px' }}
                             />
-                            <span
+                            <div className="input-icon">🔒</div>
+                            <button
+                                type="button"
+                                className="password-toggle"
                                 onClick={() => setShowPassword(!showPassword)}
-                                style={{
-                                    position: 'absolute',
-                                    right: '10px',
-                                    top: '50%',
-                                    transform: 'translateY(-50%)',
-                                    cursor: 'pointer',
-                                    color: 'rgba(0, 255, 255, 0.6)',
-                                    display: 'flex',
-                                    alignItems: 'center'
-                                }}
                             >
-                                {showPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
-                            </span>
+                                {showPassword ? <FaEyeSlash /> : <FaEye />}
+                            </button>
                         </div>
-                        <div style={{ position: 'relative', width: '100%' }}>
+
+                        {/* Password Strength Indicator */}
+                        {formData.password && (
+                            <div style={{ height: '4px', width: '100%', background: '#333', borderRadius: '2px', marginBottom: '1.2rem', marginTop: '-1rem', overflow: 'hidden' }}>
+                                <div style={{
+                                    height: '100%',
+                                    width: `${(passwordStrength / 5) * 100}%`,
+                                    background: getStrengthColor(),
+                                    transition: 'all 0.3s ease'
+                                }}></div>
+                            </div>
+                        )}
+
+                        <div className="form-group">
                             <input
-                                className="auth-input"
+                                className="form-input"
                                 type={showConfirmPassword ? "text" : "password"}
-                                placeholder="Re-enter Password"
+                                placeholder="Confirm Password"
                                 value={formData.confirmPassword}
                                 onChange={e => setFormData({ ...formData, confirmPassword: e.target.value })}
                                 required
-                                style={{ width: '100%', paddingRight: '40px' }}
                             />
-                            <span
+                            <div className="input-icon">🔐</div>
+                            <button
+                                type="button"
+                                className="password-toggle"
                                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                style={{
-                                    position: 'absolute',
-                                    right: '10px',
-                                    top: '50%',
-                                    transform: 'translateY(-50%)',
-                                    cursor: 'pointer',
-                                    color: 'rgba(0, 255, 255, 0.6)',
-                                    display: 'flex',
-                                    alignItems: 'center'
-                                }}
                             >
-                                {showConfirmPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
-                            </span>
+                                {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                            </button>
                         </div>
-                        <button className="auth-submit-btn" disabled={loading}>
-                            {loading ? <div className="spinner-mini" style={{ margin: '0 auto', borderColor: '#fff', borderTopColor: 'transparent' }}></div> : 'Sign Up'}
-                        </button>
 
+                        {error && (
+                            <div className="error-message" style={{
+                                color: '#ff4757',
+                                background: 'rgba(255, 71, 87, 0.1)',
+                                padding: '10px',
+                                borderRadius: '8px',
+                                marginBottom: '15px',
+                                textAlign: 'center',
+                                fontSize: '0.9rem',
+                                border: '1px solid rgba(255, 71, 87, 0.2)'
+                            }}>
+                                {error}
+                            </div>
+                        )}
+
+                        <button className="auth-btn-primary" disabled={loading}>
+                            {loading ? <div className="spinner-mini"></div> : 'Create Account'}
+                        </button>
                     </form>
-                    <div className="switch-auth">
-                        Already have an account? <span onClick={() => setView('login')}>Login</span>
+
+                    <div className="divider">
+                        <span>OR SIGNUP WITH</span>
+                    </div>
+
+                    <div className="social-login">
+                        <button className="social-btn">
+                            <FcGoogle size={22} />
+                            <span>Google</span>
+                        </button>
+                        <button className="social-btn">
+                            <FaMobileAlt size={20} color="#fff" />
+                            <span>Mobile OTP</span>
+                        </button>
+                    </div>
+
+                    <div className="auth-footer">
+                        Already have an account?
+                        <span className="link-text" onClick={() => setView('login')}>Login</span>
                     </div>
                 </div>
-                {error && <div style={{
-                    marginTop: '15px',
-                    padding: '10px',
-                    background: 'rgba(255, 0, 0, 0.1)',
-                    border: '1px solid red',
-                    borderRadius: '5px',
-                    color: '#ff4444',
-                    textAlign: 'center',
-                    fontWeight: 'bold',
-                    fontSize: '0.9rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '1px',
-                    boxShadow: '0 0 10px rgba(255, 0, 0, 0.2)'
-                }}>
-                    {error}
-                </div>}
             </div>
         </div>
     );

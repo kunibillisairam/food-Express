@@ -37,7 +37,7 @@ const Hero = ({ setView }) => {
                             </div>
                             <div className="stat-divider"></div>
                             <div className="stat-item">
-                                <span className="stat-value">4.9</span>
+                                <span className="stat-value">4.5</span>
                                 <FiStar className="star-icon" />
                                 <span className="stat-label">Avg Rating</span>
                             </div>

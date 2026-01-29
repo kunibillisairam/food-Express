@@ -20,7 +20,15 @@ const userSchema = new mongoose.Schema({
     usedCoupons: { type: [String], default: [] },
     role: { type: String, default: 'user' },
     fcmTokens: { type: [String], default: [] }, // Multi-device support
-    fcmToken: { type: String, default: '' } // Legacy Fallback
+    fcmToken: { type: String, default: '' }, // Legacy Fallback
+
+    // Referral System
+    referralCode: { type: String, unique: true, sparse: true },
+    referredBy: { type: String, default: null }, // Username of referrer
+    isReferralRewardClaimed: { type: Boolean, default: false },
+
+    // Personal Info
+    dob: { type: Date, default: null }
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

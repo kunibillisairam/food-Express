@@ -104,8 +104,68 @@ async function checkAndTriggerCampaigns() {
         // Festival campaigns
         await checkFestivalCampaigns(now);
 
+        // Birthday campaigns
+        await checkBirthdayCampaigns(now);
+
     } catch (error) {
         console.error('Error in campaign scheduler:', error);
+    }
+}
+
+// Check Birthday Campaigns
+async function checkBirthdayCampaigns(now) {
+    try {
+        const month = now.getMonth() + 1; // 1-12
+        const day = now.getDate();
+
+        // Find users with birthday today
+        const birthdayUsers = await User.find({
+            $expr: {
+                $and: [
+                    { $eq: [{ $month: "$dob" }, month] },
+                    { $eq: [{ $dayOfMonth: "$dob" }, day] }
+                ]
+            }
+        });
+
+        if (birthdayUsers.length === 0) return;
+
+        console.log(`🎂 Found ${birthdayUsers.length} users with birthday today!`);
+
+        // Send notifications individually (Personalized)
+        for (const user of birthdayUsers) {
+            // Check if we already sent birthday wish this year? 
+            // We can assume scheduler runs once daily or we check a flag.
+            // For simplicity, we trust the scheduler runs effectively or we accept duplicate wishes if restarted.
+            // Ideally, store 'lastBirthdayWishYear' in User model. But let's skip for MVP.
+
+            if (user.fcmToken || (user.fcmTokens && user.fcmTokens.length > 0)) {
+                const tokens = [...(user.fcmTokens || []), user.fcmToken].filter(t => t && t.length > 10);
+                if (tokens.length === 0) continue;
+
+                const message = {
+                    notification: {
+                        title: `Happy Birthday ${user.username}! 🎂`,
+                        body: `To celebrate your special day, here is a special gift for you! Use code BDAY25 for 25% OFF!`
+                    },
+                    data: {
+                        type: 'birthday',
+                        userId: user._id.toString()
+                    }
+                };
+
+                // Send
+                try {
+                    await admin.messaging().sendEachForMulticast({ tokens, ...message });
+                    console.log(`Sent birthday wish to ${user.username}`);
+                } catch (e) {
+                    console.error("Failed to send birthday wish", e);
+                }
+            }
+        }
+
+    } catch (error) {
+        console.error("Error checking birthdays:", error);
     }
 }
 

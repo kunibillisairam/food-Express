@@ -293,10 +293,10 @@ const Profile = ({ setView }) => {
                             <FaGift className="modal-main-icon color-refer" />
                             <h2>Refer & Earn</h2>
                             <p>Share this code with your friends and earn ₹50 when they place their first order!</p>
-                            <div className="referral-code-box" onClick={copyReferral}>
-                                SAI100 <span className="tap-to-copy">(Tap to copy)</span>
+                            <div className="referral-code-box" onClick={() => navigator.clipboard.writeText(user.referralCode)}>
+                                {user.referralCode || "LOADING..."} <span className="tap-to-copy">(Tap to copy)</span>
                             </div>
-                            <button className="action-btn" onClick={copyReferral} style={{ marginTop: '1rem' }}>Share Now</button>
+                            <button className="action-btn" onClick={() => { navigator.clipboard.writeText(user.referralCode); alert("Copied!"); }} style={{ marginTop: '1rem' }}>Share Now</button>
                         </div>
                     )}
 
@@ -919,7 +919,7 @@ const Profile = ({ setView }) => {
                         </div>
                     )}
                 </div>
-            </div>
+            </div >
         );
     };
 
@@ -939,6 +939,103 @@ const Profile = ({ setView }) => {
 
                     {/* RIGHT PANEL: Main Content */}
                     <div className="profile-main-content px-4">
+                        {/* Navigation Tabs */}
+                        <div className="profile-tabs" style={{ display: 'flex', overflowX: 'auto', gap: '15px', padding: '10px 0', borderBottom: '1px solid #eee', marginBottom: '20px' }}>
+                            {['profile', 'wallet', 'rewards', 'orders', 'address', 'help'].map(tab => (
+                                <button
+                                    key={tab}
+                                    onClick={() => setActiveTab(tab)}
+                                    className={`profile-tab-btn ${activeTab === tab ? 'active' : ''}`}
+                                    style={{
+                                        padding: '10px 20px',
+                                        background: activeTab === tab ? '#ff4757' : 'transparent',
+                                        color: activeTab === tab ? 'white' : '#666',
+                                        border: 'none',
+                                        borderRadius: '25px',
+                                        fontWeight: '600',
+                                        textTransform: 'capitalize',
+                                        whiteSpace: 'nowrap',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.3s'
+                                    }}
+                                >
+                                    {tab === 'rewards' ? '🏆 Rewards' : tab}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* REWARDS TAB */}
+                        {activeTab === 'rewards' && (
+                            <div className="rewards-section fade-in">
+                                <div className="rewards-card" style={{ background: 'linear-gradient(135deg, #FF9966, #FF5E62)', borderRadius: '20px', padding: '2rem', color: 'white', marginBottom: '2rem', boxShadow: '0 10px 30px rgba(255, 94, 98, 0.3)' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <div>
+                                            <h3 style={{ margin: 0, opacity: 0.9 }}>Available XP</h3>
+                                            <h1 style={{ margin: '0.5rem 0', fontSize: '3rem' }}>{user.xp || 0} <span style={{ fontSize: '1rem', opacity: 0.8 }}>XP</span></h1>
+                                            <div className="rank-badge" style={{ background: 'rgba(255,255,255,0.2)', padding: '5px 15px', borderRadius: '20px', display: 'inline-block', fontWeight: 'bold' }}>
+                                                🎖️ {user.rank || 'Cadet'}
+                                            </div>
+                                        </div>
+                                        <div style={{ textAlign: 'right' }}>
+                                            <FaAward style={{ fontSize: '4rem', opacity: 0.8 }} />
+                                        </div>
+                                    </div>
+
+                                    <div style={{ marginTop: '2rem' }}>
+                                        <p style={{ marginBottom: '10px', fontSize: '0.9rem' }}>Progress to Next Rank</p>
+                                        <div style={{ height: '8px', background: 'rgba(0,0,0,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
+                                            <div style={{ height: '100%', width: '70%', background: 'white', borderRadius: '4px' }}></div>
+                                        </div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '5px', fontSize: '0.8rem', opacity: 0.8 }}>
+                                            <span>Current</span>
+                                            <span>Next: Admiral</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="redeem-section" style={{ background: 'white', padding: '1.5rem', borderRadius: '20px', boxShadow: '0 5px 20px rgba(0,0,0,0.05)' }}>
+                                    <h3>💎 Redeem Points</h3>
+                                    <p style={{ color: '#666', marginBottom: '1.5rem' }}>Convert your hard-earned XP into Wallet Balance. 10 XP = ₹1.</p>
+
+                                    <div style={{ display: 'flex', gap: '10px' }}>
+                                        <button
+                                            onClick={async () => {
+                                                if (window.confirm(`Redeem 100 XP for ₹10?`)) {
+                                                    try {
+                                                        const res = await axios.post(`${API_BASE_URL}/api/users/redeem-xp`, { username: user.username, xpAmount: 100 });
+                                                        alert(res.data.message);
+                                                        window.location.reload(); // Simple reload to refresh data
+                                                    } catch (err) {
+                                                        alert(err.response?.data?.message || "Failed to redeem");
+                                                    }
+                                                }
+                                            }}
+                                            style={{ flex: 1, padding: '1rem', border: '2px solid #ff4757', color: '#ff4757', background: 'transparent', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                                        >
+                                            Redeem 100 XP
+                                        </button>
+                                        <button
+                                            onClick={async () => {
+                                                if (window.confirm(`Redeem ALL ${user.xp} XP for ₹${Math.floor(user.xp / 10)}?`)) {
+                                                    try {
+                                                        const res = await axios.post(`${API_BASE_URL}/api/users/redeem-xp`, { username: user.username, xpAmount: user.xp });
+                                                        alert(res.data.message);
+                                                        window.location.reload();
+                                                    } catch (err) {
+                                                        alert(err.response?.data?.message || "Failed to redeem");
+                                                    }
+                                                }
+                                            }}
+                                            style={{ flex: 1, padding: '1rem', background: '#ff4757', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                                        >
+                                            Redeem All
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* EXISTING PROFILE CONTENT (Hidden if not active) */}
                         {activeTab === 'profile' && (
                             <>
                                 {/* MOBILE VIEW */}
