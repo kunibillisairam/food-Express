@@ -48,12 +48,15 @@ export const AuthProvider = ({ children }) => {
                     const { requestForToken } = await import('../firebase');
                     const freshToken = await requestForToken();
                     if (freshToken) {
+                        // 3. Store token temporarily in localStorage
+                        localStorage.setItem('fcmToken', freshToken);
+
+                        // 4. Send token to backend via /save-fcm-token API
                         await axios.post(`${API_BASE_URL}/api/users/save-fcm-token`, {
                             username: loggedInUser.username,
                             token: freshToken
                         });
                         console.log("✅ FCM Token re-associated on successful login");
-                        localStorage.removeItem('tempFcmToken');
                     }
                 } catch (tokErr) {
                     console.warn("Post-login FCM sync failed", tokErr);
@@ -116,12 +119,11 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = async () => {
-        // Try to remove FCM token from backend before clearing local state
+        // 1. Send stored FCM token to backend logout API
         try {
-            const { requestForToken } = await import('../firebase');
-            const token = await requestForToken();
+            const token = localStorage.getItem('fcmToken');
             if (user && token) {
-                await axios.post(`${API_BASE_URL}/api/auth/logout`, {
+                await axios.post(`${API_BASE_URL}/api/users/logout`, {
                     username: user.username,
                     token
                 });
@@ -130,10 +132,10 @@ export const AuthProvider = ({ children }) => {
             console.warn("Backend logout notification failed", err.message);
         }
 
+        // 2. Clear token from localStorage
+        localStorage.removeItem('fcmToken');
         setUser(null);
         localStorage.removeItem('user');
-        // Clear anything related to notifications permission history if needed
-        // localStorage.removeItem('permissionStatus');
     };
 
     const updateUser = async (updates) => {

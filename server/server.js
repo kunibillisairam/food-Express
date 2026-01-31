@@ -545,8 +545,8 @@ app.post('/api/orders', async (req, res) => {
                 const message = {
                     tokens: targetTokens,
                     notification: {
-                        title: "✅ Order Confirmed!",
-                        body: `Your order #${randomOrderId} has been placed successfully and is being prepared.`
+                        title: "🍕 Order Placed Successfully",
+                        body: "Your order has been confirmed!"
                     },
                     data: {
                         orderId: savedOrder._id.toString(),
@@ -1186,8 +1186,8 @@ app.put('/api/users/:username', async (req, res) => {
     }
 });
 
-// POST /api/auth/logout -> Remove FCM token on logout
-app.post('/api/auth/logout', async (req, res) => {
+// POST /api/users/logout -> Remove device's FCM token from current user
+app.post('/api/users/logout', async (req, res) => {
     try {
         const { username, token } = req.body;
         if (username && token) {

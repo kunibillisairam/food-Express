@@ -32,13 +32,28 @@ if (firebaseConfig.apiKey) {
 
 export const requestForToken = async () => {
     if (!messaging) return null;
+
+    // Check if browser supports notifications
+    if (!('Notification' in window)) {
+        console.warn('This browser does not support notifications.');
+        return null;
+    }
+
     try {
+        // 1. Request Permission
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+            console.log('Notification permission not granted.');
+            return null;
+        }
+
         const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY;
         if (!vapidKey || vapidKey === 'REPLACE_WITH_YOUR_VAPID_KEY') {
             console.warn('VAPID Key is missing! Notifications will fail.');
             return null;
         }
 
+        // 2. Generate FCM token
         // Ensure Service Worker is ready before getting token
         if ('serviceWorker' in navigator) {
             const registration = await navigator.serviceWorker.ready;
