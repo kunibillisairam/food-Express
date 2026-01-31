@@ -560,13 +560,37 @@ app.post('/api/orders', async (req, res) => {
                 const response = await admin.messaging().sendEachForMulticast(message);
                 console.log(`[FCM] ✓ Sent: ${response.successCount}, ❌ Failed: ${response.failureCount}`);
 
+                // --- FAULT TOLERANCE: AUTOMATIC TOKEN CLEANUP ---
                 if (response.failureCount > 0) {
+                    const failedTokens = [];
                     response.responses.forEach((resp, idx) => {
                         if (!resp.success) {
-                            console.error(`[FCM Details] Token ${idx} failed: ${resp.error.message}`);
+                            const errorCode = resp.error.code;
+                            const errorMessage = resp.error.message;
+                            const failedToken = targetTokens[idx];
+
+                            console.error(`[FCM Details] Token failure: ${errorCode} - ${errorMessage}`);
+
+                            if (errorCode === 'messaging/registration-token-not-registered' ||
+                                errorCode === 'messaging/invalid-argument') {
+                                failedTokens.push(failedToken);
+                            }
                         }
                     });
+
+                    if (failedTokens.length > 0) {
+                        try {
+                            await User.updateOne(
+                                { _id: user._id },
+                                { $pull: { fcmTokens: { $in: failedTokens } } }
+                            );
+                            console.log(`[FCM Cleanup] Removed ${failedTokens.length} invalid/expired tokens.`);
+                        } catch (cleanupErr) {
+                            console.error("[FCM Cleanup Error]", cleanupErr);
+                        }
+                    }
                 }
+                // ------------------------------------------------
             } catch (fcmError) {
                 console.error(`[FCM Error] Multi-cast failed:`, fcmError.message);
             }
