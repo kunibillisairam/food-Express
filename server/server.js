@@ -875,6 +875,7 @@ app.post('/api/users/redeem-xp', async (req, res) => {
 app.post('/api/auth/signup', async (req, res) => {
     try {
         const { username, email, password, phone, referralCode } = req.body;
+        console.log(`[Signup Attempt] User: ${username}, Email: ${email}, Phone: ${phone}`);
 
         // Check if user exists (by username, email, or phone)
         const existingUser = await User.findOne({

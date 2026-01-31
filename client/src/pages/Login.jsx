@@ -227,13 +227,22 @@ const Login = ({ setView }) => {
                                 />
                                 <span>Remember me</span>
                             </label>
-                            <span
+                            <button
+                                type="button"
                                 className="forgot-password"
-                                style={{ cursor: 'pointer', color: 'rgba(255,255,255,0.7)' }}
+                                style={{
+                                    cursor: 'pointer',
+                                    color: 'rgba(255,255,255,0.7)',
+                                    background: 'none',
+                                    border: 'none',
+                                    fontSize: '0.85rem',
+                                    fontFamily: 'inherit',
+                                    padding: '5px'
+                                }}
                                 onClick={() => setAuthMode('forgot')}
                             >
                                 Forgot Password?
-                            </span>
+                            </button>
                         </div>
 
                         {error && (

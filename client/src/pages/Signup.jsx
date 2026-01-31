@@ -66,6 +66,7 @@ const Signup = ({ setView }) => {
         }
 
         if (formData.username && formData.email && formData.phone && formData.password) {
+            console.log("[Signup] Form data valid, calling AuthContext.signup", formData);
             try {
                 // Simulate minimum loading time for animation
                 const start = Date.now();
@@ -87,12 +88,15 @@ const Signup = ({ setView }) => {
                     toast.success('Account created! Please login.');
                     setView('login');
                 } else {
-                    setError(res.message);
-                    toast.error(res.message);
+                    const errorMsg = typeof res.message === 'string' ? res.message : JSON.stringify(res.message);
+                    setError(errorMsg);
+                    toast.error(errorMsg);
                 }
             } catch (err) {
-                setError("An unexpected error occurred");
-                toast.error("An unexpected error occurred");
+                console.error("Signup Client Error:", err);
+                const errorDetail = err.response?.data?.message || err.message || "An unexpected error occurred";
+                setError(errorDetail);
+                toast.error(errorDetail);
             } finally {
                 setLoading(false);
             }

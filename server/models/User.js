@@ -10,9 +10,9 @@ const transactionSchema = new mongoose.Schema({
 
 const userSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true },
-    email: { type: String, required: true, unique: true },
+    email: { type: String, required: true, unique: true, sparse: true },
     password: { type: String, required: true },
-    phone: { type: String, required: true, unique: true },
+    phone: { type: String, required: true, unique: true, sparse: true },
     address: { type: String, default: '' },
     walletBalance: { type: Number, default: 0 },
     credits: { type: Number, default: 0 },
@@ -38,14 +38,13 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Password Hashing Middleware
-userSchema.pre('save', async function (next) {
-    if (!this.isModified('password')) return next();
+userSchema.pre('save', async function () {
+    if (!this.isModified('password')) return;
     try {
         const salt = await bcrypt.genSalt(10);
         this.password = await bcrypt.hash(this.password, salt);
-        next();
     } catch (err) {
-        next(err);
+        throw err;
     }
 });
 

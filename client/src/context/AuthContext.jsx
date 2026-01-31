@@ -101,10 +101,15 @@ export const AuthProvider = ({ children }) => {
 
     const signup = async (userData) => {
         try {
+            console.log(`[AuthContext] Sending signup request to: ${API_BASE_URL}/api/auth/signup`, userData);
             const res = await axios.post(`${API_BASE_URL}/api/auth/signup`, userData);
             return { success: true };
         } catch (err) {
-            console.error("Signup Error:", err);
+            console.error("Signup Error Detail:", {
+                message: err.message,
+                response: err.response?.data,
+                status: err.response?.status
+            });
             const msg = err.response?.data?.message || err.response?.data?.error || 'Signup failed';
             return { success: false, message: msg };
         }

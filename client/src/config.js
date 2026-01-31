@@ -5,9 +5,16 @@ const getBaseUrl = () => {
 
     const hostname = window.location.hostname;
 
-    // If running on localhost or local network IP, assume local backend
-    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.')) {
-        return "http://localhost:5000";
+    // LOCAL NETWORK & DEVELOPMENT
+    // This allows mobile devices on the same Wi-Fi to connect automatically
+    if (
+        hostname === 'localhost' ||
+        hostname === '127.0.0.1' ||
+        hostname.startsWith('192.168.') ||
+        hostname.startsWith('10.') ||
+        hostname.endsWith('.local')
+    ) {
+        return `http://${hostname}:5000`;
     }
 
     // PRODUCTION BACKEND
