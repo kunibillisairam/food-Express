@@ -541,7 +541,9 @@ app.post('/api/orders', async (req, res) => {
 
         if (user && targetTokens.length > 0 && admin.apps.length > 0) {
             try {
-                console.log(`[FCM] Sending to ${targetTokens.length} devices...`);
+                console.log(`[FCM] Sending to ${targetTokens.length} devices for ${user.username}...`);
+                console.log(`[FCM] Targets: ${targetTokens.map(t => t.substring(0, 10) + '...').join(', ')}`);
+
                 const message = {
                     tokens: targetTokens,
                     notification: {
@@ -556,11 +558,20 @@ app.post('/api/orders', async (req, res) => {
                 };
 
                 const response = await admin.messaging().sendEachForMulticast(message);
-                console.log(`[FCM] ✓ Notification sent successfully to ${response.successCount} / ${targetTokens.length} devices.`);
+                console.log(`[FCM] ✓ Sent: ${response.successCount}, ❌ Failed: ${response.failureCount}`);
+
+                if (response.failureCount > 0) {
+                    response.responses.forEach((resp, idx) => {
+                        if (!resp.success) {
+                            console.error(`[FCM Details] Token ${idx} failed: ${resp.error.message}`);
+                        }
+                    });
+                }
             } catch (fcmError) {
-                console.error(`[FCM Error] Failed to send notification:`, fcmError.message);
+                console.error(`[FCM Error] Multi-cast failed:`, fcmError.message);
             }
-        } else {
+        }
+        else {
             console.log("[FCM Skip] No valid tokens found or Admin not initialized.");
         }
         // ------------------------------
@@ -1136,7 +1147,10 @@ async function associateFcmToken(username, token) {
     // 2. Add to the new user (case-insensitive username search for safety)
     const updateResult = await User.findOneAndUpdate(
         { username: { $regex: new RegExp("^" + username + "$", "i") } },
-        { $addToSet: { fcmTokens: token } },
+        {
+            $addToSet: { fcmTokens: token },
+            $set: { fcmToken: token } // Keep legacy field synced
+        },
         { new: true }
     );
 

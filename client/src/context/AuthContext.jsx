@@ -19,6 +19,9 @@ export const AuthProvider = ({ children }) => {
                 const token = await requestForToken();
                 if (token) {
                     try {
+                        // Keep local reference for logout/session
+                        localStorage.setItem('fcmToken', token);
+
                         await axios.post(`${API_BASE_URL}/api/users/save-fcm-token`, {
                             username: parsedUser.username,
                             token
