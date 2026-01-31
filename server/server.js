@@ -396,7 +396,8 @@ app.post('/api/orders', async (req, res) => {
         const { userName, items, totalAmount, couponCode, address, paymentMethod, useXp } = req.body;
         console.log(`[Order] Received order from ${userName}, Address: ${address}, Method: ${paymentMethod}, Use XP: ${useXp}`);
 
-        const user = await User.findOne({ username: userName });
+        // Use case-insensitive lookup for safety
+        const user = await User.findOne({ username: { $regex: new RegExp("^" + userName + "$", "i") } });
         let earnedXp = 0;
         let earnedCredits = 0;
         let xpDeducted = 0;
@@ -504,7 +505,14 @@ app.post('/api/orders', async (req, res) => {
             xpUsed: xpDeducted,
             orderId: randomOrderId
         });
-        const savedOrder = await newOrder.save();
+
+        let savedOrder;
+        try {
+            savedOrder = await newOrder.save();
+        } catch (saveErr) {
+            console.error("[Order Save Error]", saveErr);
+            return res.status(500).json({ error: "Database save failed", details: saveErr.message });
+        }
 
         // Automatically delete orders beyond the last 10 for this user
         try {
@@ -557,10 +565,11 @@ app.post('/api/orders', async (req, res) => {
         }
         // ------------------------------
 
-        res.status(201).json({ ...savedOrder._doc, earnedXp, earnedCredits, xpUsed: xpDeducted });
+        const orderObj = savedOrder.toObject ? savedOrder.toObject() : savedOrder;
+        res.status(201).json({ ...orderObj, earnedXp, earnedCredits, xpUsed: xpDeducted });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: err.message });
+        console.error("[Critical Order Error]", err);
+        res.status(500).json({ error: "Order placement failed", message: err.message });
     }
 });
 

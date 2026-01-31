@@ -8,6 +8,7 @@ const MobileNotificationDebug = ({ user, updateUser }) => {
     const [status, setStatus] = useState('checking');
     const [tokenExists, setTokenExists] = useState(false);
     const [isClearing, setIsClearing] = useState(false);
+    const [isSecure, setIsSecure] = useState(true);
 
     useEffect(() => {
         const check = () => {
@@ -16,6 +17,7 @@ const MobileNotificationDebug = ({ user, updateUser }) => {
                 return;
             }
             setStatus(Notification.permission);
+            setIsSecure(window.isSecureContext);
             // Check if user has token in DB or LocalStorage
             if (user?.fcmTokens?.length > 0 || user?.fcmToken || localStorage.getItem('tempFcmToken')) {
                 setTokenExists(true);
@@ -78,6 +80,7 @@ const MobileNotificationDebug = ({ user, updateUser }) => {
             </div>
 
             <div style={{ fontSize: '0.75rem', color: '#666', marginBottom: '15px' }}>
+                {!isSecure && <div style={{ color: '#ff4757', fontWeight: 'bold', marginBottom: '5px' }}>⚠️ INSECURE ORIGIN: Mobile browsers block notifications on HTTP. Use Localtunnel or HTTPS.</div>}
                 {status === 'denied' && "You blocked notifications. Please reset them in Browser Settings."}
                 {status === 'default' && "Tap 'Enable' below to allow permissions."}
                 {status === 'granted' && !tokenExists && "Permission granted but no connection. Tap Re-Sync."}
