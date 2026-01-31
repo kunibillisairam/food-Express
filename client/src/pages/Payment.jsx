@@ -164,6 +164,8 @@ const Payment = ({ setView }) => {
                 });
             }
 
+            const senderToken = localStorage.getItem('fcmToken');
+
             const orderData = {
                 userName: user?.username || 'Guest',
                 items: cart.map(item => ({
@@ -177,7 +179,8 @@ const Payment = ({ setView }) => {
                 paymentMethod: method,
                 address: addressToUse || 'No Address Provided',
                 couponCode: appliedCoupon,
-                useXp: useXp
+                useXp: useXp,
+                senderToken: senderToken // Pass current device token to exclude it from push
             };
 
             const response = await axios.post(`${API_BASE_URL}/api/orders`, orderData);

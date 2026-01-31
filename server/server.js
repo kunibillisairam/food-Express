@@ -393,7 +393,7 @@ const calculateRank = (xp) => {
 // POST /api/orders
 app.post('/api/orders', async (req, res) => {
     try {
-        const { userName, items, totalAmount, couponCode, address, paymentMethod, useXp } = req.body;
+        const { userName, items, totalAmount, couponCode, address, paymentMethod, useXp, senderToken } = req.body;
         console.log(`[Order] Received order from ${userName}, Address: ${address}, Method: ${paymentMethod}, Use XP: ${useXp}`);
 
         // Use case-insensitive lookup for safety
@@ -527,16 +527,16 @@ app.post('/api/orders', async (req, res) => {
             console.error("[Cleanup Error]", cleanupErr);
         }
 
-        // --- FCM NOTIFICATION LOGIC (MULTI-DEVICE + LEGACY) ---
-        // Collect all tokens
+        // Collect all tokens and filter out the one that sent the request (senderToken)
         const allTokens = new Set(user?.fcmTokens || []);
         if (user?.fcmToken) allTokens.add(user.fcmToken);
-        const targetTokens = Array.from(allTokens).filter(t => t && t.length > 10);
+
+        // PRODUCTION LOGIC: Exclude the device that placed the order
+        const targetTokens = Array.from(allTokens).filter(t => t && t.length > 10 && t !== senderToken);
 
         console.log('[FCM Debug] Notification target check:');
         console.log(`[FCM Debug] User: ${user?.username}`);
-        console.log(`[FCM Debug] Array Tokens: ${user?.fcmTokens?.length || 0}`);
-        console.log(`[FCM Debug] Legacy Token: ${user?.fcmToken ? 'Yes' : 'No'}`);
+        console.log(`[FCM Debug] Sender Token (Excluded): ${senderToken ? senderToken.substring(0, 10) + '...' : 'None'}`);
         console.log(`[FCM Debug] Final Target Count: ${targetTokens.length}`);
 
         if (user && targetTokens.length > 0 && admin.apps.length > 0) {
