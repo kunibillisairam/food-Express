@@ -20,7 +20,9 @@ export const registerForPush = async (username) => {
             return;
         }
 
-        console.log("🔥 FCM TOKEN:", token);
+        // 🔥 CRITICAL FIX: Store locally to identify THIS device
+        localStorage.setItem("fcmToken", token);
+        console.log("🔥 DEVICE FCM TOKEN:", token);
 
         // Send to backend
         const response = await fetch(`${API_BASE_URL}/api/users/save-fcm-token`, {
