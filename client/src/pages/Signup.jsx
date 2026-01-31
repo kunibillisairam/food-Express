@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import './Auth.css';
 
 const Signup = ({ setView }) => {
-    const [formData, setFormData] = useState({ username: '', phone: '', password: '', confirmPassword: '' });
+    const [formData, setFormData] = useState({ username: '', email: '', phone: '', password: '', confirmPassword: '' });
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const { signup } = useContext(AuthContext);
@@ -56,13 +56,23 @@ const Signup = ({ setView }) => {
             return;
         }
 
-        if (formData.username && formData.phone && formData.password) {
+        // Basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+            setError("Please enter a valid email address");
+            toast.error("Please enter a valid email address");
+            setLoading(false);
+            return;
+        }
+
+        if (formData.username && formData.email && formData.phone && formData.password) {
             try {
                 // Simulate minimum loading time for animation
                 const start = Date.now();
 
                 const res = await signup({
                     username: formData.username,
+                    email: formData.email,
                     phone: formData.phone,
                     password: formData.password
                 });
@@ -145,6 +155,18 @@ const Signup = ({ setView }) => {
                                 required
                             />
                             <FaUser className="input-icon" />
+                        </div>
+
+                        <div className="form-group">
+                            <input
+                                className="form-input"
+                                placeholder="Email Address"
+                                type="email"
+                                value={formData.email}
+                                onChange={e => setFormData({ ...formData, email: e.target.value })}
+                                required
+                            />
+                            <div className="input-icon">📧</div>
                         </div>
 
                         <div className="form-group">

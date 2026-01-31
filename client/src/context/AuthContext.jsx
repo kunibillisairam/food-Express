@@ -33,16 +33,17 @@ export const AuthProvider = ({ children }) => {
         }
     }, []);
 
-    const login = async (username, password) => {
+    const login = async (phone, password) => {
         try {
-            const res = await axios.post(`${API_BASE_URL}/api/auth/login`, { username, password });
+            // Updated to use phone+password
+            const res = await axios.post(`${API_BASE_URL}/api/auth/login`, { phone, password });
             if (res.data.success) {
                 const loggedInUser = res.data.user;
 
                 setUser(loggedInUser);
                 localStorage.setItem('user', JSON.stringify(loggedInUser));
 
-                // Always try to get a fresh token on login and associate it (replaces temp token logic)
+                // Always try to get a fresh token on login and associate it
                 try {
                     const { requestForToken } = await import('../firebase');
                     const freshToken = await requestForToken();
@@ -63,6 +64,37 @@ export const AuthProvider = ({ children }) => {
         } catch (err) {
             console.error("Login Error:", err);
             const msg = err.response?.data?.message || err.response?.data?.error || 'Login failed';
+            return { success: false, message: msg };
+        }
+    };
+
+    // New Forgot Password Methods
+    const forgotPassword = async (email) => {
+        try {
+            const res = await axios.post(`${API_BASE_URL}/api/auth/forgot-password`, { email });
+            return { success: true, message: res.data.message };
+        } catch (err) {
+            const msg = err.response?.data?.message || 'Failed to send OTP';
+            return { success: false, message: msg };
+        }
+    };
+
+    const verifyOtp = async (email, otp) => {
+        try {
+            const res = await axios.post(`${API_BASE_URL}/api/auth/verify-otp`, { email, otp });
+            return { success: true, message: res.data.message };
+        } catch (err) {
+            const msg = err.response?.data?.message || 'Invalid OTP';
+            return { success: false, message: msg };
+        }
+    };
+
+    const resetPassword = async (email, otp, newPassword) => {
+        try {
+            const res = await axios.post(`${API_BASE_URL}/api/auth/reset-password`, { email, otp, newPassword });
+            return { success: true, message: res.data.message };
+        } catch (err) {
+            const msg = err.response?.data?.message || 'Failed to reset password';
             return { success: false, message: msg };
         }
     };
@@ -117,7 +149,16 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, signup, logout, updateUser }}>
+        <AuthContext.Provider value={{
+            user,
+            login,
+            signup,
+            logout,
+            updateUser,
+            forgotPassword,
+            verifyOtp,
+            resetPassword
+        }}>
             {children}
         </AuthContext.Provider>
     );

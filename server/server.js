@@ -60,11 +60,23 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 require('dotenv').config();
 
+const nodemailer = require('nodemailer');
+const bcrypt = require('bcryptjs');
+
 const Order = require('./models/Order');
 const User = require('./models/User');
 const Review = require('./models/Review');
 const Campaign = require('./models/Campaign');
 const { startCampaignScheduler, sendCampaignNotification, INDIAN_FESTIVALS } = require('./campaignScheduler');
+
+// Email Transporter for Forgot Password OTP
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
+});
 
 const http = require('http');
 const { Server } = require('socket.io');
@@ -862,15 +874,22 @@ app.post('/api/users/redeem-xp', async (req, res) => {
 // POST /api/auth/signup
 app.post('/api/auth/signup', async (req, res) => {
     try {
-        const { username, password, phone, referralCode } = req.body;
+        const { username, email, password, phone, referralCode } = req.body;
 
-        // Check if user exists
-        const existingUser = await User.findOne({ username });
+        // Check if user exists (by username, email, or phone)
+        const existingUser = await User.findOne({
+            $or: [{ username }, { email }, { phone }]
+        });
+
         if (existingUser) {
-            return res.status(400).json({ message: 'User already exists' });
+            let field = 'User';
+            if (existingUser.username === username) field = 'Username';
+            else if (existingUser.email === email) field = 'Email';
+            else if (existingUser.phone === phone) field = 'Phone number';
+            return res.status(400).json({ message: `${field} already registered` });
         }
 
-        // Generate unique referral code for new user (e.g. SAI932)
+        // Generate unique referral code for new user
         const myReferralCode = (username.substring(0, 3).toUpperCase() + Math.floor(100 + Math.random() * 900)).replace(/\s/g, '');
 
         let referredBy = null;
@@ -883,7 +902,8 @@ app.post('/api/auth/signup', async (req, res) => {
 
         const newUser = new User({
             username,
-            password,
+            email,
+            password, // Will be hashed by mongoose middleware
             phone,
             referralCode: myReferralCode,
             referredBy: referredBy
@@ -899,22 +919,126 @@ app.post('/api/auth/signup', async (req, res) => {
 // POST /api/auth/login
 app.post('/api/auth/login', async (req, res) => {
     try {
-        const { username, password } = req.body;
+        const { phone, password, username } = req.body; // Accept both for backward/admin support
 
-        // Admin hardcoded check (optional, or move to DB)
-        if (username === 'admin' && password === 'admin') {
+        // Admin hardcoded check
+        if ((phone === 'admin' || username === 'admin') && password === 'admin') {
             return res.json({
                 success: true,
                 user: { username: 'admin', role: 'admin', walletBalance: 999999 }
             });
         }
 
-        const user = await User.findOne({ username, password });
+        // Find user by phone (new primary) or username (legacy fallback)
+        const user = await User.findOne({
+            $or: [{ phone: phone || '' }, { username: username || phone || '' }]
+        });
+
         if (!user) {
+            return res.status(400).json({ message: 'User not found' });
+        }
+
+        // Check password using bcrypt method
+        const isMatch = await user.comparePassword(password);
+        if (!isMatch) {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
 
         res.json({ success: true, user });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// POST /api/auth/forgot-password -> Send OTP to Email
+app.post('/api/auth/forgot-password', async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User with this email does not exist' });
+        }
+
+        // Generate 6-digit OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        user.resetPasswordOTP = otp;
+        user.resetPasswordExpires = Date.now() + 600000; // 10 minutes
+        await user.save();
+
+        // Send Email
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: user.email,
+            subject: 'FoodExpress Password Reset OTP',
+            html: `
+                <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                    <h2 style="color: #ff4757;">FoodExpress Password Reset</h2>
+                    <p>Hello ${user.username},</p>
+                    <p>Your OTP for resetting password is:</p>
+                    <div style="font-size: 24px; font-weight: bold; padding: 10px; background: #f8f9fa; text-align: center; border-radius: 5px;">
+                        ${otp}
+                    </div>
+                    <p>This OTP is valid for 10 minutes.</p>
+                    <p>If you didn't request this, please ignore this email.</p>
+                </div>
+            `
+        };
+
+        if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+            await transporter.sendMail(mailOptions);
+            res.json({ success: true, message: 'OTP sent to your email' });
+        } else {
+            console.log("SIMULATING EMAIL (No Credentials): OTP is", otp);
+            res.json({ success: true, message: 'OTP sent (Simulation Mode: Check Server Logs)', otp: otp });
+        }
+
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// POST /api/auth/verify-otp
+app.post('/api/auth/verify-otp', async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+        const user = await User.findOne({
+            email,
+            resetPasswordOTP: otp,
+            resetPasswordExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid or expired OTP' });
+        }
+
+        res.json({ success: true, message: 'OTP verified' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// POST /api/auth/reset-password
+app.post('/api/auth/reset-password', async (req, res) => {
+    try {
+        const { email, otp, newPassword } = req.body;
+        const user = await User.findOne({
+            email,
+            resetPasswordOTP: otp,
+            resetPasswordExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid or expired OTP session' });
+        }
+
+        // Update password and clear OTP
+        user.password = newPassword; // Hashing handled by pre-save
+        user.resetPasswordOTP = null;
+        user.resetPasswordExpires = null;
+        await user.save();
+
+        res.json({ success: true, message: 'Password has been reset successfully' });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
