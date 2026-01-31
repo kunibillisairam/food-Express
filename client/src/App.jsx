@@ -47,40 +47,58 @@ const Main = () => {
     window.addEventListener('offline', handleOffline);
 
     // FCM Foreground Message Listener
-    // FCM Foreground Message Listener
     onMessageListener((payload) => {
-      console.log('[FCM] Foreground message received:', payload);
-      if (payload && payload.notification) {
-        // Show notification when app is open
-        // Using Toast for better in-app experience + System Notification
-        import('react-hot-toast').then(({ toast }) => {
-          toast(
-            (t) => (
-              <div onClick={() => {
-                toast.dismiss(t.id);
-                if (payload.data?.orderId) handleViewChange('my-orders');
-              }}>
-                <div style={{ fontWeight: 'bold' }}>{payload.notification.title}</div>
-                <div style={{ fontSize: '0.9em' }}>{payload.notification.body}</div>
-              </div>
-            ),
-            { duration: 4000, icon: '🔔' }
-          );
-        });
+      console.log('🔥 [FCM] Foreground message received:', payload);
 
-        // Also try system notification if visible
-        if (Notification.permission === 'granted') {
-          new Notification(payload.notification.title, {
-            body: payload.notification.body,
-            icon: '/logo.png',
-            tag: payload.data?.orderId || 'food-express'
-          });
-        }
+      const title = payload.notification?.title || "New Message";
+      const body = payload.notification?.body || "Check your app for updates.";
+
+      // 1. Show Toast
+      import('react-hot-toast').then(({ toast }) => {
+        toast((t) => (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ fontSize: '1.5rem' }}>🔔</div>
+            <div>
+              <div style={{ fontWeight: 'bold' }}>{title}</div>
+              <div style={{ fontSize: '0.8rem' }}>{body}</div>
+            </div>
+          </div>
+        ), {
+          duration: 6000,
+          position: 'top-right',
+          style: {
+            background: '#2d3436',
+            color: '#fff',
+            borderRadius: '12px',
+            border: '2px solid #55efc4'
+          }
+        });
+      });
+
+      // 2. Play Sound (Optional)
+      console.log('🔊 Playing notification sound effect...');
+
+      // 3. System Notification (if permission granted and browser supports)
+      if (window.Notification && Notification.permission === 'granted') {
+        const n = new Notification(title, {
+          body: body,
+          icon: '/logo.png',
+          tag: 'food-express-order'
+        });
+        n.onclick = () => {
+          window.focus();
+          n.close();
+        };
       }
     });
 
+    // Initial check for permission
+    if (window.Notification) {
+      console.log(`[Notification] Current Permission: ${Notification.permission}`);
+    }
+
     return () => {
-      cleanup();
+      if (cleanup) cleanup();
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };

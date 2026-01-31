@@ -28,6 +28,7 @@ try {
     }
 
     // Local Development Fallback
+    // Local Development Fallback
     if (!serviceAccount) {
         try {
             serviceAccount = require('./serviceAccountKey.json');
@@ -40,15 +41,17 @@ try {
     if (serviceAccount) {
         if (!admin.apps.length) { // Prevent double initialization
             admin.initializeApp({
-                credential: admin.credential.cert(serviceAccount)
+                credential: admin.credential.cert(serviceAccount),
+                projectId: serviceAccount.project_id // Explicitly set it
             });
             console.log("🔥 Firebase Admin Initialized Successfully");
+            console.log(`[Firebase] Project: ${admin.app().options.projectId}`);
         }
     } else {
-        console.warn("Warning: Firebase Admin NOT initialized. Missing credentials.");
+        console.warn("⚠️ Warning: Firebase Admin NOT initialized. Missing credentials (Check serviceAccountKey.json).");
     }
 } catch (error) {
-    console.warn("Warning: Firebase Admin initialization failed:", error.message);
+    console.error("❌ CRITICAL: Firebase Admin initialization failed:", error);
 }
 
 const express = require('express');
@@ -131,12 +134,14 @@ mongoose.connect(MONGO_URI)
 // Debugging: Log that routes are initializing
 console.log("Initializing Routes...");
 
-// Health Check - MOVED TO TOP
+// Health Check
 app.get('/api/health', (req, res) => {
     res.json({
         status: 'ok',
         mongoConnected: mongoose.connection.readyState === 1,
         socketActive: !!io,
+        firebaseInitialized: admin.apps.length > 0,
+        firebaseProject: admin.apps.length > 0 ? admin.app().options.projectId : 'N/A',
         timestamp: new Date()
     });
 });
@@ -329,7 +334,7 @@ app.put('/api/orders/:id/status', async (req, res) => {
 
             if (user && targetTokens.length > 0 && admin.apps.length > 0) {
                 try {
-                    const response = await admin.messaging().sendEachForMulticast({
+                    const message = {
                         tokens: targetTokens,
                         notification: {
                             title: `Order ${status} 🚚`,
@@ -339,12 +344,21 @@ app.put('/api/orders/:id/status', async (req, res) => {
                             orderId: order._id.toString(),
                             status: status
                         }
-                    });
-                    console.log(`[FCM] Status update sent to ${response.successCount} devices for ${order.userName}`);
+                    };
+                    console.log(`[FCM] Sending multicast message to ${targetTokens.length} tokens for order ${order._id}`);
+                    const response = await admin.messaging().sendEachForMulticast(message);
+                    console.log(`[FCM] Success: ${response.successCount}, Failure: ${response.failureCount}`);
+                    if (response.failureCount > 0) {
+                        response.responses.forEach((resp, idx) => {
+                            if (!resp.success) {
+                                console.error(`[FCM Error] Token ${targetTokens[idx].slice(0, 10)}... failed:`, resp.error.message);
+                            }
+                        });
+                    }
 
                     // Cleanup failed tokens (Optional enhancement for later)
                 } catch (fcmErr) {
-                    console.error("[FCM Error]", fcmErr.message);
+                    console.error("[FCM Critical Error]", fcmErr.message);
                 }
             }
         }
@@ -967,6 +981,38 @@ app.post('/api/users/test-notification', async (req, res) => {
     }
 });
 
+// Helper to safely associate FCM token with a user and remove it from others (Shared device fix)
+async function associateFcmToken(username, token) {
+    if (!token || !username) return;
+
+    // 1. Remove this token from EVERY other user (Clean up shared devices)
+    // We search both array and legacy field
+    const cleaningResult = await User.updateMany(
+        { $or: [{ fcmTokens: token }, { fcmToken: token }] },
+        {
+            $pull: { fcmTokens: token },
+            $set: { fcmToken: '' }
+        }
+    );
+
+    if (cleaningResult.modifiedCount > 0) {
+        console.log(`[FCM] Token detached from ${cleaningResult.modifiedCount} previous accounts.`);
+    }
+
+    // 2. Add to the new user (case-insensitive username search for safety)
+    const updateResult = await User.findOneAndUpdate(
+        { username: { $regex: new RegExp("^" + username + "$", "i") } },
+        { $addToSet: { fcmTokens: token } },
+        { new: true }
+    );
+
+    if (updateResult) {
+        console.log(`[FCM] Token associated with ${updateResult.username}. Current token count: ${updateResult.fcmTokens.length}`);
+    } else {
+        console.error(`[FCM Error] Could not find user ${username} to associate token.`);
+    }
+}
+
 // POST /api/users/save-fcm-token -> Save Multi-Device Token
 app.post('/api/users/save-fcm-token', async (req, res) => {
     try {
@@ -975,24 +1021,7 @@ app.post('/api/users/save-fcm-token', async (req, res) => {
         if (!token) return res.status(400).json({ message: "Token missing" });
         if (!username) return res.status(400).json({ message: "Username missing" });
 
-        const user = await User.findOne({ username });
-
-        if (!user) return res.status(404).json({ message: "User not found" });
-
-        // Ensure array exists
-        if (!user.fcmTokens) {
-            user.fcmTokens = [];
-        }
-
-        // Add token if not exists
-        if (!user.fcmTokens.includes(token)) {
-            user.fcmTokens.push(token);
-            await user.save();
-            console.log(`✅ FCM TOKEN SAVED for ${username}:`, token.slice(0, 20) + "...");
-        } else {
-            console.log(`ℹ️ FCM Token already exists for ${username}`);
-        }
-
+        await associateFcmToken(username, token);
         res.json({ success: true });
     } catch (err) {
         console.error("Save token error:", err);
@@ -1007,12 +1036,9 @@ app.put('/api/users/:username', async (req, res) => {
         const { username } = req.params;
         const updates = req.body;
 
-        // Special handling for FCM Token (Add to array)
+        // Special handling for FCM Token (Add to array + Cleanup)
         if (updates.fcmToken) {
-            await User.findOneAndUpdate(
-                { username },
-                { $addToSet: { fcmTokens: updates.fcmToken } }
-            );
+            await associateFcmToken(username, updates.fcmToken);
             delete updates.fcmToken; // Remove from standard updates
         }
 
@@ -1021,6 +1047,38 @@ app.put('/api/users/:username', async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
         res.json(user);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// POST /api/auth/logout -> Remove FCM token on logout
+app.post('/api/auth/logout', async (req, res) => {
+    try {
+        const { username, token } = req.body;
+        if (username && token) {
+            await User.findOneAndUpdate(
+                { username },
+                { $pull: { fcmTokens: token } }
+            );
+            console.log(`[FCM] Token removed for ${username} on logout.`);
+        }
+        res.json({ success: true });
+    } catch (err) {
+        console.error("Logout error:", err);
+        res.status(500).json({ error: "Logout partially failed" });
+    }
+});
+
+// POST /api/users/clear-fcm-tokens -> Emergency Cleanup
+app.post('/api/users/clear-fcm-tokens', async (req, res) => {
+    try {
+        const { username } = req.body;
+        await User.findOneAndUpdate(
+            { username },
+            { $set: { fcmTokens: [], fcmToken: '' } }
+        );
+        res.json({ success: true, message: "All tokens cleared for " + username });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

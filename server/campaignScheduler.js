@@ -21,14 +21,29 @@ const INDIAN_FESTIVALS = [
 // Send FCM notification to all users
 async function sendCampaignNotification(campaign) {
     try {
-        const users = await User.find({ fcmToken: { $exists: true, $ne: null } });
+        // Fetch users who have either fcmToken (legacy) or items in fcmTokens (multi-device)
+        const users = await User.find({
+            $or: [
+                { fcmToken: { $exists: true, $ne: null, $ne: '' } },
+                { fcmTokens: { $exists: true, $not: { $size: 0 } } }
+            ]
+        });
 
         if (users.length === 0) {
             console.log('No users with FCM tokens found');
             return;
         }
 
-        const tokens = users.map(user => user.fcmToken).filter(token => token);
+        // Collect all unique tokens from all users
+        let allTokens = new Set();
+        users.forEach(user => {
+            if (user.fcmToken) allTokens.add(user.fcmToken);
+            if (user.fcmTokens && user.fcmTokens.length > 0) {
+                user.fcmTokens.forEach(t => allTokens.add(t));
+            }
+        });
+
+        const tokens = Array.from(allTokens).filter(token => token && token.length > 10);
 
         if (tokens.length === 0) {
             console.log('No valid FCM tokens found');

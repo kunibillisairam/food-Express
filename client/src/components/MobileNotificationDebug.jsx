@@ -7,6 +7,7 @@ import { requestForToken } from '../firebase';
 const MobileNotificationDebug = ({ user, updateUser }) => {
     const [status, setStatus] = useState('checking');
     const [tokenExists, setTokenExists] = useState(false);
+    const [isClearing, setIsClearing] = useState(false);
 
     useEffect(() => {
         const check = () => {
@@ -18,12 +19,42 @@ const MobileNotificationDebug = ({ user, updateUser }) => {
             // Check if user has token in DB or LocalStorage
             if (user?.fcmTokens?.length > 0 || user?.fcmToken || localStorage.getItem('tempFcmToken')) {
                 setTokenExists(true);
+            } else {
+                setTokenExists(false);
             }
         };
         check();
         const interval = setInterval(check, 2000);
         return () => clearInterval(interval);
     }, [user]);
+
+    const handleUnregisterSW = async () => {
+        if (!confirm("This will unregister the notification service worker. Continue?")) return;
+        try {
+            const regs = await navigator.serviceWorker.getRegistrations();
+            for (let reg of regs) {
+                await reg.unregister();
+            }
+            alert("✅ Service Worker(s) unregistered. Refresh the page to re-register.");
+            window.location.reload();
+        } catch (e) {
+            alert("Error: " + e.message);
+        }
+    };
+
+    const handleClearBackendTokens = async () => {
+        if (!confirm("This will delete all stored device IDs from your account on our server. Continue?")) return;
+        setIsClearing(true);
+        try {
+            await axios.post(`${API_BASE_URL}/api/users/clear-fcm-tokens`, { username: user.username });
+            alert("✅ Backend tokens cleared. Now perform 'Re-Sync' to add this device back.");
+            window.location.reload();
+        } catch (e) {
+            alert("Error: " + e.message);
+        } finally {
+            setIsClearing(false);
+        }
+    };
 
     return (
         <div style={{
@@ -50,6 +81,7 @@ const MobileNotificationDebug = ({ user, updateUser }) => {
                 {status === 'denied' && "You blocked notifications. Please reset them in Browser Settings."}
                 {status === 'default' && "Tap 'Enable' below to allow permissions."}
                 {status === 'granted' && !tokenExists && "Permission granted but no connection. Tap Re-Sync."}
+                {status === 'granted' && tokenExists && "System is active. If still failing, try 'Clean Reset' below."}
             </div>
 
             <button
@@ -60,7 +92,10 @@ const MobileNotificationDebug = ({ user, updateUser }) => {
                             const token = await requestForToken();
                             if (token) {
                                 alert("✅ Success! ID: " + token.slice(0, 6) + "...");
-                                updateUser({ fcmToken: token });
+                                await axios.post(`${API_BASE_URL}/api/users/save-fcm-token`, {
+                                    username: user.username,
+                                    token
+                                });
                                 setTokenExists(true);
                             } else {
                                 alert("❌ Failed to get token. Check Internet or Add to Home Screen (iOS).");
@@ -82,8 +117,7 @@ const MobileNotificationDebug = ({ user, updateUser }) => {
                     cursor: 'pointer',
                     fontSize: '0.85rem',
                     width: '100%',
-                    marginBottom: '10px',
-                    display: status === 'granted' && tokenExists ? 'none' : 'block'
+                    marginBottom: '10px'
                 }}
             >
                 {status === 'granted' ? '🔄 Re-Sync Connection' : '🔔 Enable Notifications'}
@@ -111,15 +145,26 @@ const MobileNotificationDebug = ({ user, updateUser }) => {
                     fontWeight: '600',
                     cursor: 'pointer',
                     fontSize: '0.85rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    width: '100%'
+                    width: '100%',
+                    marginBottom: '10px'
                 }}
             >
-                🚀 Test {user.username}'s Devices
+                🚀 Test My Devices
             </button>
+
+            <div style={{ display: 'flex', gap: '10px', marginTop: '10px', borderTop: '1px solid #eee', paddingTop: '10px' }}>
+                <button
+                    onClick={handleUnregisterSW}
+                    style={{ flex: 1, padding: '8px', fontSize: '0.7rem', background: '#f8f9fa', border: '1px solid #ddd', borderRadius: '8px', cursor: 'pointer' }}>
+                    Reset SW
+                </button>
+                <button
+                    onClick={handleClearBackendTokens}
+                    disabled={isClearing}
+                    style={{ flex: 1, padding: '8px', fontSize: '0.7rem', background: '#fff5f5', border: '1px solid #feb2b2', color: '#c53030', borderRadius: '8px', cursor: 'pointer' }}>
+                    {isClearing ? '...' : 'Clear DB Tokens'}
+                </button>
+            </div>
         </div>
     );
 };

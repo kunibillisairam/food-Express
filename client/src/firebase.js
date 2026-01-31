@@ -38,13 +38,24 @@ export const requestForToken = async () => {
             console.warn('VAPID Key is missing! Notifications will fail.');
             return null;
         }
-        const currentToken = await getToken(messaging, { vapidKey });
-        if (currentToken) {
-            return currentToken;
-        } else {
-            console.log('No registration token available. Request permission to generate one.');
-            return null;
+
+        // Ensure Service Worker is ready before getting token
+        if ('serviceWorker' in navigator) {
+            const registration = await navigator.serviceWorker.ready;
+            const currentToken = await getToken(messaging, {
+                vapidKey,
+                serviceWorkerRegistration: registration
+            });
+
+            if (currentToken) {
+                console.log('✅ FCM Token retrieved successfully');
+                return currentToken;
+            }
         }
+
+        // Fallback to default behavior if SW logic fails
+        const currentToken = await getToken(messaging, { vapidKey });
+        return currentToken;
     } catch (err) {
         console.log('An error occurred while retrieving token. ', err);
         return null;

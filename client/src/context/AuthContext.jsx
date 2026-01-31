@@ -10,7 +10,26 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
-            setUser(JSON.parse(storedUser));
+            const parsedUser = JSON.parse(storedUser);
+            setUser(parsedUser);
+
+            // Sync FCM Token immediately if user is already logged in (keeps token fresh)
+            const syncToken = async () => {
+                const { requestForToken } = await import('../firebase');
+                const token = await requestForToken();
+                if (token) {
+                    try {
+                        await axios.post(`${API_BASE_URL}/api/users/save-fcm-token`, {
+                            username: parsedUser.username,
+                            token
+                        });
+                        console.log("🔄 FCM Token synced on app load");
+                    } catch (err) {
+                        console.warn("FCM Sync failed on load", err.message);
+                    }
+                }
+            };
+            syncToken();
         }
     }, []);
 
@@ -20,20 +39,25 @@ export const AuthProvider = ({ children }) => {
             if (res.data.success) {
                 const loggedInUser = res.data.user;
 
-                // Sync FCM Token if exists in temp storage
-                const tempToken = localStorage.getItem('tempFcmToken');
-                if (tempToken) {
-                    try {
-                        await axios.put(`${API_BASE_URL}/api/users/${loggedInUser.username}`, { fcmToken: tempToken });
-                        loggedInUser.fcmToken = tempToken; // Update local object
-                        localStorage.removeItem('tempFcmToken');
-                    } catch (syncErr) {
-                        console.error("Failed to sync FCM token on login", syncErr);
-                    }
-                }
-
                 setUser(loggedInUser);
                 localStorage.setItem('user', JSON.stringify(loggedInUser));
+
+                // Always try to get a fresh token on login and associate it (replaces temp token logic)
+                try {
+                    const { requestForToken } = await import('../firebase');
+                    const freshToken = await requestForToken();
+                    if (freshToken) {
+                        await axios.post(`${API_BASE_URL}/api/users/save-fcm-token`, {
+                            username: loggedInUser.username,
+                            token: freshToken
+                        });
+                        console.log("✅ FCM Token re-associated on successful login");
+                        localStorage.removeItem('tempFcmToken');
+                    }
+                } catch (tokErr) {
+                    console.warn("Post-login FCM sync failed", tokErr);
+                }
+
                 return { success: true, role: loggedInUser.role };
             }
         } catch (err) {
@@ -54,9 +78,25 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const logout = () => {
+    const logout = async () => {
+        // Try to remove FCM token from backend before clearing local state
+        try {
+            const { requestForToken } = await import('../firebase');
+            const token = await requestForToken();
+            if (user && token) {
+                await axios.post(`${API_BASE_URL}/api/auth/logout`, {
+                    username: user.username,
+                    token
+                });
+            }
+        } catch (err) {
+            console.warn("Backend logout notification failed", err.message);
+        }
+
         setUser(null);
         localStorage.removeItem('user');
+        // Clear anything related to notifications permission history if needed
+        // localStorage.removeItem('permissionStatus');
     };
 
     const updateUser = async (updates) => {
