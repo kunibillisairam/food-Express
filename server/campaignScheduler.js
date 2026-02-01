@@ -110,6 +110,13 @@ async function checkAndTriggerCampaigns() {
                 'Start your week healthy! Special discounts on salads and healthy meals.', 20, ['salads', 'healthy']);
         }
 
+        // Happy Hour (4 PM - 7 PM)
+        const hour = now.getHours();
+        if (hour >= 16 && hour <= 19) {
+            await handleCampaignType('happy_hour', 'Happy Hour! 🍹',
+                'Get 50% OFF on Drinks during Happy Hour (4PM - 7PM)!', 50, ['drinks', 'beverages']);
+        }
+
         // End of month campaigns
         if (isEndOfMonth) {
             await handleCampaignType('end_of_month', 'Cashback 💰',

@@ -875,6 +875,62 @@ app.get('/api/users', async (req, res) => {
     }
 });
 
+// PUT /api/users/:id/block -> Block/Unblock User (Admin)
+app.put('/api/users/:id/block', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { isBlocked } = req.body;
+        const user = await User.findByIdAndUpdate(id, { isBlocked }, { new: true });
+        res.json(user);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// GET /api/analytics/dashboard -> Admin Analytics
+app.get('/api/analytics/dashboard', async (req, res) => {
+    try {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Start of today
+
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+        // Daily Metrics
+        const dailyOrders = await Order.countDocuments({ createdAt: { $gte: today } });
+        const dailyRevenueAgg = await Order.aggregate([
+            { $match: { createdAt: { $gte: today }, status: { $ne: 'Cancelled' } } },
+            { $group: { _id: null, total: { $sum: '$totalAmount' } } }
+        ]);
+        const dailyRevenue = dailyRevenueAgg.length > 0 ? dailyRevenueAgg[0].total : 0;
+
+        // Monthly Metrics
+        const monthlyOrders = await Order.countDocuments({ createdAt: { $gte: startOfMonth } });
+        const monthlyRevenueAgg = await Order.aggregate([
+            { $match: { createdAt: { $gte: startOfMonth }, status: { $ne: 'Cancelled' } } },
+            { $group: { _id: null, total: { $sum: '$totalAmount' } } }
+        ]);
+        const monthlyRevenue = monthlyRevenueAgg.length > 0 ? monthlyRevenueAgg[0].total : 0;
+
+        // Popular Items
+        const popularItems = await Order.aggregate([
+            { $unwind: '$items' },
+            { $group: { _id: '$items.name', count: { $sum: '$items.quantity' } } },
+            { $sort: { count: -1 } },
+            { $limit: 5 }
+        ]);
+
+        res.json({
+            dailyOrders,
+            dailyRevenue,
+            monthlyOrders,
+            monthlyRevenue,
+            popularItems
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // POST /api/users/redeem-xp - Redeem XP for Wallet Balance
 app.post('/api/users/redeem-xp', async (req, res) => {
     try {
@@ -981,6 +1037,11 @@ app.post('/api/auth/login', async (req, res) => {
 
         if (!user) {
             return res.status(400).json({ message: 'User not found' });
+        }
+
+        // Check if blocked
+        if (user.isBlocked) {
+            return res.status(403).json({ message: 'Your account has been suspended. Contact support.' });
         }
 
         // Check password using bcrypt method

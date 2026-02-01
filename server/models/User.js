@@ -23,6 +23,8 @@ const userSchema = new mongoose.Schema({
     role: { type: String, default: 'user' },
     fcmTokens: { type: [String], default: [] }, // Multi-device support
     fcmToken: { type: String, default: '' }, // Legacy Fallback
+    isBlocked: { type: Boolean, default: false }, // Admin Block Feature
+
 
     // Reset Password Fields
     resetPasswordOTP: { type: String, default: null },
