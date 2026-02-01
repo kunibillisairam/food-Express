@@ -1,18 +1,36 @@
 import { useCallback } from 'react';
 
+const audioCtxContainer = {
+    ctx: null
+};
+
 export const useSound = () => {
+
+    const getContext = () => {
+        if (!audioCtxContainer.ctx) {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (AudioContext) {
+                audioCtxContainer.ctx = new AudioContext();
+            }
+        }
+        return audioCtxContainer.ctx;
+    };
+
     // Sci-fi Synthesizer using Web Audio API
     const playSynth = (type) => {
         try {
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            if (!AudioContext) return;
+            const ctx = getContext();
+            if (!ctx) return;
 
-            const ctx = new AudioContext();
+            // Mobile Browser requirement: Resume context if suspended
+            if (ctx.state === 'suspended') {
+                ctx.resume().catch(e => console.error("Audio resume failed", e));
+            }
 
             // Master Gain
             const masterGain = ctx.createGain();
             masterGain.connect(ctx.destination);
-            masterGain.gain.value = 0.8; // Increased volume
+            masterGain.gain.value = 1.0; // Volume
 
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
@@ -89,6 +107,14 @@ export const useSound = () => {
 
                     osc.start(now);
                     osc.stop(now + 0.3);
+                    break;
+                case 'init':
+                    // Silent sound to unlock audio on iOS/Mobile
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(440, now);
+                    gain.gain.setValueAtTime(0, now);
+                    osc.start(now);
+                    osc.stop(now + 0.01);
                     break;
 
                 default:
