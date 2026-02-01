@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const transactionSchema = new mongoose.Schema({
-    type: { type: String, enum: ['Credit', 'Debit'], required: true },
+    type: { type: String, enum: ['Credit', 'Debit', 'Reset'], required: true },
     amount: { type: Number, required: true },
     description: String,
     date: { type: Date, default: Date.now }

@@ -266,6 +266,91 @@ app.put('/api/users/:id/reset-password', async (req, res) => {
     }
 });
 
+// PUT /api/users/:id (Admin Update User Details)
+app.put('/api/users/:id', async (req, res) => {
+    try {
+        const { username, phone, walletBalance, rank, isBlocked } = req.body;
+
+        const updateData = {};
+        if (username) updateData.username = username;
+        if (phone) updateData.phone = phone;
+        if (walletBalance !== undefined) updateData.walletBalance = walletBalance;
+        if (rank) updateData.rank = rank;
+        if (isBlocked !== undefined) updateData.isBlocked = isBlocked;
+
+        const user = await User.findByIdAndUpdate(req.params.id, updateData, { new: true });
+
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        res.json({ success: true, user });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// POST /api/admin/users/:id/transaction (Manage User Economy)
+app.post('/api/admin/users/:id/transaction', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { type, amount, description, target } = req.body;
+        // target: 'wallet', 'credits', 'xp', 'compensation'
+        // type: 'Credit', 'Debit', 'Reset'
+
+        const user = await User.findById(id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        let transactionType = type;
+        let transactionDesc = description;
+        let transactionAmount = Number(amount) || 0;
+
+        if (target === 'wallet') {
+            if (type === 'Credit') {
+                user.walletBalance = (user.walletBalance || 0) + transactionAmount;
+                transactionDesc = description || "Admin Credit";
+            } else if (type === 'Debit') {
+                user.walletBalance = Math.max(0, (user.walletBalance || 0) - transactionAmount);
+                transactionDesc = description || "Admin Debit";
+            }
+        } else if (target === 'credits') {
+            if (type === 'Credit') {
+                user.credits = (user.credits || 0) + transactionAmount;
+                transactionDesc = description || "Promo Credits";
+            } else if (type === 'Debit') {
+                user.credits = Math.max(0, (user.credits || 0) - transactionAmount);
+                transactionDesc = description || "Admin Deduction";
+            }
+        } else if (target === 'xp') {
+            if (type === 'Reset') {
+                user.xp = 0;
+                user.credits = 0; // Resetting XP usually resets associated points
+                transactionDesc = "Reward Points Reset";
+                transactionAmount = 0;
+                transactionType = "Reset";
+            }
+        } else if (target === 'compensation') {
+            // Special Power
+            user.walletBalance = (user.walletBalance || 0) + transactionAmount;
+            transactionDesc = description || "Compensation for unhappy user";
+            transactionType = "Credit";
+        }
+
+        user.transactions.push({
+            type: transactionType,
+            amount: transactionAmount,
+            description: transactionDesc,
+            date: new Date()
+        });
+
+        // Recalculate rank
+        user.rank = calculateRank(user.xp);
+
+        await user.save();
+        res.json({ success: true, user });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // PUT /api/orders/:id/cancel -> Cancel an order
 app.put('/api/orders/:id/cancel', async (req, res) => {
     try {

@@ -19,6 +19,9 @@ const AdminOrders = ({ setView }) => {
     const [activeTab, setActiveTab] = useState('analytics');
     const [loading, setLoading] = useState(false);
     const [selectedUserOrders, setSelectedUserOrders] = useState(null); // For user history modal
+    const [managingUser, setManagingUser] = useState(null);
+    const [ecoAmount, setEcoAmount] = useState('');
+    const [ecoReason, setEcoReason] = useState('');
 
     useEffect(() => {
         if (activeTab === 'orders') fetchOrders();
@@ -117,6 +120,66 @@ const AdminOrders = ({ setView }) => {
         }
     };
 
+    const handleEconomyAction = async (target, type, fixedAmount = null, fixedReason = null) => {
+        if (!managingUser) return;
+        const amount = fixedAmount || ecoAmount;
+        const description = fixedReason || ecoReason;
+
+        if ((!amount || isNaN(amount)) && type !== 'Reset') {
+            toast.error("Please enter a valid amount");
+            return;
+        }
+
+        try {
+            const res = await axios.post(`${API_BASE_URL}/api/admin/users/${managingUser._id}/transaction`, {
+                target,
+                type,
+                amount: Number(amount),
+                description
+            });
+            toast.success("Transaction Successful! 💸");
+
+            // Update local user state
+            setManagingUser(res.data.user);
+            setUsers(users.map(u => u._id === res.data.user._id ? res.data.user : u));
+
+            // Clear inputs
+            setEcoAmount('');
+            setEcoReason('');
+        } catch (err) {
+            toast.error(err.response?.data?.message || "Transaction Failed");
+        }
+    };
+
+    const [editingUser, setEditingUser] = useState(null);
+    const [editFormData, setEditFormData] = useState({});
+
+    const handleEditClick = (user) => {
+        setEditingUser(user);
+        setEditFormData({
+            username: user.username,
+            phone: user.phone || '',
+            walletBalance: user.walletBalance,
+            rank: user.rank || 'Cadet',
+        });
+    };
+
+    const handleEditChange = (e) => {
+        const { name, value } = e.target;
+        setEditFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleEditSave = async () => {
+        try {
+            await axios.put(`${API_BASE_URL}/api/users/${editingUser._id}`, editFormData);
+            toast.success('User details updated!');
+            setEditingUser(null);
+            fetchUsers(); // Refresh list realtime
+        } catch (err) {
+            toast.error('Failed to update user');
+        }
+    };
+
     const StatCard = ({ title, value, icon, color }) => (
         <motion.div
             whileHover={{ scale: 1.05 }}
@@ -204,7 +267,7 @@ const AdminOrders = ({ setView }) => {
 
                     {activeTab === 'orders' && (
                         <div className="orders-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1rem', paddingBottom: '2rem' }}>
-                            {orders.map(order => (
+                            {orders.length === 0 ? <p>No active orders.</p> : orders.map(order => (
                                 <motion.div
                                     key={order._id}
                                     layout
@@ -364,6 +427,18 @@ const AdminOrders = ({ setView }) => {
                                                 </td>
                                                 <td style={{ padding: '1rem' }}>
                                                     <button
+                                                        onClick={() => setManagingUser(user)}
+                                                        style={{ marginRight: '0.5rem', background: '#9b59b6', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '5px', color: 'white', cursor: 'pointer' }}
+                                                    >
+                                                        💰 Manage
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleEditClick(user)}
+                                                        style={{ marginRight: '0.5rem', background: '#9b59b6', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '5px', color: 'white', cursor: 'pointer' }}
+                                                    >
+                                                        ✏️ Edit
+                                                    </button>
+                                                    <button
                                                         onClick={() => fetchUserOrders(user.username)}
                                                         style={{ marginRight: '0.5rem', background: '#3498db', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '5px', color: 'white', cursor: 'pointer' }}
                                                     >
@@ -406,7 +481,177 @@ const AdminOrders = ({ setView }) => {
                 </div>
             )}
 
-            {/* User History Modal */}
+            {/* Ecosystem Manager Modal */}
+            <AnimatePresence>
+                {managingUser && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        style={{
+                            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                            background: 'rgba(0,0,0,0.85)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100
+                        }}
+                        onClick={() => setManagingUser(null)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            style={{
+                                background: '#2d3436',
+                                padding: '2rem',
+                                borderRadius: '20px',
+                                maxWidth: '500px',
+                                width: '90%',
+                                boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
+                                color: 'white'
+                            }}
+                            onClick={e => e.stopPropagation()}
+                        >
+                            <h2 style={{ marginTop: 0, borderBottom: '1px solid #444', paddingBottom: '1rem' }}>
+                                👑 Manage: {managingUser.username}
+                            </h2>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+                                <div style={{ background: '#2c3e50', padding: '1rem', borderRadius: '10px' }}>
+                                    <small>Wallet Balance</small>
+                                    <div style={{ fontSize: '1.5rem', color: '#2ecc71', fontWeight: 'bold' }}>₹{managingUser.walletBalance}</div>
+                                </div>
+                                <div style={{ background: '#2c3e50', padding: '1rem', borderRadius: '10px' }}>
+                                    <small>Credits / XP</small>
+                                    <div style={{ fontSize: '1.5rem', color: '#f1c40f', fontWeight: 'bold' }}>{managingUser.credits} CR</div>
+                                    <small>{managingUser.xp} XP</small>
+                                </div>
+                            </div>
+
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <label style={{ display: 'block', marginBottom: '0.5rem' }}>Amount</label>
+                                <input
+                                    type="number"
+                                    placeholder="Enter Amount"
+                                    value={ecoAmount}
+                                    onChange={e => setEcoAmount(e.target.value)}
+                                    style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: 'none', marginBottom: '1rem' }}
+                                />
+                                <label style={{ display: 'block', marginBottom: '0.5rem' }}>Reason (Optional)</label>
+                                <input
+                                    type="text"
+                                    placeholder="e.g. Compensation, Promo"
+                                    value={ecoReason}
+                                    onChange={e => setEcoReason(e.target.value)}
+                                    style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: 'none' }}
+                                />
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem', marginBottom: '1.5rem' }}>
+                                <button onClick={() => handleEconomyAction('wallet', 'Credit')} className='btn-primary' style={{ background: '#2ecc71', padding: '0.8rem', border: 'none', borderRadius: '8px', color: 'white', cursor: 'pointer', fontWeight: 'bold' }}>
+                                    ➕ Add to Wallet
+                                </button>
+                                <button onClick={() => handleEconomyAction('wallet', 'Debit')} style={{ background: '#e74c3c', padding: '0.8rem', border: 'none', borderRadius: '8px', color: 'white', cursor: 'pointer', fontWeight: 'bold' }}>
+                                    ➖ Deduct Wallet
+                                </button>
+                                <button onClick={() => handleEconomyAction('credits', 'Credit')} style={{ background: '#f1c40f', padding: '0.8rem', border: 'none', borderRadius: '8px', color: '#2c3e50', cursor: 'pointer', fontWeight: 'bold' }}>
+                                    🪙 Give Credits
+                                </button>
+                                <button onClick={() => handleEconomyAction('credits', 'Debit')} style={{ background: '#d35400', padding: '0.8rem', border: 'none', borderRadius: '8px', color: 'white', cursor: 'pointer', fontWeight: 'bold' }}>
+                                    🔻 Deduct Credits
+                                </button>
+                            </div>
+
+                            <div style={{ borderTop: '1px solid #444', paddingTop: '1.5rem' }}>
+                                <button
+                                    onClick={() => handleEconomyAction('compensation', 'Credit', 500, 'Admin Compensation')}
+                                    style={{ width: '100%', background: 'linear-gradient(45deg, #FF8008, #FFC837)', border: 'none', padding: '1rem', borderRadius: '8px', color: 'white', fontWeight: 'bold', cursor: 'pointer', marginBottom: '1rem', boxShadow: '0 4px 15px rgba(255, 128, 8, 0.4)' }}
+                                >
+                                    🔥 Compensate Unhappy User (Instant ₹500)
+                                </button>
+
+                                <button
+                                    onClick={() => {
+                                        if (confirm("Are you sure you want to reset all XP and Credits for this user?"))
+                                            handleEconomyAction('xp', 'Reset')
+                                    }}
+                                    style={{ width: '100%', background: 'transparent', border: '1px solid #7f8c8d', padding: '0.8rem', borderRadius: '8px', color: '#95a5a6', cursor: 'pointer' }}
+                                >
+                                    🔄 Reset Reward Points
+                                </button>
+                            </div>
+
+                            <button onClick={() => setManagingUser(null)} style={{ position: 'absolute', top: '20px', right: '20px', background: 'transparent', border: 'none', color: 'white', fontSize: '1.5rem', cursor: 'pointer' }}>&times;</button>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Edit User Modal */}
+            <AnimatePresence>
+                {editingUser && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        style={{
+                            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                            background: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100
+                        }}
+                        onClick={() => setEditingUser(null)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9 }}
+                            animate={{ scale: 1 }}
+                            style={{ background: '#2d3436', padding: '2rem', borderRadius: '20px', maxWidth: '400px', width: '90%' }}
+                            onClick={e => e.stopPropagation()}
+                        >
+                            <h3 style={{ marginTop: 0 }}>✏️ Edit User</h3>
+
+                            <div style={{ marginBottom: '1rem' }}>
+                                <label style={{ display: 'block', marginBottom: '5px', color: '#aaa' }}>Username</label>
+                                <input
+                                    type="text" name="username" value={editFormData.username} onChange={handleEditChange}
+                                    style={{ width: '100%', padding: '10px', borderRadius: '5px', border: 'none' }}
+                                />
+                            </div>
+
+                            <div style={{ marginBottom: '1rem' }}>
+                                <label style={{ display: 'block', marginBottom: '5px', color: '#aaa' }}>Phone</label>
+                                <input
+                                    type="text" name="phone" value={editFormData.phone} onChange={handleEditChange}
+                                    style={{ width: '100%', padding: '10px', borderRadius: '5px', border: 'none' }}
+                                />
+                            </div>
+
+                            <div style={{ marginBottom: '1rem' }}>
+                                <label style={{ display: 'block', marginBottom: '5px', color: '#aaa' }}>Wallet Balance (₹)</label>
+                                <input
+                                    type="number" name="walletBalance" value={editFormData.walletBalance} onChange={handleEditChange}
+                                    style={{ width: '100%', padding: '10px', borderRadius: '5px', border: 'none' }}
+                                />
+                            </div>
+
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <label style={{ display: 'block', marginBottom: '5px', color: '#aaa' }}>Rank</label>
+                                <select
+                                    name="rank" value={editFormData.rank} onChange={handleEditChange}
+                                    style={{ width: '100%', padding: '10px', borderRadius: '5px', border: 'none' }}
+                                >
+                                    <option value="Cadet">Cadet</option>
+                                    <option value="Captain">Captain</option>
+                                    <option value="Major">Major</option>
+                                    <option value="Colonel">Colonel</option>
+                                    <option value="General">General</option>
+                                </select>
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '1rem' }}>
+                                <button onClick={handleEditSave} style={{ flex: 1, padding: '10px', background: '#2ed573', border: 'none', borderRadius: '5px', color: 'white', fontWeight: 'bold', cursor: 'pointer' }}>Save Changes</button>
+                                <button onClick={() => setEditingUser(null)} style={{ flex: 1, padding: '10px', background: '#636e72', border: 'none', borderRadius: '5px', color: 'white', fontWeight: 'bold', cursor: 'pointer' }}>Cancel</button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* User History Modal (Existing) */}
             <AnimatePresence>
                 {selectedUserOrders && (
                     <motion.div
