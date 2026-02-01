@@ -70,23 +70,39 @@ app.delete('/api/orders/:id', async (req, res) => {
     }
 });
 
-// PUT /api/orders/:id/cancel -> Cancel an order
+// PUT /api/orders/:id/cancel -> Cancel an order and process Refund
 app.put('/api/orders/:id/cancel', async (req, res) => {
     try {
         const { id } = req.params;
         const order = await Order.findById(id);
+
         if (!order) {
             return res.status(404).json({ message: 'Order not found' });
         }
 
-        if (order.status !== 'Pending') {
-            return res.status(400).json({ message: 'Cannot cancel order. It is already being prepared or delivered.' });
+        if (order.status === 'Cancelled') {
+            return res.status(400).json({ message: 'Order is already cancelled' });
+        }
+
+        // Process Refund to Wallet
+        const user = await User.findOne({ username: order.userName });
+        if (user) {
+            user.walletBalance += order.totalAmount;
+            user.transactions.push({
+                type: 'Credit',
+                amount: order.totalAmount,
+                description: `Refund for Order #${order.orderId || id.substring(0, 6)}`,
+                date: new Date()
+            });
+            await user.save();
+            console.log(`[Refund] ${order.totalAmount} refunded to ${user.username}`);
         }
 
         order.status = 'Cancelled';
         const updatedOrder = await order.save();
         res.json(updatedOrder);
     } catch (err) {
+        console.error("Cancel Error:", err);
         res.status(500).json({ error: err.message });
     }
 });
