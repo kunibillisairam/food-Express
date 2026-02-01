@@ -235,6 +235,54 @@ const FabricatorInterface = ({ item, onBack, onComplete }) => {
     );
 };
 
+const SearchControls = ({ searchTerm, setSearchTerm, category, setCategory, priceRange, setPriceRange, maxPriceLimit, categories }) => {
+    return (
+        <div className="search-panel">
+            <div className="search-group">
+                <label>SEARCH MODULE</label>
+                <input
+                    type="text"
+                    placeholder="ENTER ITEM DESIGNATION..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="scifi-input"
+                />
+            </div>
+
+            <div className="search-group">
+                <label>FILTER: CATEGORY</label>
+                <div className="category-options">
+                    {categories.map(cat => (
+                        <button
+                            key={cat}
+                            className={`cat-btn ${category === cat ? 'active' : ''}`}
+                            onClick={() => setCategory(cat)}
+                        >
+                            {cat.toUpperCase()}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <div className="search-group">
+                <label>FILTER: PRICE (MAX: {priceRange})</label>
+                <input
+                    type="range"
+                    min="0"
+                    max={maxPriceLimit}
+                    value={priceRange}
+                    onChange={(e) => setPriceRange(Number(e.target.value))}
+                    className="scifi-range"
+                />
+                <div className="range-labels">
+                    <span>0</span>
+                    <span>{maxPriceLimit}</span>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const Fabricator = ({ setView }) => {
     const { addToCart } = useContext(CartContext);
     const [selectedItem, setSelectedItem] = useState(null);
@@ -244,6 +292,22 @@ const Fabricator = ({ setView }) => {
         // Could show a quick toast here
         alert("ITEM MATERIALIZED TO CART");
     };
+
+    // --- SMART SEARCH LOGIC ---
+    const [searchTerm, setSearchTerm] = useState('');
+    const [category, setCategory] = useState('All');
+
+    // Calculate max price dynamically
+    const maxDataPrice = Math.max(...foodData.map(i => i.price), 0);
+    const [priceRange, setPriceRange] = useState(maxDataPrice);
+
+    const filteredItems = foodData.filter(item => {
+        const matchesName = item.name.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesCategory = category === 'All' || item.category === category;
+        const matchesPrice = item.price <= priceRange;
+        return matchesName && matchesCategory && matchesPrice;
+    });
+    // ---------------------------
 
     const handleReplicationComplete = (item, mods) => {
         // Create a custom item object
@@ -279,8 +343,20 @@ const Fabricator = ({ setView }) => {
                         </button>
                     </div>
 
+                    {/* SMART SEARCH CONTROLS */}
+                    <SearchControls
+                        searchTerm={searchTerm}
+                        setSearchTerm={setSearchTerm}
+                        category={category}
+                        setCategory={setCategory}
+                        priceRange={priceRange}
+                        setPriceRange={setPriceRange}
+                        maxPriceLimit={maxDataPrice}
+                        categories={['All', ...new Set(foodData.map(item => item.category))]}
+                    />
+
                     <div className="hologram-grid">
-                        {foodData.map(item => (
+                        {filteredItems.map(item => (
                             <HologramCard
                                 key={item.id}
                                 item={item}
