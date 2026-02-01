@@ -556,39 +556,57 @@
 }
 
 @media (max-width: 768px) {
+    .fabricator-container {
+        padding: 1rem;
+    }
+
+    .fabricator-title {
+        font-size: 1.8rem;
+    }
+
     .hologram-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 0.5rem;
-        padding: 0.5rem;
+        padding: 0;
     }
 
     .hologram-card {
-        padding: 0.8rem;
+        padding: 0.6rem;
     }
 
     .hologram-image {
-        width: 80px;
-        height: 80px;
+        width: 70px;
+        height: 70px;
     }
 
     .hologram-name {
-        font-size: 0.9rem;
+        font-size: 0.8rem;
         margin-bottom: 0.2rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
     }
 
     .hologram-price {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
     }
 
     .action-btn {
-        padding: 0.3rem 0.5rem;
-        font-size: 0.6rem;
+        padding: 0.2rem 0.4rem;
+        font-size: 0.55rem;
+        border-width: 1px;
     }
 
     .card-actions {
-        gap: 5px;
-        margin-top: 8px;
-        flex-wrap: wrap;
-        justify-content: center;
+        gap: 4px;
+        margin-top: 5px;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .action-btn {
+        width: 100%;
+        text-align: center;
     }
 }

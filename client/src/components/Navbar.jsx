@@ -79,7 +79,7 @@ const Navbar = ({ setView, activeCategory, setCategory, setSearchTerm }) => {
 
 
                 <button
-                    className="nav-btn fabricator-btn desktop-only"
+                    className="nav-btn fabricator-btn"
                     onClick={() => { playSound('scan'); setView('fabricator'); }}
                     onMouseEnter={() => playSound('hover')}
                 >
