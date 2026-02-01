@@ -5,10 +5,12 @@ import axios from 'axios';
 import API_BASE_URL from '../config';
 import PaymentProcessing from '../components/PaymentProcessing';
 import { AnimatePresence } from 'framer-motion';
+import useSound from '../hooks/useSound';
 
 const Payment = ({ setView }) => {
     const { cart, clearCart, totalAmount, setLastOrder } = useContext(CartContext);
     const { user } = useContext(AuthContext);
+    const { playSound } = useSound();
 
     const [method, setMethod] = useState('cod');
     const [loading, setLoading] = useState(false);
@@ -195,6 +197,7 @@ const Payment = ({ setView }) => {
 
             // Transition to Success Animation
             setProcessStatus('success');
+            playSound('success'); // Play success sound
 
             // Update user state with rewards from backend
             if (response.data && user) {
