@@ -617,21 +617,19 @@
 
     .card-actions {
         display: flex;
-        flex-direction: row;
-        justify-content: space-between;
+        flex-direction: column;
         width: 100%;
-        gap: 4px;
-        margin-top: 5px;
+        gap: 5px;
+        margin-top: 4px;
     }
 
     .action-btn {
-        flex: 1;
-        padding: 0.3rem 0;
-        font-size: 0.55rem;
+        width: 100%;
+        padding: 0.4rem 0;
+        font-size: 0.6rem;
         border-width: 1px;
-        white-space: nowrap;
         text-align: center;
-        width: auto;
-        /* reset from 100% */
+        flex: none;
+        /* prevent flexing weirdness */
     }
 }
