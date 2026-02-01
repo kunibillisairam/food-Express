@@ -558,16 +558,37 @@
 @media (max-width: 768px) {
     .hologram-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
+        gap: 0.5rem;
         padding: 0.5rem;
     }
 
     .hologram-card {
-        padding: 1rem;
+        padding: 0.8rem;
     }
 
     .hologram-image {
-        width: 100px;
-        height: 100px;
+        width: 80px;
+        height: 80px;
+    }
+
+    .hologram-name {
+        font-size: 0.9rem;
+        margin-bottom: 0.2rem;
+    }
+
+    .hologram-price {
+        font-size: 0.8rem;
+    }
+
+    .action-btn {
+        padding: 0.3rem 0.5rem;
+        font-size: 0.6rem;
+    }
+
+    .card-actions {
+        gap: 5px;
+        margin-top: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
     }
 }
