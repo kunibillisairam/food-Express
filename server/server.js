@@ -169,7 +169,8 @@ app.get('/', (req, res) => {
 // GET /api/orders
 app.get('/api/orders', async (req, res) => {
     try {
-        const orders = await Order.find().sort({ createdAt: -1 });
+        // Optimization: Limit to last 100 orders to prevent slow loading
+        const orders = await Order.find().sort({ createdAt: -1 }).limit(100);
         res.json(orders);
     } catch (err) {
         res.status(500).json({ error: err.message });

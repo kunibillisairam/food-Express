@@ -214,84 +214,99 @@ const AdminOrders = ({ setView }) => {
                                         </div>
                                     </div>
 
-                                    <div className="order-items-grid">
+                                    <div className="order-items-container" style={{ background: '#f5f6fa', padding: '10px', borderRadius: '8px', margin: '1rem 0' }}>
                                         {order.items.map((item, idx) => (
-                                            <div key={idx} className="order-item-mini">
-                                                <div style={{ fontWeight: '600' }}>{item.quantity}x {item.name}</div>
+                                            <div key={idx} className="order-item-row" style={{ 
+                                                display: 'flex', 
+                                                justifyContent: 'space-between', 
+                                                alignItems: 'center',
+                                                padding: '8px 0',
+                                                borderBottom: idx !== order.items.length - 1 ? '1px solid #dcdde1' : 'none',
+                                                color: '#2f3640'
+                                            }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                    <span style={{ 
+                                                        background: '#2f3542', 
+                                                        color: '#fff', 
+                                                        width: '24px', 
+                                                        height: '24px', 
+                                                        borderRadius: '50%', 
+                                                        display: 'flex', 
+                                                        alignItems: 'center', 
+                                                        justifyContent: 'center',
+                                                        fontSize: '0.8rem',
+                                                        fontWeight: 'bold'
+                                                    }}>
+                                                        {item.quantity}
+                                                    </span>
+                                                    <span style={{ fontWeight: '600' }}>{item.name}</span>
+                                                </div>
+                                                <span style={{ fontWeight: 'bold' }}>{item.price ? `₹${item.price}` : ''}</span>
                                             </div>
                                         ))}
                                     </div>
 
-                                    <div className="order-actions-advanced" style={{ marginTop: '1rem', borderTop: '1px solid #444', paddingTop: '1rem' }}>
-
-                                        {/* Status Control for All Orders */}
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                                            <span style={{ color: '#aaa', fontSize: '0.9rem' }}>Current Status:</span>
-                                            <select
+                                    <div className="order-actions-advanced" style={{ marginTop: '1rem', paddingTop: '0.5rem', borderTop: '1px solid #eee' }}>
+                                         {/* Dropdown for specific status */}
+                                        <div style={{ marginBottom: '10px' }}>
+                                             <select
                                                 value={order.status}
                                                 onChange={(e) => handleUpdateStatus(order._id, e.target.value)}
-                                                style={{
-                                                    background: '#2d3436', color: 'white', border: '1px solid #555',
-                                                    padding: '5px 10px', borderRadius: '5px', cursor: 'pointer'
+                                                style={{ 
+                                                    width: '100%',
+                                                    padding: '8px',
+                                                    borderRadius: '6px',
+                                                    border: '1px solid #ced6e0',
+                                                    cursor: 'pointer',
+                                                    background: 'white',
+                                                    color: '#2f3542'
                                                 }}
                                             >
-                                                <option value="Pending">Pending</option>
-                                                <option value="Preparing">Preparing</option>
-                                                <option value="Ready">Ready</option>
-                                                <option value="Out for Delivery">Out for Delivery</option>
-                                                <option value="Delivered">Delivered</option>
-                                                <option value="Cancelled">Cancelled</option>
+                                                <option value="Pending">🕒 Pending</option>
+                                                <option value="Cooking">🍳 Cooking</option>
+                                                <option value="Out for Delivery">🚀 Out for Delivery</option>
+                                                <option value="Delivered">✅ Delivered</option>
+                                                <option value="Cancelled">🚫 Cancelled</option>
                                             </select>
                                         </div>
 
-                                        {/* Quick Actions based on Status */}
-                                        {order.status === 'Pending' ? (
-                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                                <button
-                                                    onClick={() => handleUpdateStatus(order._id, 'Preparing')}
-                                                    style={{
-                                                        padding: '0.8rem', background: '#00b894', color: 'white', border: 'none',
-                                                        borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold'
-                                                    }}
-                                                >
-                                                    ✅ Accept Order
-                                                </button>
-                                                <button
-                                                    onClick={() => handleRefund(order._id)}
-                                                    style={{
-                                                        padding: '0.8rem', background: '#d63031', color: 'white', border: 'none',
-                                                        borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold'
-                                                    }}
-                                                >
-                                                    ❌ Reject
-                                                </button>
-                                            </div>
-                                        ) : (
-                                            <div style={{ display: 'flex', gap: '1rem' }}>
-                                                {order.status !== 'Cancelled' && (
-                                                    <button
-                                                        onClick={() => handleRefund(order._id)}
-                                                        style={{
-                                                            flex: 1, padding: '0.8rem', background: '#636e72', color: 'white', border: 'none',
-                                                            borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold'
-                                                        }}
-                                                    >
-                                                        🚫 Force Cancel / Refund
-                                                    </button>
-                                                )}
-                                                {order.status !== 'Delivered' && order.status !== 'Cancelled' && (
-                                                    <button
-                                                        onClick={() => handleUpdateStatus(order._id, 'Delivered')}
-                                                        style={{
-                                                            flex: 1, padding: '0.8rem', background: '#0984e3', color: 'white', border: 'none',
-                                                            borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold'
-                                                        }}
-                                                    >
-                                                        ✨ Mark Delivered
-                                                    </button>
-                                                )}
-                                            </div>
-                                        )}
+                                        <div style={{ display: 'flex', gap: '10px' }}>
+                                            <button
+                                                onClick={() => handleRefund(order._id)}
+                                                disabled={order.status === 'Cancelled' || order.status === 'Delivered'}
+                                                style={{
+                                                    flex: 1,
+                                                    padding: '0.6rem',
+                                                    background: order.status === 'Cancelled' ? '#dfe6e9' : '#ff7675',
+                                                    color: order.status === 'Cancelled' ? '#b2bec3' : 'white',
+                                                    border: 'none',
+                                                    borderRadius: '8px',
+                                                    cursor: order.status === 'Cancelled' || order.status === 'Delivered' ? 'not-allowed' : 'pointer',
+                                                    fontWeight: 'bold',
+                                                    fontSize: '0.85rem',
+                                                }}
+                                            >
+                                                ❌ Cancel
+                                            </button>
+
+                                            <button
+                                                onClick={() => handleUpdateStatus(order._id, 'Delivered')}
+                                                disabled={order.status === 'Cancelled' || order.status === 'Delivered'}
+                                                style={{
+                                                    flex: 1,
+                                                    padding: '0.6rem',
+                                                    background: order.status === 'Delivered' ? '#dfe6e9' : '#2ed573',
+                                                    color: order.status === 'Delivered' ? '#b2bec3' : 'white',
+                                                    border: 'none',
+                                                    borderRadius: '8px',
+                                                    cursor: order.status === 'Cancelled' || order.status === 'Delivered' ? 'not-allowed' : 'pointer',
+                                                    fontWeight: 'bold',
+                                                    fontSize: '0.85rem',
+                                                }}
+                                            >
+                                                ✨ Complete
+                                            </button>
+                                        </div>
                                     </div>
                                 </motion.div>
                             ))}
