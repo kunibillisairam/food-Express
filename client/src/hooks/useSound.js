@@ -57,16 +57,16 @@ export const useSound = () => {
                     break;
 
                 case 'click':
-                    // Short high blip
+                    // Short, sharp tech click
                     osc.type = 'square';
-                    osc.frequency.setValueAtTime(800, now);
-                    osc.frequency.exponentialRampToValueAtTime(300, now + 0.1);
+                    osc.frequency.setValueAtTime(1200, now);
+                    osc.frequency.exponentialRampToValueAtTime(800, now + 0.05);
 
-                    gain.gain.setValueAtTime(0.1, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
 
                     osc.start(now);
-                    osc.stop(now + 0.1);
+                    osc.stop(now + 0.05);
                     break;
 
                 case 'hover':
@@ -82,18 +82,38 @@ export const useSound = () => {
                     break;
 
                 case 'scan':
-                    // Sci-fi scanning warble
+                    // Complex Sci-fi 'Fabricating' Sound
+                    // Oscillator 1: Base drone/sweep
                     osc.type = 'sawtooth';
-                    osc.frequency.setValueAtTime(200, now);
-                    osc.frequency.linearRampToValueAtTime(800, now + 0.2);
-                    osc.frequency.linearRampToValueAtTime(200, now + 0.4);
+                    osc.frequency.setValueAtTime(100, now);
+                    osc.frequency.linearRampToValueAtTime(600, now + 1.0); // Power up sweep
 
-                    gain.gain.setValueAtTime(0.1, now);
-                    gain.gain.linearRampToValueAtTime(0.1, now + 0.4);
-                    gain.gain.linearRampToValueAtTime(0, now + 0.5);
+                    gain.gain.setValueAtTime(0, now);
+                    gain.gain.linearRampToValueAtTime(0.2, now + 0.1);
+                    gain.gain.setValueAtTime(0.2, now + 0.8);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 1.0);
 
                     osc.start(now);
-                    osc.stop(now + 0.5);
+                    osc.stop(now + 1.0);
+
+                    // Oscillator 2: High frequency jitter/texture
+                    const osc2 = ctx.createOscillator();
+                    const gain2 = ctx.createGain();
+                    osc2.connect(gain2);
+                    gain2.connect(masterGain);
+
+                    osc2.type = 'square';
+                    osc2.frequency.setValueAtTime(400, now);
+                    // Rapid frequency modulation for "data processing" feel
+                    for (let i = 0; i < 10; i++) {
+                        osc2.frequency.setValueAtTime(400 + (Math.random() * 500), now + (i * 0.1));
+                    }
+
+                    gain2.gain.setValueAtTime(0.05, now);
+                    gain2.gain.linearRampToValueAtTime(0, now + 1.0);
+
+                    osc2.start(now);
+                    osc2.stop(now + 1.0);
                     break;
 
                 case 'error':
