@@ -12,7 +12,7 @@ export const useSound = () => {
             // Master Gain
             const masterGain = ctx.createGain();
             masterGain.connect(ctx.destination);
-            masterGain.gain.value = 0.3; // Volume volume
+            masterGain.gain.value = 0.8; // Increased volume
 
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
