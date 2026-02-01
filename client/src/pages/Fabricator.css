@@ -554,3 +554,20 @@
         font-size: 1.4rem;
     }
 }
+
+@media (max-width: 768px) {
+    .hologram-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        padding: 0.5rem;
+    }
+
+    .hologram-card {
+        padding: 1rem;
+    }
+
+    .hologram-image {
+        width: 100px;
+        height: 100px;
+    }
+}

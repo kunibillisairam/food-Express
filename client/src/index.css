@@ -683,6 +683,15 @@ body {
   accent-color: var(--primary);
 }
 
+.payment-actions-mobile {
+  border-top: 2px solid #f1f2f6;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 /* Admin Orders */
 .admin-orders-container {
   max-width: 1200px;
@@ -992,10 +1001,22 @@ body {
   }
 
   /* Cart Actions Mobile Scaling */
+  /* Cart Actions Mobile Scaling */
   .cart-actions {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    padding: 1rem;
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
     width: 100%;
-    justify-content: center;
-    gap: 0.4rem;
+    border-top: 1px solid #f1f2f6;
   }
 
   .cart-back-btn {
@@ -1301,10 +1322,24 @@ body {
   }
 
   /* Ensure payment buttons stack nicely on mobile */
+  /* Ensure payment buttons stack nicely on mobile */
   .payment-actions-mobile {
-    flex-direction: column-reverse !important;
-    gap: 12px !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    padding: 1rem;
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    display: flex !important;
+    justify-content: space-between !important;
+    flex-direction: row !important;
+    align-items: center;
+    gap: 1rem !important;
     width: 100% !important;
+    border-top: 1px solid #f1f2f6;
+    margin: 0 !important;
   }
 }
 

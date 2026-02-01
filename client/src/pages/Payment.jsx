@@ -674,7 +674,7 @@ const Payment = ({ setView }) => {
                         </div>
                     </div>
 
-                    <div className="payment-actions-mobile" style={{ borderTop: '2px solid #f1f2f6', marginTop: '2rem', paddingTop: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div className="payment-actions-mobile">
                         <button className="nav-btn" onClick={() => setView('cart')} style={{ border: '1px solid #ccc' }}>Back to Cart</button>
                         <button
                             className="action-btn"
