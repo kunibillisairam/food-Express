@@ -104,6 +104,12 @@ export default function CampaignManager() {
             foodCategories: campaign.foodCategories || [],
             startDate: campaign.startDate ? new Date(campaign.startDate).toISOString().split('T')[0] : '',
             endDate: campaign.endDate ? new Date(campaign.endDate).toISOString().split('T')[0] : '',
+
+            // New Fields
+            scheduledTime: campaign.scheduledTime ? new Date(campaign.scheduledTime).toISOString().slice(0, 16) : '',
+            startTime: campaign.startTime || '',
+            endTime: campaign.endTime || '',
+
             festivalName: campaign.festivalName || '',
             festivalDate: campaign.festivalDate ? new Date(campaign.festivalDate).toISOString().split('T')[0] : ''
         });
@@ -122,6 +128,9 @@ export default function CampaignManager() {
             foodCategories: [],
             startDate: '',
             endDate: '',
+            scheduledTime: '',
+            startTime: '',
+            endTime: '',
             festivalName: '',
             festivalDate: ''
         });
@@ -167,6 +176,7 @@ export default function CampaignManager() {
                                 <label>Campaign Type*</label>
                                 <select name="type" value={formData.type} onChange={handleInputChange} required>
                                     <option value="custom">Custom</option>
+                                    <option value="happy_hour">Happy Hour (Daily)</option>
                                     <option value="friday">Friday (Weekend Deals)</option>
                                     <option value="monday">Monday (Healthy Food)</option>
                                     <option value="end_of_month">End of Month (Cashback)</option>
@@ -284,6 +294,44 @@ export default function CampaignManager() {
                                 </div>
                             </div>
                         )}
+
+                        {formData.type === 'happy_hour' && (
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>Start Time (HH:MM)</label>
+                                    <input
+                                        type="time"
+                                        name="startTime"
+                                        value={formData.startTime || ''}
+                                        onChange={handleInputChange}
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label>End Time (HH:MM)</label>
+                                    <input
+                                        type="time"
+                                        name="endTime"
+                                        value={formData.endTime || ''}
+                                        onChange={handleInputChange}
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Scheduled Notification */}
+                        <div className="form-group" style={{ marginTop: '1rem', padding: '10px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
+                            <label>📅 Schedule Notification (Optional)</label>
+                            <small style={{ display: 'block', color: '#aaa', marginBottom: '5px' }}>
+                                If set, notification will be sent automatically at this time.
+                            </small>
+                            <input
+                                type="datetime-local"
+                                name="scheduledTime"
+                                value={formData.scheduledTime || ''}
+                                onChange={handleInputChange}
+                            />
+                        </div>
 
                         <div className="form-checkboxes">
                             <label className="checkbox-label">

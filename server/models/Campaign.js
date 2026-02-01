@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const campaignSchema = new mongoose.Schema({
     type: {
         type: String,
-        enum: ['friday', 'festival', 'monday', 'end_of_month', 'custom'],
+        enum: ['friday', 'festival', 'monday', 'end_of_month', 'custom', 'happy_hour'],
         required: true
     },
     title: {
@@ -43,6 +43,17 @@ const campaignSchema = new mongoose.Schema({
     },
     endDate: {
         type: Date
+    },
+    // For Scheduling
+    scheduledTime: {
+        type: Date
+    },
+    // For Happy Hour
+    startTime: {
+        type: String // "HH:MM" 24h format
+    },
+    endTime: {
+        type: String // "HH:MM" 24h format
     },
     festivalName: {
         type: String // For festival type campaigns

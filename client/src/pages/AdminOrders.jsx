@@ -193,7 +193,7 @@ const AdminOrders = ({ setView }) => {
                     )}
 
                     {activeTab === 'orders' && (
-                        <div className="orders-grid">
+                        <div className="orders-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1rem', paddingBottom: '2rem' }}>
                             {orders.map(order => (
                                 <motion.div
                                     key={order._id}
@@ -201,89 +201,96 @@ const AdminOrders = ({ setView }) => {
                                     className="order-card"
                                     style={{
                                         position: 'relative',
+                                        background: 'white',
+                                        borderRadius: '12px',
+                                        padding: '1rem',
+                                        boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
                                         borderLeft: `5px solid ${order.status === 'Cancelled' ? '#e74c3c' : '#2ecc71'}`
                                     }}
                                 >
-                                    <div className="order-header">
+                                    <div className="order-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.8rem', color: '#2d3436' }}>
                                         <div>
-                                            <h3 style={{ margin: 0 }}>Order #{order._id.substring(order._id.length - 6)}</h3>
-                                            <small style={{ color: '#888' }}>{order.userName} • {new Date(order.createdAt).toLocaleString()}</small>
+                                            <h3 style={{ margin: 0, fontSize: '1rem' }}>#{order._id.substring(order._id.length - 6)}</h3>
+                                            <small style={{ color: '#636e72', fontSize: '0.7rem' }}>{order.userName} • {new Date(order.createdAt).toLocaleString()}</small>
                                         </div>
                                         <div style={{ textAlign: 'right' }}>
-                                            <div style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>₹{order.totalAmount}</div>
+                                            <div style={{ fontWeight: 'bold', fontSize: '1rem', color: '#2d3436' }}>₹{order.totalAmount}</div>
                                         </div>
                                     </div>
 
-                                    <div className="order-items-container" style={{ background: '#f5f6fa', padding: '10px', borderRadius: '8px', margin: '1rem 0' }}>
+                                    <div className="order-items-container" style={{ background: '#f5f6fa', padding: '8px', borderRadius: '6px', margin: '0.5rem 0', maxHeight: '150px', overflowY: 'auto' }}>
                                         {order.items.map((item, idx) => (
-                                            <div key={idx} className="order-item-row" style={{ 
-                                                display: 'flex', 
-                                                justifyContent: 'space-between', 
+                                            <div key={idx} className="order-item-row" style={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
                                                 alignItems: 'center',
-                                                padding: '8px 0',
+                                                padding: '4px 0',
                                                 borderBottom: idx !== order.items.length - 1 ? '1px solid #dcdde1' : 'none',
-                                                color: '#2f3640'
+                                                color: '#2f3640',
+                                                fontSize: '0.8rem'
                                             }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                    <span style={{ 
-                                                        background: '#2f3542', 
-                                                        color: '#fff', 
-                                                        width: '24px', 
-                                                        height: '24px', 
-                                                        borderRadius: '50%', 
-                                                        display: 'flex', 
-                                                        alignItems: 'center', 
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                    <span style={{
+                                                        background: '#2f3542',
+                                                        color: '#fff',
+                                                        width: '18px',
+                                                        height: '18px',
+                                                        borderRadius: '50%',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
                                                         justifyContent: 'center',
-                                                        fontSize: '0.8rem',
+                                                        fontSize: '0.65rem',
                                                         fontWeight: 'bold'
                                                     }}>
                                                         {item.quantity}
                                                     </span>
                                                     <span style={{ fontWeight: '600' }}>{item.name}</span>
                                                 </div>
-                                                <span style={{ fontWeight: 'bold' }}>{item.price ? `₹${item.price}` : ''}</span>
+                                                <span style={{ fontWeight: 'bold', fontSize: '0.75rem' }}>{item.price ? `₹${item.price}` : ''}</span>
                                             </div>
                                         ))}
                                     </div>
 
-                                    <div className="order-actions-advanced" style={{ marginTop: '1rem', paddingTop: '0.5rem', borderTop: '1px solid #eee' }}>
-                                         {/* Dropdown for specific status */}
-                                        <div style={{ marginBottom: '10px' }}>
-                                             <select
+                                    <div className="order-actions-advanced" style={{ marginTop: '0.8rem', paddingTop: '0.5rem', borderTop: '1px solid #eee' }}>
+                                        {/* Dropdown for specific status */}
+                                        <div style={{ marginBottom: '8px' }}>
+                                            <select
                                                 value={order.status}
                                                 onChange={(e) => handleUpdateStatus(order._id, e.target.value)}
-                                                style={{ 
+                                                style={{
                                                     width: '100%',
-                                                    padding: '8px',
-                                                    borderRadius: '6px',
+                                                    padding: '5px',
+                                                    borderRadius: '4px',
                                                     border: '1px solid #ced6e0',
                                                     cursor: 'pointer',
                                                     background: 'white',
-                                                    color: '#2f3542'
+                                                    color: '#2f3542',
+                                                    fontSize: '0.8rem'
                                                 }}
                                             >
                                                 <option value="Pending">🕒 Pending</option>
-                                                <option value="Cooking">🍳 Cooking</option>
+                                                <option value="Preparing">🍳 Cooking</option>
+                                                <option value="Ready">🥡 Ready</option>
                                                 <option value="Out for Delivery">🚀 Out for Delivery</option>
                                                 <option value="Delivered">✅ Delivered</option>
                                                 <option value="Cancelled">🚫 Cancelled</option>
                                             </select>
                                         </div>
 
-                                        <div style={{ display: 'flex', gap: '10px' }}>
+                                        <div style={{ display: 'flex', gap: '8px' }}>
                                             <button
                                                 onClick={() => handleRefund(order._id)}
                                                 disabled={order.status === 'Cancelled' || order.status === 'Delivered'}
                                                 style={{
                                                     flex: 1,
-                                                    padding: '0.6rem',
+                                                    padding: '0.5rem',
                                                     background: order.status === 'Cancelled' ? '#dfe6e9' : '#ff7675',
                                                     color: order.status === 'Cancelled' ? '#b2bec3' : 'white',
                                                     border: 'none',
-                                                    borderRadius: '8px',
+                                                    borderRadius: '6px',
                                                     cursor: order.status === 'Cancelled' || order.status === 'Delivered' ? 'not-allowed' : 'pointer',
                                                     fontWeight: 'bold',
-                                                    fontSize: '0.85rem',
+                                                    fontSize: '0.75rem',
                                                 }}
                                             >
                                                 ❌ Cancel
@@ -294,14 +301,14 @@ const AdminOrders = ({ setView }) => {
                                                 disabled={order.status === 'Cancelled' || order.status === 'Delivered'}
                                                 style={{
                                                     flex: 1,
-                                                    padding: '0.6rem',
+                                                    padding: '0.5rem',
                                                     background: order.status === 'Delivered' ? '#dfe6e9' : '#2ed573',
                                                     color: order.status === 'Delivered' ? '#b2bec3' : 'white',
                                                     border: 'none',
-                                                    borderRadius: '8px',
+                                                    borderRadius: '6px',
                                                     cursor: order.status === 'Cancelled' || order.status === 'Delivered' ? 'not-allowed' : 'pointer',
                                                     fontWeight: 'bold',
-                                                    fontSize: '0.85rem',
+                                                    fontSize: '0.75rem',
                                                 }}
                                             >
                                                 ✨ Complete

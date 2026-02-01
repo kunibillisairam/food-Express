@@ -138,10 +138,37 @@ const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/restaurant
 mongoose.connect(MONGO_URI)
     .then(() => {
         console.log('MongoDB Connected');
+        // Seed Admin
+        createDefaultAdmin();
         // Start Campaign Scheduler
         startCampaignScheduler();
     })
     .catch(err => console.error('MongoDB Connection Error:', err));
+
+// Seed Default Admin
+async function createDefaultAdmin() {
+    try {
+        const adminUser = await User.findOne({ username: 'admin' });
+        if (!adminUser) {
+            const newAdmin = new User({
+                username: 'admin',
+                email: 'admin@foodexpress.com', // Placeholder email
+                password: 'admin', // Will be hashed by pre-save
+                phone: '0000000000', // Placeholder phone
+                role: 'admin',
+                walletBalance: 999999
+            });
+            await newAdmin.save();
+            console.log('👑 Default Admin User Created (username: admin, password: admin)');
+        } else if (adminUser.role !== 'admin') {
+            adminUser.role = 'admin';
+            await adminUser.save();
+            console.log('👑 Admin role assigned to existing "admin" user');
+        }
+    } catch (error) {
+        console.error('Error creating default admin:', error);
+    }
+}
 
 // Debugging: Log that routes are initializing
 console.log("Initializing Routes...");
@@ -1023,13 +1050,10 @@ app.post('/api/auth/login', async (req, res) => {
     try {
         const { phone, password, username } = req.body; // Accept both for backward/admin support
 
-        // Admin hardcoded check
-        if ((phone === 'admin' || username === 'admin') && password === 'admin') {
-            return res.json({
-                success: true,
-                user: { username: 'admin', role: 'admin', walletBalance: 999999 }
-            });
-        }
+        const { phone, password, username } = req.body; // Accept both for backward/admin support
+
+        // Note: Admin credentials are now stored in the database.
+        // The default admin is seeded on server start if not exists: user: 'admin', pass: 'admin'
 
         // Find user by phone (new primary) or username (legacy fallback)
         const user = await User.findOne({

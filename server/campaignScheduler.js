@@ -110,11 +110,51 @@ async function checkAndTriggerCampaigns() {
                 'Start your week healthy! Special discounts on salads and healthy meals.', 20, ['salads', 'healthy']);
         }
 
-        // Happy Hour (4 PM - 7 PM)
-        const hour = now.getHours();
-        if (hour >= 16 && hour <= 19) {
-            await handleCampaignType('happy_hour', 'Happy Hour! 🍹',
-                'Get 50% OFF on Drinks during Happy Hour (4PM - 7PM)!', 50, ['drinks', 'beverages']);
+        // --- 1. Scheduled Campaigns ---
+        const scheduledCampaigns = await Campaign.find({
+            isActive: true,
+            notificationSent: false,
+            scheduledTime: { $lte: now }
+        });
+
+        for (const campaign of scheduledCampaigns) {
+            console.log(`⏰ Triggering scheduled campaign: ${campaign.title}`);
+            await sendCampaignNotification(campaign);
+        }
+
+        // --- 2. Dynamic Happy Hour ---
+        const happyHourCampaign = await Campaign.findOne({ type: 'happy_hour', isActive: true });
+
+        if (happyHourCampaign) {
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+            const timeString = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
+
+            // Default to 4PM-7PM if not specified
+            const start = happyHourCampaign.startTime || "16:00";
+            const end = happyHourCampaign.endTime || "19:00";
+
+            // Simple check (assumes same day start/end)
+            if (timeString >= start && timeString < end) {
+                // Check if we already notified TODAY
+                const todayStart = new Date();
+                todayStart.setHours(0, 0, 0, 0);
+
+                if (!happyHourCampaign.lastTriggered || happyHourCampaign.lastTriggered < todayStart) {
+                    console.log(`🍹 Triggering Happy Hour: ${happyHourCampaign.title}`);
+                    await sendCampaignNotification(happyHourCampaign);
+                }
+            }
+        } else {
+            // Fallback Legacy Happy Hour (4 PM - 7 PM)
+            const hour = now.getHours();
+            // Only if Monday-Thursday (optional, keeping logic simple)
+            if (hour >= 16 && hour <= 19) {
+                // We don't have a DB entry, so we create a temporary one in memory or just use handleCampaignType
+                // handleCampaignType checks DB, so we use that to ensure single trigger per day
+                await handleCampaignType('happy_hour', 'Happy Hour! 🍹',
+                    'Get 50% OFF on Drinks during Happy Hour (4PM - 7PM)!', 50, ['drinks', 'beverages']);
+            }
         }
 
         // End of month campaigns
