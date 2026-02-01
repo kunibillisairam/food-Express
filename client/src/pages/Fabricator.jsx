@@ -228,7 +228,7 @@ const FabricatorInterface = ({ item, onBack, onComplete }) => {
                     ))}
                 </div>
                 <button className="replicate-main-btn" onClick={handleReplicate} disabled={isScanning}>
-                    ENGAGE REPLICATOR
+                    ADD TO CART
                 </button>
             </div>
         </div>
