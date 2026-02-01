@@ -240,6 +240,32 @@ app.delete('/api/orders/:id', async (req, res) => {
     }
 });
 
+// PUT /api/users/:id/block
+app.put('/api/users/:id/block', async (req, res) => {
+    try {
+        const { isBlocked } = req.body;
+        await User.findByIdAndUpdate(req.params.id, { isBlocked });
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// PUT /api/users/:id/reset-password (Admin Force Reset)
+app.put('/api/users/:id/reset-password', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        user.password = "password123"; // Default temporary password
+        await user.save(); // Middleware will hash this
+
+        res.json({ success: true, message: 'Password reset to "password123"' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // PUT /api/orders/:id/cancel -> Cancel an order
 app.put('/api/orders/:id/cancel', async (req, res) => {
     try {
@@ -1050,7 +1076,7 @@ app.post('/api/auth/login', async (req, res) => {
     try {
         const { phone, password, username } = req.body; // Accept both for backward/admin support
 
-        const { phone, password, username } = req.body; // Accept both for backward/admin support
+
 
         // Note: Admin credentials are now stored in the database.
         // The default admin is seeded on server start if not exists: user: 'admin', pass: 'admin'

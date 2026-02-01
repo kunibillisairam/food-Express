@@ -107,6 +107,16 @@ const AdminOrders = ({ setView }) => {
         }
     };
 
+    const handleResetPassword = async (userId) => {
+        if (!confirm("Are you sure? This will reset the user's password to 'password123'.")) return;
+        try {
+            await axios.put(`${API_BASE_URL}/api/users/${userId}/reset-password`);
+            toast.success("Password reset to 'password123'");
+        } catch (err) {
+            toast.error("Failed to reset password");
+        }
+    };
+
     const StatCard = ({ title, value, icon, color }) => (
         <motion.div
             whileHover={{ scale: 1.05 }}
@@ -358,6 +368,13 @@ const AdminOrders = ({ setView }) => {
                                                         style={{ marginRight: '0.5rem', background: '#3498db', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '5px', color: 'white', cursor: 'pointer' }}
                                                     >
                                                         History
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleResetPassword(user._id)}
+                                                        style={{ marginRight: '0.5rem', background: '#f1c40f', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '5px', color: '#2c3e50', cursor: 'pointer', fontWeight: 'bold' }}
+                                                        title="Reset Password to 'password123'"
+                                                    >
+                                                        🔑 Reset
                                                     </button>
                                                     <button
                                                         onClick={() => handleBlockUser(user._id, user.isBlocked)}
