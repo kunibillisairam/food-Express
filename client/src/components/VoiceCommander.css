@@ -119,13 +119,6 @@
 /* Mobile adjustments */
 @media (max-width: 768px) {
     .voice-commander-container {
-        bottom: 20px;
-        right: 20px;
-    }
-
-    .computer-btn {
-        padding: 5px 10px;
-        font-size: 0.65rem;
-        letter-spacing: 1px;
+        display: none !important;
     }
 }
