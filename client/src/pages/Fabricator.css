@@ -557,11 +557,16 @@
 
 @media (max-width: 768px) {
     .fabricator-container {
-        padding: 1rem;
+        padding: 0.5rem;
     }
 
     .fabricator-title {
-        font-size: 1.8rem;
+        font-size: 1.5rem;
+        border-bottom-width: 1px;
+    }
+
+    .subtitle {
+        font-size: 0.8rem;
     }
 
     .hologram-grid {
@@ -571,42 +576,62 @@
     }
 
     .hologram-card {
-        padding: 0.6rem;
+        padding: 0.5rem;
+    }
+
+    /* Lift content less on mobile to prevent overflow issues */
+    .hover-content {
+        transform: none !important;
+        gap: 0.3rem;
+    }
+
+    .hologram-card:hover .hologram-image {
+        transform: scale(1.05);
+        /* reduced motion */
     }
 
     .hologram-image {
-        width: 70px;
-        height: 70px;
-    }
-
-    .hologram-name {
-        font-size: 0.8rem;
-        margin-bottom: 0.2rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 100%;
-    }
-
-    .hologram-price {
-        font-size: 0.75rem;
-    }
-
-    .action-btn {
-        padding: 0.2rem 0.4rem;
-        font-size: 0.55rem;
+        width: 60px;
+        height: 60px;
         border-width: 1px;
     }
 
+    .hologram-name {
+        font-size: 0.75rem;
+        margin-bottom: 0;
+        line-height: 1.1;
+        height: 2.2em;
+        /* Limit to 2 lines */
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        white-space: normal;
+        /* Allow wrapping */
+    }
+
+    .hologram-price {
+        font-size: 0.7rem;
+        margin-top: 2px;
+    }
+
     .card-actions {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        width: 100%;
         gap: 4px;
         margin-top: 5px;
-        flex-direction: column;
-        width: 100%;
     }
 
     .action-btn {
-        width: 100%;
+        flex: 1;
+        padding: 0.3rem 0;
+        font-size: 0.55rem;
+        border-width: 1px;
+        white-space: nowrap;
         text-align: center;
+        width: auto;
+        /* reset from 100% */
     }
 }
