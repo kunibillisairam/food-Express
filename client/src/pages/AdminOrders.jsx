@@ -142,20 +142,29 @@ const AdminOrders = ({ setView }) => {
         if (!managingUser) return;
 
         try {
-            await axios.post(`${API_BASE_URL}/api/admin/economy`, {
-                userId: managingUser._id,
-                action: actionType,
-                method: method,
-                amount,
-                reason
+            console.log('[Economy Action] Attempting:', { userId: managingUser._id, actionType, method, amount, reason });
+
+            // The backend expects: type, amount, description, target
+            // target: 'wallet', 'credits', 'xp', 'compensation'
+            // type: 'Credit', 'Debit', 'Reset'
+            const response = await axios.post(`${API_BASE_URL}/api/admin/users/${managingUser._id}/transaction`, {
+                type: method, // 'Credit' or 'Debit'
+                amount: amount,
+                description: reason,
+                target: actionType // 'wallet' or 'credits'
             });
+
+            console.log('[Economy Action] Success:', response.data);
             toast.success('Economy updated!');
             setEcoAmount('');
             setEcoReason('');
             setManagingUser(null);
             fetchUsers();
         } catch (err) {
-            toast.error('Economy action failed');
+            console.error('[Economy Action] Error:', err);
+            console.error('[Economy Action] Error response:', err.response?.data);
+            const errorMsg = err.response?.data?.message || err.message || 'Economy action failed';
+            toast.error(errorMsg);
         }
     };
 
@@ -176,16 +185,23 @@ const AdminOrders = ({ setView }) => {
 
     const handleEditSave = async () => {
         try {
-            await axios.put(`${API_BASE_URL}/api/users/${editingUser._id}`, editFormData);
+            console.log('[User Update] Attempting to update user:', editingUser._id);
+            console.log('[User Update] Update data:', editFormData);
+
+            const response = await axios.put(`${API_BASE_URL}/api/users/${editingUser._id}`, editFormData);
+
+            console.log('[User Update] Success:', response.data);
             toast.success('User updated successfully');
 
-            // Optimistic Update
-            setUsers(users.map(u => (u._id === editingUser._id ? { ...u, ...editFormData } : u)));
-
             setEditingUser(null);
-            // fetchUsers(); // No need to re-fetch if we update locally
+
+            // Fetch fresh data from server to ensure consistency
+            fetchUsers();
         } catch (err) {
-            toast.error('Update failed');
+            console.error('[User Update] Error:', err);
+            console.error('[User Update] Error response:', err.response?.data);
+            const errorMsg = err.response?.data?.message || err.message || 'Update failed';
+            toast.error(errorMsg);
         }
     };
 
