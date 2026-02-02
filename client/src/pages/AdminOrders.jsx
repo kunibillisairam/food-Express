@@ -72,7 +72,7 @@ const AdminOrders = ({ setView }) => {
     const fetchUsers = async () => {
         setLoading(true);
         try {
-            const res = await axios.get(`${API_BASE_URL}/api/users/all`);
+            const res = await axios.get(`${API_BASE_URL}/api/users`);
             setUsers(res.data);
         } catch (err) {
             console.error(err);
@@ -440,7 +440,7 @@ const AdminOrders = ({ setView }) => {
                                                             value={order.status}
                                                             onChange={(e) => handleUpdateStatus(order._id, e.target.value)}
                                                             className={`status-badge ${order.status === 'Delivered' ? 'success' :
-                                                                    order.status === 'Cancelled' ? 'danger' : 'pending'
+                                                                order.status === 'Cancelled' ? 'danger' : 'pending'
                                                                 }`}
                                                             style={{ border: 'none', cursor: 'pointer' }}
                                                         >

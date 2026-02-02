@@ -98,6 +98,7 @@ const Main = () => {
       console.log(`[Notification] Current Permission: ${Notification.permission}`);
     }
 
+
     return () => {
       if (cleanup) cleanup();
       window.removeEventListener('online', handleOnline);
@@ -138,7 +139,7 @@ const Main = () => {
       case 'cart': return <Cart setView={handleViewChange} />;
       case 'payment': return <Payment setView={handleViewChange} />;
       case 'success': return <Success setView={handleViewChange} />;
-      case 'admin-orders': return <AdminDashboard setView={handleViewChange} />;
+      case 'admin-orders': return <AdminOrders setView={handleViewChange} />;
       case 'my-orders': return <MyOrders setView={handleViewChange} />;
       case 'profile': return <Profile setView={handleViewChange} />;
       case 'login': return <Login setView={handleViewChange} />;

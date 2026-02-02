@@ -66,7 +66,7 @@ const AdminDashboard = ({ setView }) => {
 
     const fetchUsers = async () => {
         try {
-            const res = await axios.get(`${API_BASE_URL}/api/users/all`);
+            const res = await axios.get(`${API_BASE_URL}/api/users`);
             setUsers(res.data);
         } catch (err) {
             toast.error("Failed to load users");
