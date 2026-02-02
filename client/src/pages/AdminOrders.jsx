@@ -1,28 +1,41 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import './AdminOrders.css';
 import API_BASE_URL from '../config';
 import NotificationSender from '../components/NotificationSender';
-import CampaignManager from './CampaignManager'; // Integrated Campaign Manager
+import CampaignManager from './CampaignManager';
 import toast from 'react-hot-toast';
+import { AuthContext } from '../context/AuthContext';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-    PieChart, Pie, Cell
+    PieChart, Pie, Cell, AreaChart, Area
 } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
+import {
+    FaHome, FaBox, FaUsers, FaChartLine, FaBullhorn, FaBell, FaSearch,
+    FaUserCircle, FaCog, FaSignOutAlt, FaWallet
+} from 'react-icons/fa';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
 const AdminOrders = ({ setView }) => {
+    const { user, logout } = useContext(AuthContext);
     const [orders, setOrders] = useState([]);
     const [users, setUsers] = useState([]);
     const [analytics, setAnalytics] = useState(null);
     const [activeTab, setActiveTab] = useState('analytics');
     const [loading, setLoading] = useState(false);
-    const [selectedUserOrders, setSelectedUserOrders] = useState(null); // For user history modal
+
+    // Management states
+    const [selectedUserOrders, setSelectedUserOrders] = useState(null);
     const [managingUser, setManagingUser] = useState(null);
+    const [editingUser, setEditingUser] = useState(null);
+
+    // Forms
     const [ecoAmount, setEcoAmount] = useState('');
     const [ecoReason, setEcoReason] = useState('');
+    const [editFormData, setEditFormData] = useState({ username: '', phone: '', walletBalance: '', rank: 'Cadet' });
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         if (activeTab === 'orders') fetchOrders();
@@ -59,13 +72,108 @@ const AdminOrders = ({ setView }) => {
     const fetchUsers = async () => {
         setLoading(true);
         try {
-            const res = await axios.get(`${API_BASE_URL}/api/users`);
+            const res = await axios.get(`${API_BASE_URL}/api/users/all`);
             setUsers(res.data);
         } catch (err) {
             console.error(err);
-            toast.error('Error fetching users');
+            toast.error('Failed to fetch users');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleUpdateStatus = async (orderId, newStatus) => {
+        try {
+            await axios.put(`${API_BASE_URL}/api/orders/${orderId}`, { status: newStatus });
+            toast.success(`Order updated to ${newStatus}`);
+            fetchOrders();
+        } catch (err) {
+            console.error(err);
+            toast.error('Failed to update status');
+        }
+    };
+
+    const handleRefund = async (orderId) => {
+        if (!window.confirm("Are you sure you want to refund and cancel this order?")) return;
+        try {
+            await axios.put(`${API_BASE_URL}/api/orders/${orderId}/cancel`);
+            toast.success('Order cancelled and refunded');
+            fetchOrders();
+        } catch (err) {
+            console.error(err);
+            toast.error('Refund failed');
+        }
+    };
+
+    // User Action Extensions
+    const handleBlockUser = async (userId, isBlocked) => {
+        try {
+            await axios.put(`${API_BASE_URL}/api/users/${userId}/block`, { isBlocked: !isBlocked });
+            toast.success(isBlocked ? 'User Unblocked' : 'User Blocked');
+            fetchUsers();
+        } catch (err) {
+            toast.error('Action Failed');
+        }
+    };
+
+    const handleResetPassword = async (userId) => {
+        if (!window.confirm("Reset password to 'password123'?")) return;
+        try {
+            await axios.put(`${API_BASE_URL}/api/users/${userId}/reset-password`);
+            toast.success('Password reset to default');
+        } catch (err) {
+            toast.error('Reset Failed');
+        }
+    };
+
+    const handleEconomyAction = async (actionType, method, amountOverride = null, reasonOverride = null) => {
+        const amount = amountOverride || parseFloat(ecoAmount);
+        const reason = reasonOverride || ecoReason || 'Admin Adjustment';
+
+        if (!amount || amount <= 0) return toast.error('Check Amount');
+        if (!managingUser) return;
+
+        try {
+            await axios.post(`${API_BASE_URL}/api/admin/economy`, {
+                userId: managingUser._id,
+                action: actionType,
+                method: method,
+                amount,
+                reason
+            });
+            toast.success('Economy updated!');
+            setEcoAmount('');
+            setEcoReason('');
+            setManagingUser(null);
+            fetchUsers();
+        } catch (err) {
+            toast.error('Economy action failed');
+        }
+    };
+
+    // Edit User Handlers
+    const handleEditClick = (user) => {
+        setEditingUser(user);
+        setEditFormData({
+            username: user.username,
+            phone: user.phone || '',
+            walletBalance: user.walletBalance,
+            rank: user.rank || 'Cadet'
+        });
+    };
+
+    const handleEditChange = (e) => {
+        setEditFormData({ ...editFormData, [e.target.name]: e.target.value });
+    };
+
+    const handleEditSave = async () => {
+        try {
+            await axios.put(`${API_BASE_URL}/api/users/${editingUser._id}/update`, editFormData);
+            toast.success('User updated successfully');
+            setEditingUser(null);
+            fetchUsers();
+        } catch (err) {
+            toast.error('Update failed');
         }
     };
 
@@ -74,320 +182,310 @@ const AdminOrders = ({ setView }) => {
             const res = await axios.get(`${API_BASE_URL}/api/orders/user/${username}`);
             setSelectedUserOrders({ username, orders: res.data });
         } catch (err) {
-            toast.error("Could not fetch user history");
+            toast.error('Could not fetch history');
         }
     };
 
-    const handleUpdateStatus = async (orderId, newStatus) => {
-        try {
-            await axios.put(`${API_BASE_URL}/api/orders/${orderId}/status`, { status: newStatus });
-            toast.success(`Order updated to ${newStatus}`);
-            fetchOrders(); // Refresh
-        } catch (err) {
-            toast.error('Update failed');
-        }
-    };
 
-    const handleRefund = async (orderId) => {
-        if (!confirm("Are you sure you want to cancel and refund this order?")) return;
-        try {
-            await axios.put(`${API_BASE_URL}/api/orders/${orderId}/cancel`);
-            toast.success('Order cancelled & refunded');
-            fetchOrders();
-        } catch (err) {
-            toast.error('Refund failed');
-        }
-    };
-
-    const handleBlockUser = async (userId, currentStatus) => {
-        const action = currentStatus ? "Unblock" : "Block";
-        if (!confirm(`Are you sure you want to ${action} this user?`)) return;
-        try {
-            await axios.put(`${API_BASE_URL}/api/users/${userId}/block`, { isBlocked: !currentStatus });
-            toast.success(`User ${action}ed successfully`);
-            fetchUsers();
-        } catch (err) {
-            toast.error(`Failed to ${action} user`);
-        }
-    };
-
-    const handleResetPassword = async (userId) => {
-        if (!confirm("Are you sure? This will reset the user's password to 'password123'.")) return;
-        try {
-            await axios.put(`${API_BASE_URL}/api/users/${userId}/reset-password`);
-            toast.success("Password reset to 'password123'");
-        } catch (err) {
-            toast.error("Failed to reset password");
-        }
-    };
-
-    const handleEconomyAction = async (target, type, fixedAmount = null, fixedReason = null) => {
-        if (!managingUser) return;
-        const amount = fixedAmount || ecoAmount;
-        const description = fixedReason || ecoReason;
-
-        if ((!amount || isNaN(amount)) && type !== 'Reset') {
-            toast.error("Please enter a valid amount");
-            return;
-        }
-
-        try {
-            const res = await axios.post(`${API_BASE_URL}/api/admin/users/${managingUser._id}/transaction`, {
-                target,
-                type,
-                amount: Number(amount),
-                description
-            });
-            toast.success("Transaction Successful! 💸");
-
-            // Update local user state
-            setManagingUser(res.data.user);
-            setUsers(users.map(u => u._id === res.data.user._id ? res.data.user : u));
-
-            // Clear inputs
-            setEcoAmount('');
-            setEcoReason('');
-        } catch (err) {
-            toast.error(err.response?.data?.message || "Transaction Failed");
-        }
-    };
-
-    const [editingUser, setEditingUser] = useState(null);
-    const [editFormData, setEditFormData] = useState({});
-
-    const handleEditClick = (user) => {
-        setEditingUser(user);
-        setEditFormData({
-            username: user.username,
-            phone: user.phone || '',
-            walletBalance: user.walletBalance,
-            rank: user.rank || 'Cadet',
-        });
-    };
-
-    const handleEditChange = (e) => {
-        const { name, value } = e.target;
-        setEditFormData(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleEditSave = async () => {
-        try {
-            await axios.put(`${API_BASE_URL}/api/users/${editingUser._id}`, editFormData);
-            toast.success('User details updated!');
-            setEditingUser(null);
-            fetchUsers(); // Refresh list realtime
-        } catch (err) {
-            toast.error('Failed to update user');
-        }
-    };
-
-    const StatCard = ({ title, value, icon, color }) => (
-        <motion.div
-            whileHover={{ scale: 1.05 }}
-            style={{
-                background: 'rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(10px)',
-                padding: '1.5rem',
-                borderRadius: '15px',
-                border: `1px solid ${color}`,
-                color: 'white',
-                flex: 1,
-                minWidth: '200px',
-                boxShadow: `0 4px 15px ${color}40`
-            }}
+    const SidebarItem = ({ id, label, icon }) => (
+        <button
+            className={`nav-item ${activeTab === id ? 'active' : ''}`}
+            onClick={() => setActiveTab(id)}
         >
-            <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{icon}</div>
-            <div style={{ fontSize: '0.9rem', opacity: 0.8 }}>{title}</div>
-            <div style={{ fontSize: '1.8rem', fontWeight: 'bold' }}>{value}</div>
-        </motion.div>
+            <span className="nav-icon">{icon}</span>
+            {label}
+        </button>
     );
 
     return (
-        <div className="admin-orders-container fade-in">
-            <div className="header-flex">
-                <h2 className="page-title">🏢 Admin HQ</h2>
-                <button className="nav-btn" onClick={() => setView('home')}>Exit to App</button>
-            </div>
+        <div className="admin-layout">
+            {/* Sidebar */}
+            <aside className="sidebar">
+                <div className="sidebar-profile">
+                    <div className="sidebar-avatar" style={{ backgroundImage: user?.avatar ? `url(${user.avatar})` : undefined }}></div>
+                    <div className="sidebar-name">{user?.username || 'Admin'}</div>
+                    <div className="sidebar-role">Super Admin</div>
+                </div>
 
-            <div className="admin-tabs">
-                {['analytics', 'orders', 'users', 'campaigns', 'notifications'].map(tab => (
-                    <button
-                        key={tab}
-                        onClick={() => setActiveTab(tab)}
-                        className={`tab-btn ${activeTab === tab ? 'active' : ''}`}
-                    >
-                        {tab}
+                <div className="sidebar-nav">
+                    <SidebarItem id="analytics" label="Dashboard" icon={<FaChartLine />} />
+                    <SidebarItem id="orders" label="Orders" icon={<FaBox />} />
+                    <SidebarItem id="users" label="Users" icon={<FaUsers />} />
+                    <SidebarItem id="campaigns" label="Campaigns" icon={<FaBullhorn />} />
+                    <SidebarItem id="notifications" label="Broadcast" icon={<FaBell />} />
+                </div>
+
+                <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                    <button className="nav-item" onClick={() => setView('home')}>
+                        <span className="nav-icon"><FaHome /></span>
+                        Back to App
                     </button>
-                ))}
-            </div>
+                    <button className="nav-item" onClick={logout} style={{ color: '#ff4757' }}>
+                        <span className="nav-icon"><FaSignOutAlt /></span>
+                        Logout
+                    </button>
+                </div>
+            </aside>
 
-            {loading && <div style={{ textAlign: 'center', padding: '2rem' }}>Loading ecosystem data...</div>}
+            {/* Main Content */}
+            <main className="main-content">
+                {/* Topbar */}
+                <header className="top-bar">
+                    <div className="top-bar-search">
+                        <FaSearch className="search-icon-abs" />
+                        <input
+                            type="text"
+                            className="top-search-input"
+                            placeholder="Type to search..."
+                            value={activeTab === 'users' ? searchTerm : ''}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            disabled={activeTab !== 'users'}
+                        />
+                    </div>
+                    <div className="top-bar-actions">
+                        <button className="icon-btn"><FaBell /></button>
+                        <button className="icon-btn"><FaCog /></button>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <div style={{ textAlign: 'right', display: 'none', md: 'block' }}>
+                                <div style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>{user?.username}</div>
+                                <div style={{ fontSize: '0.7rem', color: '#888' }}>Administrator</div>
+                            </div>
+                            <button className="icon-btn"><FaUserCircle style={{ fontSize: '1.5rem' }} /></button>
+                        </div>
+                    </div>
+                </header>
 
-            {!loading && (
-                <div className="dashboard-content">
-                    {activeTab === 'analytics' && analytics && (
-                        <div className="analytics-view">
-                            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '3rem' }}>
-                                <StatCard title="Daily Orders" value={analytics.dailyOrders} icon="📦" color="#00C49F" />
-                                <StatCard title="Daily Revenue" value={`₹${analytics.dailyRevenue}`} icon="💰" color="#0088FE" />
-                                <StatCard title="Monthly Orders" value={analytics.monthlyOrders} icon="📅" color="#FFBB28" />
-                                <StatCard title="Monthly Revenue" value={`₹${analytics.monthlyRevenue}`} icon="📈" color="#FF8042" />
+                <div className="dashboard-container">
+
+                    {/* Dashboard Analytics View */}
+                    {activeTab === 'analytics' && (
+                        <div className="fade-in">
+                            <h2 className="section-title">Dashboard Overview</h2>
+
+                            {/* Stats Row 1 */}
+                            <div className="stats-row">
+                                <div className="modern-stat-card">
+                                    <div>
+                                        <div style={{ color: '#888', fontSize: '0.9rem' }}>Daily Orders</div>
+                                        <div style={{ fontSize: '1.8rem', fontWeight: 'bold', marginTop: '5px' }}>
+                                            {analytics?.dailyOrders || 0}
+                                        </div>
+                                    </div>
+                                    <div className="stat-icon-circle" style={{ background: '#6c5ce7' }}><FaBox /></div>
+                                </div>
+                                <div className="modern-stat-card">
+                                    <div>
+                                        <div style={{ color: '#888', fontSize: '0.9rem' }}>Daily Revenue</div>
+                                        <div style={{ fontSize: '1.8rem', fontWeight: 'bold', marginTop: '5px' }}>
+                                            ₹{analytics?.dailyRevenue || 0}
+                                        </div>
+                                    </div>
+                                    <div className="stat-icon-circle" style={{ background: '#00cec9' }}><FaWallet /></div>
+                                </div>
+                                <div className="modern-stat-card">
+                                    <div>
+                                        <div style={{ color: '#888', fontSize: '0.9rem' }}>Monthly Orders</div>
+                                        <div style={{ fontSize: '1.8rem', fontWeight: 'bold', marginTop: '5px' }}>
+                                            {analytics?.monthlyOrders || 0}
+                                        </div>
+                                    </div>
+                                    <div className="stat-icon-circle" style={{ background: '#fdcb6e' }}><FaBox /></div>
+                                </div>
+                                <div className="modern-stat-card">
+                                    <div>
+                                        <div style={{ color: '#888', fontSize: '0.9rem' }}>Monthly Reven..</div>
+                                        <div style={{ fontSize: '1.8rem', fontWeight: 'bold', marginTop: '5px' }}>
+                                            ₹{analytics?.monthlyRevenue || 0}
+                                        </div>
+                                    </div>
+                                    <div className="stat-icon-circle" style={{ background: '#ff7675' }}><FaChartLine /></div>
+                                </div>
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '2rem' }}>
-                                <div style={{ height: '400px', background: 'rgba(0,0,0,0.3)', padding: '1rem', borderRadius: '20px' }}>
-                                    <h3 style={{ textAlign: 'center', marginBottom: '1rem' }}>🏆 Most Popular Items</h3>
+                            {/* Charts Row */}
+                            <div className="charts-row">
+                                <div className="chart-card">
+                                    <div className="card-header">
+                                        <div className="card-title">Revenue & Traffic</div>
+                                        <button className="table-btn btn-purple">Last Month Summary</button>
+                                    </div>
                                     <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart data={analytics.popularItems}>
-                                            <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                                            <XAxis dataKey="_id" stroke="#ccc" />
-                                            <YAxis stroke="#ccc" />
-                                            <Tooltip contentStyle={{ background: '#333', border: 'none' }} />
-                                            <Legend />
-                                            <Bar dataKey="count" fill="#8884d8">
-                                                {analytics.popularItems.map((entry, index) => (
+                                        <AreaChart data={analytics?.popularItems || []}>
+                                            <defs>
+                                                <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
+                                                    <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
+                                                </linearGradient>
+                                            </defs>
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
+                                            <XAxis dataKey="_id" axisLine={false} tickLine={false} tick={{ fill: '#999', fontSize: 12 }} />
+                                            <YAxis axisLine={false} tickLine={false} tick={{ fill: '#999', fontSize: 12 }} />
+                                            <Tooltip contentStyle={{ borderRadius: '10px', border: 'none', boxShadow: '0 5px 15px rgba(0,0,0,0.1)' }} />
+                                            <Area type="monotone" dataKey="count" stroke="#8884d8" fillOpacity={1} fill="url(#colorCount)" />
+                                        </AreaChart>
+                                    </ResponsiveContainer>
+                                </div>
+                                <div className="chart-card">
+                                    <div className="card-header">
+                                        <div className="card-title">Traffic Source</div>
+                                    </div>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart>
+                                            <Pie
+                                                data={analytics?.popularItems || []}
+                                                cx="50%"
+                                                cy="50%"
+                                                innerRadius={60}
+                                                outerRadius={80}
+                                                fill="#8884d8"
+                                                paddingAngle={5}
+                                                dataKey="count"
+                                            >
+                                                {(analytics?.popularItems || []).map((entry, index) => (
                                                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                                 ))}
-                                            </Bar>
-                                        </BarChart>
+                                            </Pie>
+                                            <Tooltip />
+                                            <Legend verticalAlign="bottom" height={36} />
+                                        </PieChart>
                                     </ResponsiveContainer>
                                 </div>
                             </div>
+
+                            {/* Colored Widgets */}
+                            <div className="widget-row">
+                                <div className="colored-widget pink">
+                                    <div>Revenue Status</div>
+                                    <FaChartLine style={{ fontSize: '2rem', opacity: 0.8 }} />
+                                    <div>
+                                        <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>$500</div>
+                                        <div style={{ fontSize: '0.8rem', opacity: 0.8 }}>Jan 05 - Jan 10</div>
+                                    </div>
+                                </div>
+                                <div className="colored-widget purple">
+                                    <div>Page View</div>
+                                    <div style={{ fontSize: '2.5rem', fontWeight: 'bold' }}>60K</div>
+                                    <AreaChart width={100} height={40} data={[{ uv: 10 }, { uv: 30 }, { uv: 20 }, { uv: 40 }, { uv: 30 }]} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+                                        <Area type="monotone" dataKey="uv" stroke="#fff" fill="rgba(255,255,255,0.3)" />
+                                    </AreaChart>
+                                </div>
+                                <div className="colored-widget blue">
+                                    <div>Bounce Rate</div>
+                                    <div style={{ fontSize: '2.5rem', fontWeight: 'bold' }}>432</div>
+                                    <div>Monthly ▼</div>
+                                </div>
+                                <div className="colored-widget orange">
+                                    <div>New Visitors</div>
+                                    <FaUsers style={{ fontSize: '2rem', opacity: 0.8 }} />
+                                    <div>
+                                        <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>800</div>
+                                        <div style={{ fontSize: '0.8rem', opacity: 0.8 }}>Jan 07 - Jan 10</div>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     )}
 
+                    {/* Orders View */}
                     {activeTab === 'orders' && (
-                        <div className="orders-grid">
-                            {orders.length === 0 ? <p>No active orders.</p> : orders.map(order => (
-                                <motion.div
-                                    key={order._id}
-                                    layout
-                                    className={`order-card ${order.status === 'Cancelled' ? 'cancelled' : ''}`}
-                                >
-                                    <div className="order-header">
-                                        <div>
-                                            <h3 className="order-id">#{order._id.substring(order._id.length - 6)}</h3>
-                                            <small className="order-meta">{order.userName} • {new Date(order.createdAt).toLocaleString()}</small>
-                                        </div>
-                                        <div style={{ textAlign: 'right' }}>
-                                            <div style={{ fontWeight: 'bold', fontSize: '1rem', color: '#2d3436' }}>₹{order.totalAmount}</div>
-                                        </div>
-                                    </div>
-
-                                    <div className="order-items-scroll">
-                                        {order.items.map((item, idx) => (
-                                            <div key={idx} className="order-item-row">
-                                                <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                    <span className="item-badge">{item.quantity}</span>
-                                                    <span style={{ fontWeight: '600' }}>{item.name}</span>
-                                                </div>
-                                                <span style={{ fontWeight: 'bold' }}>{item.price ? `₹${item.price}` : ''}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    <div style={{ marginTop: '0.8rem', paddingTop: '0.5rem', borderTop: '1px solid #eee' }}>
-                                        <select
-                                            value={order.status}
-                                            onChange={(e) => handleUpdateStatus(order._id, e.target.value)}
-                                            className="status-select"
-                                        >
-                                            <option value="Pending">🕒 Pending</option>
-                                            <option value="Preparing">🍳 Cooking</option>
-                                            <option value="Ready">🥡 Ready</option>
-                                            <option value="Out for Delivery">🚀 Out for Delivery</option>
-                                            <option value="Delivered">✅ Delivered</option>
-                                            <option value="Cancelled">🚫 Cancelled</option>
-                                        </select>
-
-                                        <div className="order-actions-row">
-                                            <button
-                                                onClick={() => handleRefund(order._id)}
-                                                disabled={order.status === 'Cancelled' || order.status === 'Delivered'}
-                                                className={`btn-action btn-cancel ${order.status === 'Cancelled' || order.status === 'Delivered' ? 'btn-disabled' : ''}`}
-                                            >
-                                                ❌ Cancel
-                                            </button>
-
-                                            <button
-                                                onClick={() => handleUpdateStatus(order._id, 'Delivered')}
-                                                disabled={order.status === 'Cancelled' || order.status === 'Delivered'}
-                                                className={`btn-action btn-complete ${order.status === 'Cancelled' || order.status === 'Delivered' ? 'btn-disabled' : ''}`}
-                                            >
-                                                ✨ Complete
-                                            </button>
-                                        </div>
-                                    </div>
-                                </motion.div>
-                            ))}
-                        </div>
-                    )}
-
-                    {activeTab === 'users' && (
-                        <div className="users-view">
-                            <div className="users-table-container">
-                                <table className="users-table">
+                        <div className="fade-in">
+                            <h2 className="section-title">Order Management</h2>
+                            <div className="table-card">
+                                <table className="modern-table">
                                     <thead>
                                         <tr>
-                                            <th>User</th>
+                                            <th>Order ID</th>
+                                            <th>Customer</th>
+                                            <th>Date</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {orders.map(order => (
+                                            <tr key={order._id}>
+                                                <td>#{order._id.substring(order._id.length - 6)}</td>
+                                                <td>{order.userName}</td>
+                                                <td>{new Date(order.createdAt).toLocaleDateString()}</td>
+                                                <td style={{ fontWeight: 'bold' }}>₹{order.totalAmount}</td>
+                                                <td>
+                                                    <span className={`status-badge ${order.status === 'Delivered' ? 'success' :
+                                                            order.status === 'Cancelled' ? 'danger' : 'pending'
+                                                        }`}>
+                                                        {order.status}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div className="action-btn-group">
+                                                        <button
+                                                            className="table-btn btn-blue"
+                                                            onClick={() => handleUpdateStatus(order._id, 'Delivered')}
+                                                            disabled={order.status === 'Delivered' || order.status === 'Cancelled'}
+                                                        >
+                                                            Process
+                                                        </button>
+                                                        <button
+                                                            className="table-btn btn-red"
+                                                            onClick={() => handleRefund(order._id)}
+                                                            disabled={order.status === 'Delivered' || order.status === 'Cancelled'}
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                        {orders.length === 0 && <tr><td colSpan="6" style={{ textAlign: 'center' }}>No orders found</td></tr>}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Users View */}
+                    {activeTab === 'users' && (
+                        <div className="fade-in">
+                            <h2 className="section-title">User Management</h2>
+                            <div className="table-card">
+                                <table className="modern-table">
+                                    <thead>
+                                        <tr>
+                                            <th>User Info</th>
                                             <th>Contact</th>
                                             <th>Wallet</th>
+                                            <th>Rank</th>
                                             <th>Status</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {users.map(user => (
+                                        {users.filter(user =>
+                                            user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                            (user.phone && user.phone.includes(searchTerm))
+                                        ).map(user => (
                                             <tr key={user._id}>
-                                                <td data-label="User">
-                                                    <div style={{ fontWeight: 'bold' }}>{user.username}</div>
-                                                    <small style={{ opacity: 0.7 }}>{user.rank}</small>
+                                                <td>
+                                                    <div className="user-cell">
+                                                        <div style={{ width: '35px', height: '35px', borderRadius: '50%', background: '#6c5ce7', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+                                                            {user.username[0].toUpperCase()}
+                                                        </div>
+                                                        <div>{user.username}</div>
+                                                    </div>
                                                 </td>
-                                                <td data-label="Contact">{user.phone || user.email}</td>
-                                                <td data-label="Wallet" style={{ color: '#2ecc71', fontWeight: 'bold' }}>₹{user.walletBalance}</td>
-                                                <td data-label="Status">
-                                                    <span style={{
-                                                        padding: '0.3rem 0.8rem',
-                                                        borderRadius: '20px',
-                                                        background: user.isBlocked ? '#e74c3c' : '#2ecc71',
-                                                        fontSize: '0.8rem'
-                                                    }}>
+                                                <td>{user.phone || 'N/A'}</td>
+                                                <td style={{ color: '#2ecc71', fontWeight: 'bold' }}>₹{user.walletBalance}</td>
+                                                <td><span style={{ padding: '2px 8px', background: '#eee', borderRadius: '4px', fontSize: '0.8rem' }}>{user.rank || 'Cadet'}</span></td>
+                                                <td>
+                                                    <span className={`status-badge ${user.isBlocked ? 'danger' : 'success'}`}>
                                                         {user.isBlocked ? 'Blocked' : 'Active'}
                                                     </span>
                                                 </td>
                                                 <td>
-                                                    <div className="user-actions">
-                                                        <button
-                                                            onClick={() => setManagingUser(user)}
-                                                            className="user-btn btn-manage"
-                                                        >
-                                                            💰 Manage
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleEditClick(user)}
-                                                            className="user-btn btn-edit"
-                                                        >
-                                                            ✏️ Edit
-                                                        </button>
-                                                        <button
-                                                            onClick={() => fetchUserOrders(user.username)}
-                                                            className="user-btn btn-history"
-                                                        >
-                                                            📜 History
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleResetPassword(user._id)}
-                                                            className="user-btn btn-reset"
-                                                            title="Reset Password"
-                                                        >
-                                                            🔑 Reset
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleBlockUser(user._id, user.isBlocked)}
-                                                            className={`user-btn ${user.isBlocked ? 'btn-unblock' : 'btn-block'}`}
-                                                        >
-                                                            {user.isBlocked ? '🔓 Unblock' : '🚫 Block'}
-                                                        </button>
+                                                    <div className="action-btn-group">
+                                                        <button className="table-btn btn-purple" onClick={() => setManagingUser(user)}> Manage</button>
+                                                        <button className="table-btn btn-blue" onClick={() => handleEditClick(user)}>Edit</button>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -398,193 +496,104 @@ const AdminOrders = ({ setView }) => {
                         </div>
                     )}
 
+                    {/* Campaigns View */}
                     {activeTab === 'campaigns' && (
-                        <div className="campaigns-wrapper">
+                        <div className="fade-in">
+                            <h2 className="section-title">Marketing Campaigns</h2>
                             <CampaignManager />
                         </div>
                     )}
 
+                    {/* Notifications View */}
                     {activeTab === 'notifications' && (
-                        <div style={{ maxWidth: '600px', margin: '0 auto', background: 'white', padding: '2rem', borderRadius: '20px', color: '#333' }}>
-                            <h3 style={{ textAlign: 'center', marginBottom: '1.5rem', color: '#6c5ce7' }}>📢 Broadcast Center</h3>
-                            <NotificationSender userId={null} />
+                        <div className="fade-in">
+                            <h2 className="section-title">Broadcast Center</h2>
+                            <div className="chart-card" style={{ height: 'auto', maxWidth: '600px' }}>
+                                <NotificationSender userId={null} />
+                            </div>
                         </div>
                     )}
-                </div>
-            )}
 
-            {/* Ecosystem Manager Modal */}
+                </div>
+            </main>
+
+            {/* Modals (Managing / Editing) - Kept mostly same but updated styles slightly via global CSS if needed */}
             <AnimatePresence>
+                {/* Economy Manager Modal */}
                 {managingUser && (
                     <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                         style={{
                             position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-                            background: 'rgba(0,0,0,0.85)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100
+                            background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(5px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100
                         }}
                         onClick={() => setManagingUser(null)}
                     >
                         <motion.div
-                            initial={{ scale: 0.9, y: 20 }}
-                            animate={{ scale: 1, y: 0 }}
-                            style={{
-                                background: '#2d3436',
-                                padding: '2rem',
-                                borderRadius: '20px',
-                                maxWidth: '500px',
-                                width: '90%',
-                                boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
-                                color: 'white'
-                            }}
+                            initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }}
+                            style={{ background: 'white', padding: '2rem', borderRadius: '20px', maxWidth: '500px', width: '90%', boxShadow: '0 20px 50px rgba(0,0,0,0.2)', color: '#333' }}
                             onClick={e => e.stopPropagation()}
                         >
-                            <h2 style={{ marginTop: 0, borderBottom: '1px solid #444', paddingBottom: '1rem' }}>
-                                👑 Manage: {managingUser.username}
-                            </h2>
-
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
-                                <div style={{ background: '#2c3e50', padding: '1rem', borderRadius: '10px' }}>
-                                    <small>Wallet Balance</small>
-                                    <div style={{ fontSize: '1.5rem', color: '#2ecc71', fontWeight: 'bold' }}>₹{managingUser.walletBalance}</div>
+                            <h3 style={{ marginTop: 0 }}>Manage: {managingUser.username}</h3>
+                            <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
+                                <div style={{ background: '#f0f0f0', padding: '15px', borderRadius: '10px', flex: 1 }}>
+                                    <div style={{ fontSize: '0.8rem', color: '#666' }}>Wallet</div>
+                                    <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>₹{managingUser.walletBalance}</div>
                                 </div>
-                                <div style={{ background: '#2c3e50', padding: '1rem', borderRadius: '10px' }}>
-                                    <small>Credits / XP</small>
-                                    <div style={{ fontSize: '1.5rem', color: '#f1c40f', fontWeight: 'bold' }}>{managingUser.credits} CR</div>
-                                    <small>{managingUser.xp} XP</small>
+                                <div style={{ background: '#f0f0f0', padding: '15px', borderRadius: '10px', flex: 1 }}>
+                                    <div style={{ fontSize: '0.8rem', color: '#666' }}>Credits</div>
+                                    <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{managingUser.credits}</div>
                                 </div>
                             </div>
 
-                            <div style={{ marginBottom: '1.5rem' }}>
-                                <label style={{ display: 'block', marginBottom: '0.5rem' }}>Amount</label>
-                                <input
-                                    type="number"
-                                    placeholder="Enter Amount"
-                                    value={ecoAmount}
-                                    onChange={e => setEcoAmount(e.target.value)}
-                                    style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: 'none', marginBottom: '1rem' }}
-                                />
-                                <label style={{ display: 'block', marginBottom: '0.5rem' }}>Reason (Optional)</label>
-                                <input
-                                    type="text"
-                                    placeholder="e.g. Compensation, Promo"
-                                    value={ecoReason}
-                                    onChange={e => setEcoReason(e.target.value)}
-                                    style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: 'none' }}
-                                />
+                            <input
+                                type="number" placeholder="Amount" value={ecoAmount} onChange={e => setEcoAmount(e.target.value)}
+                                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', marginBottom: '10px' }}
+                            />
+                            <input
+                                type="text" placeholder="Reason" value={ecoReason} onChange={e => setEcoReason(e.target.value)}
+                                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', marginBottom: '20px' }}
+                            />
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '20px' }}>
+                                <button className="table-btn btn-purple" onClick={() => handleEconomyAction('wallet', 'Credit')}>+ Credit Wallet</button>
+                                <button className="table-btn btn-red" onClick={() => handleEconomyAction('wallet', 'Debit')}>- Debit Wallet</button>
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem', marginBottom: '1.5rem' }}>
-                                <button onClick={() => handleEconomyAction('wallet', 'Credit')} className='btn-primary' style={{ background: '#2ecc71', padding: '0.8rem', border: 'none', borderRadius: '8px', color: 'white', cursor: 'pointer', fontWeight: 'bold' }}>
-                                    ➕ Add to Wallet
-                                </button>
-                                <button onClick={() => handleEconomyAction('wallet', 'Debit')} style={{ background: '#e74c3c', padding: '0.8rem', border: 'none', borderRadius: '8px', color: 'white', cursor: 'pointer', fontWeight: 'bold' }}>
-                                    ➖ Deduct Wallet
-                                </button>
-                                <button onClick={() => handleEconomyAction('credits', 'Credit')} style={{ background: '#f1c40f', padding: '0.8rem', border: 'none', borderRadius: '8px', color: '#2c3e50', cursor: 'pointer', fontWeight: 'bold' }}>
-                                    🪙 Give Credits
-                                </button>
-                                <button onClick={() => handleEconomyAction('credits', 'Debit')} style={{ background: '#d35400', padding: '0.8rem', border: 'none', borderRadius: '8px', color: 'white', cursor: 'pointer', fontWeight: 'bold' }}>
-                                    🔻 Deduct Credits
-                                </button>
-                            </div>
-
-                            <div style={{ borderTop: '1px solid #444', paddingTop: '1.5rem' }}>
-                                <button
-                                    onClick={() => handleEconomyAction('compensation', 'Credit', 500, 'Admin Compensation')}
-                                    style={{ width: '100%', background: 'linear-gradient(45deg, #FF8008, #FFC837)', border: 'none', padding: '1rem', borderRadius: '8px', color: 'white', fontWeight: 'bold', cursor: 'pointer', marginBottom: '1rem', boxShadow: '0 4px 15px rgba(255, 128, 8, 0.4)' }}
-                                >
-                                    🔥 Compensate Unhappy User (Instant ₹500)
-                                </button>
-
-                                <button
-                                    onClick={() => {
-                                        if (confirm("Are you sure you want to reset all XP and Credits for this user?"))
-                                            handleEconomyAction('xp', 'Reset')
-                                    }}
-                                    style={{ width: '100%', background: 'transparent', border: '1px solid #7f8c8d', padding: '0.8rem', borderRadius: '8px', color: '#95a5a6', cursor: 'pointer' }}
-                                >
-                                    🔄 Reset Reward Points
-                                </button>
-                            </div>
-
-                            <button onClick={() => setManagingUser(null)} style={{ position: 'absolute', top: '20px', right: '20px', background: 'transparent', border: 'none', color: 'white', fontSize: '1.5rem', cursor: 'pointer' }}>&times;</button>
+                            <button onClick={() => setManagingUser(null)} style={{ width: '100%', padding: '10px', border: 'none', background: 'transparent', color: '#666', cursor: 'pointer' }}>Close</button>
                         </motion.div>
                     </motion.div>
                 )}
-            </AnimatePresence>
 
-            {/* Edit User Modal */}
-            <AnimatePresence>
+                {/* Edit Modal */}
                 {editingUser && (
                     <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                         style={{
                             position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-                            background: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100
+                            background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(5px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100
                         }}
                         onClick={() => setEditingUser(null)}
                     >
                         <motion.div
-                            initial={{ scale: 0.9 }}
-                            animate={{ scale: 1 }}
-                            style={{ background: '#2d3436', padding: '2rem', borderRadius: '20px', maxWidth: '400px', width: '90%' }}
+                            initial={{ scale: 0.9 }} animate={{ scale: 1 }}
+                            style={{ background: 'white', padding: '2rem', borderRadius: '20px', maxWidth: '400px', width: '90%', boxShadow: '0 20px 50px rgba(0,0,0,0.2)', color: '#333' }}
                             onClick={e => e.stopPropagation()}
                         >
-                            <h3 style={{ marginTop: 0 }}>✏️ Edit User</h3>
+                            <h3 style={{ marginTop: 0 }}>Edit User</h3>
+                            <input type="text" name="username" value={editFormData.username} onChange={handleEditChange} placeholder="Username" style={{ width: '100%', padding: '10px', marginBottom: '10px', border: '1px solid #ddd', borderRadius: '5px' }} />
+                            <input type="text" name="phone" value={editFormData.phone} onChange={handleEditChange} placeholder="Phone" style={{ width: '100%', padding: '10px', marginBottom: '10px', border: '1px solid #ddd', borderRadius: '5px' }} />
+                            <input type="number" name="walletBalance" value={editFormData.walletBalance} onChange={handleEditChange} placeholder="Wallet" style={{ width: '100%', padding: '10px', marginBottom: '10px', border: '1px solid #ddd', borderRadius: '5px' }} />
 
-                            <div style={{ marginBottom: '1rem' }}>
-                                <label style={{ display: 'block', marginBottom: '5px', color: '#aaa' }}>Username</label>
-                                <input
-                                    type="text" name="username" value={editFormData.username} onChange={handleEditChange}
-                                    style={{ width: '100%', padding: '10px', borderRadius: '5px', border: 'none' }}
-                                />
-                            </div>
-
-                            <div style={{ marginBottom: '1rem' }}>
-                                <label style={{ display: 'block', marginBottom: '5px', color: '#aaa' }}>Phone</label>
-                                <input
-                                    type="text" name="phone" value={editFormData.phone} onChange={handleEditChange}
-                                    style={{ width: '100%', padding: '10px', borderRadius: '5px', border: 'none' }}
-                                />
-                            </div>
-
-                            <div style={{ marginBottom: '1rem' }}>
-                                <label style={{ display: 'block', marginBottom: '5px', color: '#aaa' }}>Wallet Balance (₹)</label>
-                                <input
-                                    type="number" name="walletBalance" value={editFormData.walletBalance} onChange={handleEditChange}
-                                    style={{ width: '100%', padding: '10px', borderRadius: '5px', border: 'none' }}
-                                />
-                            </div>
-
-                            <div style={{ marginBottom: '1.5rem' }}>
-                                <label style={{ display: 'block', marginBottom: '5px', color: '#aaa' }}>Rank</label>
-                                <select
-                                    name="rank" value={editFormData.rank} onChange={handleEditChange}
-                                    style={{ width: '100%', padding: '10px', borderRadius: '5px', border: 'none' }}
-                                >
-                                    <option value="Cadet">Cadet</option>
-                                    <option value="Captain">Captain</option>
-                                    <option value="Major">Major</option>
-                                    <option value="Colonel">Colonel</option>
-                                    <option value="General">General</option>
-                                </select>
-                            </div>
-
-                            <div style={{ display: 'flex', gap: '1rem' }}>
-                                <button onClick={handleEditSave} style={{ flex: 1, padding: '10px', background: '#2ed573', border: 'none', borderRadius: '5px', color: 'white', fontWeight: 'bold', cursor: 'pointer' }}>Save Changes</button>
-                                <button onClick={() => setEditingUser(null)} style={{ flex: 1, padding: '10px', background: '#636e72', border: 'none', borderRadius: '5px', color: 'white', fontWeight: 'bold', cursor: 'pointer' }}>Cancel</button>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <button className="table-btn btn-blue" style={{ flex: 1, padding: '10px' }} onClick={handleEditSave}>Save</button>
+                                <button className="table-btn btn-red" style={{ flex: 1, padding: '10px', background: '#ccc', color: '#333' }} onClick={() => setEditingUser(null)}>Cancel</button>
                             </div>
                         </motion.div>
                     </motion.div>
                 )}
-            </AnimatePresence>
 
-            {/* User History Modal (Existing) */}
-            <AnimatePresence>
+                {/* User History Modal (Existing) */}
                 {selectedUserOrders && (
                     <motion.div
                         initial={{ opacity: 0 }}
@@ -602,11 +611,11 @@ const AdminOrders = ({ setView }) => {
                             style={{ background: '#2d3436', padding: '2rem', borderRadius: '20px', maxWidth: '600px', width: '90%', maxHeight: '80vh', overflowY: 'auto' }}
                             onClick={e => e.stopPropagation()}
                         >
-                            <h3 style={{ marginTop: 0 }}>📜 History: {selectedUserOrders.username}</h3>
-                            {selectedUserOrders.orders.length === 0 ? <p>No orders found.</p> : (
+                            <h3 style={{ marginTop: 0, color: 'white' }}>📜 History: {selectedUserOrders.username}</h3>
+                            {selectedUserOrders.orders.length === 0 ? <p style={{ color: 'white' }}>No orders found.</p> : (
                                 <ul style={{ listStyle: 'none', padding: 0 }}>
                                     {selectedUserOrders.orders.map(o => (
-                                        <li key={o._id} style={{ padding: '1rem', borderBottom: '1px solid #444' }}>
+                                        <li key={o._id} style={{ padding: '1rem', borderBottom: '1px solid #444', color: 'white' }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                                 <span>{new Date(o.createdAt).toLocaleDateString()}</span>
                                                 <span style={{ fontWeight: 'bold' }}>₹{o.totalAmount}</span>
