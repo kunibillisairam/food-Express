@@ -84,12 +84,20 @@ const AdminOrders = ({ setView }) => {
 
     const handleUpdateStatus = async (orderId, newStatus) => {
         try {
-            await axios.put(`${API_BASE_URL}/api/orders/${orderId}`, { status: newStatus });
+            console.log('[Status Update] Attempting update:', { orderId, newStatus });
+            console.log('[Status Update] Request URL:', `${API_BASE_URL}/api/orders/${orderId}/status`);
+            console.log('[Status Update] Request Body:', { status: newStatus });
+
+            const response = await axios.put(`${API_BASE_URL}/api/orders/${orderId}/status`, { status: newStatus });
+
+            console.log('[Status Update] Success:', response.data);
             toast.success(`Order updated to ${newStatus}`);
             fetchOrders();
         } catch (err) {
-            console.error(err);
-            toast.error('Failed to update status');
+            console.error("[Status Update] Full Error:", err);
+            console.error("[Status Update] Error Response:", err.response);
+            const errMsg = err.response?.data?.message || err.response?.data?.error || err.message || 'Failed to update status';
+            toast.error(errMsg);
         }
     };
 
@@ -168,10 +176,14 @@ const AdminOrders = ({ setView }) => {
 
     const handleEditSave = async () => {
         try {
-            await axios.put(`${API_BASE_URL}/api/users/${editingUser._id}/update`, editFormData);
+            await axios.put(`${API_BASE_URL}/api/users/${editingUser._id}`, editFormData);
             toast.success('User updated successfully');
+
+            // Optimistic Update
+            setUsers(users.map(u => (u._id === editingUser._id ? { ...u, ...editFormData } : u)));
+
             setEditingUser(null);
-            fetchUsers();
+            // fetchUsers(); // No need to re-fetch if we update locally
         } catch (err) {
             toast.error('Update failed');
         }

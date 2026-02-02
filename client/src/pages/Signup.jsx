@@ -79,7 +79,7 @@ const Signup = ({ setView }) => {
                 });
 
                 const duration = Date.now() - start;
-                const minTime = 1000;
+                const minTime = 400;
                 if (duration < minTime) {
                     await new Promise(resolve => setTimeout(resolve, minTime - duration));
                 }

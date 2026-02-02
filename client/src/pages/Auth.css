@@ -18,7 +18,11 @@
     min-height: 100vh;
     width: 100%;
     font-family: 'Outfit', sans-serif;
-    background: #0f1015;
+    background: #0f1015 !important;
+    /* Forced background to win against global changes */
+    position: relative;
+    z-index: 100;
+    /* Ensure on top of background animations */
     overflow: hidden;
 }
 

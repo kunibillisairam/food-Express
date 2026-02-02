@@ -32,7 +32,7 @@ const Login = ({ setView }) => {
             const res = await login(phone, password);
 
             const duration = Date.now() - start;
-            const minTime = 800; // ms
+            const minTime = 400; // ms
             if (duration < minTime) {
                 await new Promise(resolve => setTimeout(resolve, minTime - duration));
             }

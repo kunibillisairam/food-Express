@@ -56,24 +56,26 @@ export const AuthProvider = ({ children }) => {
                 setUser(loggedInUser);
                 localStorage.setItem('user', JSON.stringify(loggedInUser));
 
-                // Always try to get a fresh token on login and associate it
-                try {
-                    const { requestForToken } = await import('../firebase');
-                    const freshToken = await requestForToken();
-                    if (freshToken) {
-                        // 3. Store token temporarily in localStorage
-                        localStorage.setItem('fcmToken', freshToken);
+                // Always try to get a fresh token on login and associate it (Background Sync)
+                (async () => {
+                    try {
+                        const { requestForToken } = await import('../firebase');
+                        const freshToken = await requestForToken();
+                        if (freshToken) {
+                            // 3. Store token temporarily in localStorage
+                            localStorage.setItem('fcmToken', freshToken);
 
-                        // 4. Send token to backend via /save-fcm-token API
-                        await axios.post(`${API_BASE_URL}/api/users/save-fcm-token`, {
-                            username: loggedInUser.username,
-                            token: freshToken
-                        });
-                        console.log("✅ FCM Token re-associated on successful login");
+                            // 4. Send token to backend via /save-fcm-token API
+                            await axios.post(`${API_BASE_URL}/api/users/save-fcm-token`, {
+                                username: loggedInUser.username,
+                                token: freshToken
+                            });
+                            console.log("✅ FCM Token re-associated on successful login");
+                        }
+                    } catch (tokErr) {
+                        console.warn("Post-login FCM sync failed", tokErr);
                     }
-                } catch (tokErr) {
-                    console.warn("Post-login FCM sync failed", tokErr);
-                }
+                })();
 
                 return { success: true, role: loggedInUser.role };
             }

@@ -76,7 +76,7 @@ const AdminDashboard = ({ setView }) => {
     // Handlers
     const handleOrderStatus = async (orderId, status) => {
         try {
-            await axios.put(`${API_BASE_URL}/api/orders/${orderId}`, { status });
+            await axios.put(`${API_BASE_URL}/api/orders/${orderId}/status`, { status });
             toast.success(`Order ${status}`);
             fetchInitialData(); // Refresh
             if (selectedOrder) setSelectedOrder(null);
