@@ -9,6 +9,7 @@ import Success from './pages/Success';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import AdminOrders from './pages/AdminOrders';
+import AdminDashboard from './pages/AdminDashboard';
 import MyOrders from './pages/MyOrders';
 import Profile from './pages/Profile';
 import DeliveryTracker from './pages/DeliveryTracker';
@@ -137,7 +138,7 @@ const Main = () => {
       case 'cart': return <Cart setView={handleViewChange} />;
       case 'payment': return <Payment setView={handleViewChange} />;
       case 'success': return <Success setView={handleViewChange} />;
-      case 'admin-orders': return <AdminOrders setView={handleViewChange} />;
+      case 'admin-orders': return <AdminDashboard setView={handleViewChange} />;
       case 'my-orders': return <MyOrders setView={handleViewChange} />;
       case 'profile': return <Profile setView={handleViewChange} />;
       case 'login': return <Login setView={handleViewChange} />;

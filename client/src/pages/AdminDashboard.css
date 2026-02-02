@@ -1,0 +1,409 @@
+/* AdminDashboard.css */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
+
+:root {
+    --admin-bg-dark: #0f1115;
+    --admin-card-bg: rgba(30, 35, 45, 0.6);
+    --admin-card-border: rgba(255, 255, 255, 0.08);
+    --admin-neon-green: #55efc4;
+    --admin-neon-blue: #74b9ff;
+    --admin-neon-red: #ff7675;
+    --admin-text-main: #ffffff;
+    --admin-text-muted: #a4b0be;
+    --admin-glass-blur: blur(12px);
+    --admin-nav-height: 70px;
+}
+
+.admin-mobile-container {
+    font-family: 'Outfit', sans-serif;
+    background-color: var(--admin-bg-dark);
+    color: var(--admin-text-main);
+    min-height: 100vh;
+    padding-bottom: calc(var(--admin-nav-height) + 20px);
+    /* Space for bottom nav */
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Glassmorphism Utilities */
+.glass-card {
+    background: var(--admin-card-bg);
+    backdrop-filter: var(--admin-glass-blur);
+    -webkit-backdrop-filter: var(--admin-glass-blur);
+    border: 1px solid var(--admin-card-border);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+.glass-header {
+    background: rgba(15, 17, 21, 0.85);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--admin-card-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Animations */
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.animate-slide-up {
+    animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: var(--admin-nav-height);
+    background: rgba(15, 17, 21, 0.95);
+    backdrop-filter: blur(15px);
+    border-top: 1px solid var(--admin-card-border);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 1000;
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+.nav-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    height: 100%;
+    color: var(--admin-text-muted);
+    font-size: 0.75rem;
+    transition: all 0.3s ease;
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: relative;
+}
+
+.nav-tab.active {
+    color: var(--admin-neon-green);
+}
+
+.nav-tab.active::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 40%;
+    height: 3px;
+    background: var(--admin-neon-green);
+    border-radius: 0 0 10px 10px;
+    box-shadow: 0 0 10px var(--admin-neon-green);
+}
+
+.nav-icon {
+    font-size: 1.4rem;
+    margin-bottom: 4px;
+}
+
+/* Screen 1: Home Dashboard */
+.kpi-scroller {
+    display: flex;
+    overflow-x: auto;
+    padding: 20px;
+    gap: 15px;
+    scroll-snap-type: x mandatory;
+}
+
+.kpi-scroller::-webkit-scrollbar {
+    display: none;
+}
+
+.kpi-card {
+    min-width: 160px;
+    padding: 20px;
+    scroll-snap-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.kpi-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--admin-text-main);
+    margin: 5px 0;
+}
+
+.kpi-label {
+    font-size: 0.85rem;
+    color: var(--admin-text-muted);
+}
+
+.section-header {
+    padding: 0 20px;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--admin-text-main);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Order List Items */
+.live-order-card {
+    margin: 0 20px 15px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.order-info h4 {
+    margin: 0 0 5px 0;
+    font-size: 1rem;
+}
+
+.order-meta {
+    font-size: 0.8rem;
+    color: var(--admin-text-muted);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.action-btn {
+    background: var(--admin-neon-green);
+    color: #000;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    min-height: 48px;
+    /* Touch target */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+
+.action-btn.secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.action-btn:active {
+    transform: scale(0.96);
+}
+
+/* Screen 2: Users */
+.search-bar-container {
+    padding: 20px;
+}
+
+.modern-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--admin-card-border);
+    padding: 15px;
+    border-radius: 12px;
+    color: white;
+    font-size: 1rem;
+    outline: none;
+}
+
+.modern-input:focus {
+    border-color: var(--admin-neon-green);
+    box-shadow: 0 0 10px rgba(85, 239, 196, 0.2);
+}
+
+.filter-pills {
+    display: flex;
+    gap: 10px;
+    padding: 0 20px 15px;
+    overflow-x: auto;
+}
+
+.filter-pill {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--admin-card-border);
+    padding: 8px 16px;
+    border-radius: 20px;
+    color: var(--admin-text-muted);
+    white-space: nowrap;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.filter-pill.active {
+    background: var(--admin-neon-green);
+    color: #000;
+    border-color: var(--admin-neon-green);
+}
+
+.user-card {
+    margin: 0 20px 10px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+/* Screen 3: Orders Status Tabs */
+.sticky-tabs {
+    position: sticky;
+    top: 70px;
+    /* Below header */
+    background: var(--admin-bg-dark);
+    z-index: 90;
+    padding: 10px 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--admin-card-border);
+}
+
+/* Bottom Sheet */
+.bottom-sheet-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    z-index: 2000;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.bottom-sheet {
+    width: 100%;
+    background: #1e232d;
+    border-radius: 25px 25px 0 0;
+    padding: 30px 20px;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
+    animation: slideUp 0.3s ease-out;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+.sheet-handle {
+    width: 50px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    margin: -10px auto 25px;
+}
+
+.sheet-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.danger-btn {
+    background: rgba(255, 71, 87, 0.1);
+    color: #ff4757;
+    border: 1px solid rgba(255, 71, 87, 0.3);
+}
+
+/* Toggles */
+.toggle-switch {
+    position: relative;
+    width: 50px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.toggle-switch::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 22px;
+    height: 22px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+
+.toggle-switch.active {
+    background: var(--admin-neon-green);
+}
+
+.toggle-switch.active::after {
+    left: 25px;
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid var(--admin-card-border);
+}
+
+/* Floating Action Button (for Campaigns/Notifications) */
+.fab {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--admin-neon-green);
+    color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: 0 10px 20px rgba(85, 239, 196, 0.4);
+    z-index: 900;
+    border: none;
+    cursor: pointer;
+}
