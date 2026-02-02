@@ -170,6 +170,167 @@ async function createDefaultAdmin() {
     }
 }
 
+// Helper Function: Send Notification & Email to User on Admin Update
+async function notifyUserOnAdminUpdate(user, updateType, details) {
+    try {
+        console.log(`[Admin Update Notification] Sending to ${user.username} for ${updateType}`);
+
+        // Prepare notification message based on update type
+        let notificationTitle = '';
+        let notificationBody = '';
+        let emailSubject = '';
+        let emailBody = '';
+
+        switch (updateType) {
+            case 'username':
+                notificationTitle = '🔔 Username Updated';
+                notificationBody = `Your username has been changed to "${details.newUsername}" by an administrator.`;
+                emailSubject = 'FoodExpress - Username Updated';
+                emailBody = `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+                            <h1 style="color: white; margin: 0;">🔔 Account Update</h1>
+                        </div>
+                        <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                            <h2 style="color: #333;">Hello ${details.oldUsername || user.username},</h2>
+                            <p style="color: #666; font-size: 16px; line-height: 1.6;">
+                                Your username has been updated by an administrator.
+                            </p>
+                            <div style="background: #f0f0f0; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                                <p style="margin: 5px 0;"><strong>Old Username:</strong> ${details.oldUsername || 'N/A'}</p>
+                                <p style="margin: 5px 0;"><strong>New Username:</strong> <span style="color: #667eea;">${details.newUsername}</span></p>
+                            </div>
+                            <p style="color: #666; font-size: 14px;">
+                                Please use your new username for future logins.
+                            </p>
+                            <p style="color: #999; font-size: 12px; margin-top: 30px;">
+                                If you didn't request this change, please contact support immediately.
+                            </p>
+                        </div>
+                    </div>
+                `;
+                break;
+
+            case 'password':
+                notificationTitle = '🔐 Password Reset';
+                notificationBody = 'Your password has been reset by an administrator. Please check your email for the new password.';
+                emailSubject = 'FoodExpress - Password Reset by Admin';
+                emailBody = `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
+                        <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+                            <h1 style="color: white; margin: 0;">🔐 Password Reset</h1>
+                        </div>
+                        <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                            <h2 style="color: #333;">Hello ${user.username},</h2>
+                            <p style="color: #666; font-size: 16px; line-height: 1.6;">
+                                Your password has been reset by an administrator for security reasons.
+                            </p>
+                            <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0;">
+                                <p style="margin: 5px 0; color: #856404;"><strong>⚠️ Important:</strong></p>
+                                <p style="margin: 5px 0; color: #856404;">Your new temporary password is: <strong style="font-size: 18px; color: #d9534f;">password123</strong></p>
+                            </div>
+                            <p style="color: #666; font-size: 14px;">
+                                Please login with this temporary password and change it immediately from your profile settings.
+                            </p>
+                            <p style="color: #999; font-size: 12px; margin-top: 30px;">
+                                If you didn't request this change, please contact support immediately.
+                            </p>
+                        </div>
+                    </div>
+                `;
+                break;
+
+            case 'wallet':
+                const walletChange = details.amount > 0 ? 'credited' : 'debited';
+                const walletIcon = details.amount > 0 ? '💰' : '💸';
+                notificationTitle = `${walletIcon} Wallet ${details.type}`;
+                notificationBody = `₹${Math.abs(details.amount)} has been ${walletChange} to your wallet. Reason: ${details.reason}`;
+                emailSubject = `FoodExpress - Wallet ${details.type}`;
+                emailBody = `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
+                        <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+                            <h1 style="color: white; margin: 0;">${walletIcon} Wallet Update</h1>
+                        </div>
+                        <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                            <h2 style="color: #333;">Hello ${user.username},</h2>
+                            <p style="color: #666; font-size: 16px; line-height: 1.6;">
+                                Your wallet has been updated by an administrator.
+                            </p>
+                            <div style="background: ${details.amount > 0 ? '#d4edda' : '#f8d7da'}; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
+                                <p style="margin: 5px 0; color: #333; font-size: 14px;">Transaction Type</p>
+                                <p style="margin: 10px 0; color: ${details.amount > 0 ? '#28a745' : '#dc3545'}; font-size: 32px; font-weight: bold;">
+                                    ${details.amount > 0 ? '+' : ''}₹${Math.abs(details.amount)}
+                                </p>
+                                <p style="margin: 5px 0; color: #666; font-size: 14px;">${details.type}</p>
+                            </div>
+                            <div style="background: #f0f0f0; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                                <p style="margin: 5px 0;"><strong>Reason:</strong> ${details.reason}</p>
+                                <p style="margin: 5px 0;"><strong>New Balance:</strong> <span style="color: #4facfe; font-size: 18px; font-weight: bold;">₹${details.newBalance}</span></p>
+                            </div>
+                            <p style="color: #666; font-size: 14px;">
+                                You can view your complete transaction history in your profile.
+                            </p>
+                        </div>
+                    </div>
+                `;
+                break;
+
+            default:
+                console.log('[Admin Update Notification] Unknown update type:', updateType);
+                return;
+        }
+
+        // Send Push Notification (FCM)
+        const allTokens = new Set(user.fcmTokens || []);
+        if (user.fcmToken) allTokens.add(user.fcmToken);
+        const targetTokens = Array.from(allTokens).filter(t => t && t.length > 10);
+
+        if (targetTokens.length > 0 && admin.apps.length > 0) {
+            try {
+                const message = {
+                    tokens: targetTokens,
+                    notification: {
+                        title: notificationTitle,
+                        body: notificationBody
+                    },
+                    data: {
+                        type: 'admin_update',
+                        updateType: updateType,
+                        timestamp: new Date().toISOString()
+                    }
+                };
+
+                const response = await admin.messaging().sendEachForMulticast(message);
+                console.log(`[FCM] Admin update notification sent: ${response.successCount} success, ${response.failureCount} failed`);
+            } catch (fcmError) {
+                console.error('[FCM Error] Failed to send admin update notification:', fcmError.message);
+            }
+        } else {
+            console.log('[FCM Skip] No valid tokens for user:', user.username);
+        }
+
+        // Send Email
+        if (user.email && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+            try {
+                await transporter.sendMail({
+                    from: `"FoodExpress" <${process.env.EMAIL_USER}>`,
+                    to: user.email,
+                    subject: emailSubject,
+                    html: emailBody
+                });
+                console.log(`[Email] Admin update notification sent to ${user.email}`);
+            } catch (emailError) {
+                console.error('[Email Error] Failed to send admin update notification:', emailError.message);
+            }
+        } else {
+            console.log('[Email Skip] No email configured for user:', user.username);
+        }
+
+    } catch (error) {
+        console.error('[Admin Update Notification] Error:', error);
+    }
+}
+
 // Debugging: Log that routes are initializing
 console.log("Initializing Routes...");
 
@@ -260,6 +421,9 @@ app.put('/api/users/:id/reset-password', async (req, res) => {
         user.password = "password123"; // Default temporary password
         await user.save(); // Middleware will hash this
 
+        // Send notification and email about password reset
+        await notifyUserOnAdminUpdate(user, 'password', {});
+
         res.json({ success: true, message: 'Password reset to "password123"' });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -271,6 +435,10 @@ app.put('/api/users/:id', async (req, res) => {
     try {
         const { username, phone, walletBalance, rank, isBlocked } = req.body;
         const userId = req.params.id;
+
+        // Get the original user data before update
+        const originalUser = await User.findById(userId);
+        if (!originalUser) return res.status(404).json({ message: 'User not found' });
 
         // Check for duplicates (if username or phone is being updated)
         if (username || phone) {
@@ -301,6 +469,26 @@ app.put('/api/users/:id', async (req, res) => {
         const user = await User.findByIdAndUpdate(userId, updateData, { new: true });
 
         if (!user) return res.status(404).json({ message: 'User not found' });
+
+        // Send notifications for specific changes
+        // 1. Username changed
+        if (username && username !== originalUser.username) {
+            await notifyUserOnAdminUpdate(user, 'username', {
+                oldUsername: originalUser.username,
+                newUsername: username
+            });
+        }
+
+        // 2. Wallet balance changed
+        if (walletBalance !== undefined && walletBalance !== originalUser.walletBalance) {
+            const difference = walletBalance - originalUser.walletBalance;
+            await notifyUserOnAdminUpdate(user, 'wallet', {
+                type: difference > 0 ? 'Credit' : 'Debit',
+                amount: difference,
+                reason: 'Admin adjusted wallet balance',
+                newBalance: walletBalance
+            });
+        }
 
         res.json({ success: true, user });
     } catch (err) {
@@ -370,6 +558,18 @@ app.post('/api/admin/users/:id/transaction', async (req, res) => {
         user.rank = calculateRank(user.xp);
 
         await user.save();
+
+        // Send notification and email for wallet changes only
+        if (target === 'wallet' || target === 'compensation') {
+            const actualAmount = type === 'Debit' ? -transactionAmount : transactionAmount;
+            await notifyUserOnAdminUpdate(user, 'wallet', {
+                type: transactionType,
+                amount: actualAmount,
+                reason: transactionDesc,
+                newBalance: user.walletBalance
+            });
+        }
+
         res.json({ success: true, user });
     } catch (err) {
         res.status(500).json({ error: err.message });
