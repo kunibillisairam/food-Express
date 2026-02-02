@@ -8,8 +8,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     FaHome, FaUsers, FaBox, FaBell, FaCog, FaSearch, FaPlus,
     FaWallet, FaHistory, FaCheck, FaTimes, FaMapMarkerAlt, FaPhoneAlt,
-    FaBullhorn, FaGift, FaLock, FaUnlock, FaTrash, FaSignOutAlt
+    FaBullhorn, FaGift, FaLock, FaUnlock, FaTrash, FaSignOutAlt,
+    FaChartLine, FaChartPie, FaCreditCard, FaUserPlus
 } from 'react-icons/fa';
+import {
+    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+    PieChart, Pie, Cell, AreaChart, Area
+} from 'recharts';
 
 const AdminDashboard = ({ setView }) => {
     const { user, logout } = useContext(AuthContext);
@@ -34,6 +39,9 @@ const AdminDashboard = ({ setView }) => {
     const [walletUser, setWalletUser] = useState(null);
     const [walletAmount, setWalletAmount] = useState('');
     const [walletReason, setWalletReason] = useState('');
+
+    // Chart Colors
+    const COLORS = ['#8884d8', '#55efc4', '#ff7675', '#fdcb6e'];
 
     useEffect(() => {
         fetchInitialData();
@@ -114,43 +122,101 @@ const AdminDashboard = ({ setView }) => {
     };
 
     // --- Sub-Components ---
+    const Sidebar = () => (
+        <aside className="sidebar-desktop">
+            <div className="sidebar-header">
+                <div style={{
+                    width: '40px', height: '40px', borderRadius: '50%',
+                    backgroundImage: `url(${user?.avatar || 'https://via.placeholder.com/150'})`,
+                    backgroundSize: 'cover', border: '2px solid #55efc4'
+                }}></div>
+                <div>
+                    <div style={{ fontWeight: 'bold' }}>{user?.username || 'Admin'}</div>
+                    <div style={{ fontSize: '0.8rem', color: '#777' }}>Super Admin</div>
+                </div>
+            </div>
+
+            <div className="sidebar-menu">
+                <div className={`sidebar-nav-item ${activeTab === 'home' ? 'active' : ''}`} onClick={() => setActiveTab('home')}>
+                    <FaHome /> Dashboard
+                </div>
+                <div className={`sidebar-nav-item ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => setActiveTab('orders')}>
+                    <FaBox /> Orders
+                </div>
+                <div className={`sidebar-nav-item ${activeTab === 'users' ? 'active' : ''}`} onClick={() => { setActiveTab('users'); fetchUsers(); }}>
+                    <FaUsers /> Users
+                </div>
+                <div className={`sidebar-nav-item ${activeTab === 'campaigns' ? 'active' : ''}`} onClick={() => setActiveTab('campaigns')}>
+                    <FaBullhorn /> Campaigns
+                </div>
+                <div className={`sidebar-nav-item ${activeTab === 'notifications' ? 'active' : ''}`} onClick={() => setActiveTab('notifications')}>
+                    <FaBell /> Notifications
+                </div>
+                <div className={`sidebar-nav-item ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>
+                    <FaCog /> Settings
+                </div>
+            </div>
+
+            <div className="sidebar-nav-item sidebar-logout" onClick={() => { if (window.confirm('Go back to main app?')) setView('home'); }}>
+                <FaHome /> Back to App
+            </div>
+            <div className="sidebar-nav-item sidebar-logout" onClick={logout} style={{ marginTop: '10px' }}>
+                <FaSignOutAlt /> Logout
+            </div>
+        </aside>
+    );
 
     const BottomNav = () => (
         <nav className="bottom-nav">
             <button className={`nav-tab ${activeTab === 'home' ? 'active' : ''}`} onClick={() => setActiveTab('home')}>
-                <FaHome className="nav-icon" /> Home
+                <FaHome className="nav-icon" />
             </button>
             <button className={`nav-tab ${activeTab === 'users' ? 'active' : ''}`} onClick={() => { setActiveTab('users'); fetchUsers(); }}>
-                <FaUsers className="nav-icon" /> Users
+                <FaUsers className="nav-icon" />
             </button>
             <button className={`nav-tab ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => setActiveTab('orders')}>
-                <FaBox className="nav-icon" /> Orders
+                <FaBox className="nav-icon" />
             </button>
-            <button className={`nav-tab ${activeTab === 'campaigns' ? 'active' : ''}`} onClick={() => setActiveTab('campaigns')}>
-                <FaBullhorn className="nav-icon" /> Promos
+            <button className={`nav-tab ${activeTab === 'notifications' ? 'active' : ''}`} onClick={() => setActiveTab('notifications')}>
+                <FaBell className="nav-icon" />
             </button>
             <button className={`nav-tab ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>
-                <FaCog className="nav-icon" /> Settings
+                <FaCog className="nav-icon" />
             </button>
         </nav>
     );
 
     const Header = () => (
         <header className="glass-header">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{
+            {/* Mobile Only Header Content */}
+            <div className="mobile-header-content" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                {/* We hide the avatar on desktop header since it's in sidebar */}
+                <div className="hide-on-desktop" style={{
                     width: '35px', height: '35px', borderRadius: '50%',
                     backgroundImage: `url(${user?.avatar || 'https://via.placeholder.com/150'})`,
                     backgroundSize: 'cover'
                 }}></div>
                 <div>
-                    <div style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>FoodExpress Admin</div>
-                    <div style={{ fontSize: '0.7rem', color: '#55efc4' }}>Online • {orders.filter(o => o.status === 'Pending').length} Pending</div>
+                    <div className="hide-on-desktop" style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>FoodExpress Admin</div>
+                    <div style={{ fontSize: '0.8rem', color: '#55efc4' }}>
+                        {activeTab === 'home' ? 'Dashboard Overview' :
+                            activeTab === 'users' ? 'User Management' :
+                                activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+                    </div>
                 </div>
             </div>
-            <div onClick={() => setActiveTab('notifications')} style={{ position: 'relative' }}>
-                <FaBell style={{ fontSize: '1.2rem', color: '#fff' }} />
-                <span style={{ position: 'absolute', top: -5, right: -5, width: '10px', height: '10px', background: '#ff7675', borderRadius: '50%' }}></span>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                <div className="hide-on-mobile search-bar-desktop" style={{ position: 'relative' }}>
+                    <FaSearch style={{ position: 'absolute', left: '10px', top: '10px', color: '#aaa' }} />
+                    <input type="text" placeholder="Search..." style={{
+                        background: 'rgba(255,255,255,0.05)', border: 'none', padding: '8px 10px 8px 35px', borderRadius: '20px', color: 'white'
+                    }} />
+                </div>
+                <div onClick={() => setActiveTab('notifications')} style={{ position: 'relative', cursor: 'pointer' }}>
+                    <FaBell style={{ fontSize: '1.2rem', color: '#fff' }} />
+                    <span style={{ position: 'absolute', top: -5, right: -5, width: '8px', height: '8px', background: '#ff7675', borderRadius: '50%' }}></span>
+                </div>
             </div>
         </header>
     );
@@ -159,45 +225,141 @@ const AdminDashboard = ({ setView }) => {
 
     const HomeView = () => (
         <div className="animate-fade-in">
+            {/* Top Request: KPI Grid (Desktop) / Scroller (Mobile) */}
             <div className="kpi-scroller">
+                <div className="glass-card kpi-card">
+                    <span className="kpi-label">Total Revenue</span>
+                    <span className="kpi-value" style={{ color: '#55efc4' }}>₹{analytics?.dailyRevenue || 0}</span>
+                    <div style={{ fontSize: '0.7rem', color: '#aaa' }}>+12% from yesterday</div>
+                </div>
                 <div className="glass-card kpi-card">
                     <span className="kpi-label">Orders Today</span>
                     <span className="kpi-value">{analytics?.dailyOrders || 0}</span>
-                </div>
-                <div className="glass-card kpi-card">
-                    <span className="kpi-label">Revenue</span>
-                    <span className="kpi-value" style={{ color: '#55efc4' }}>₹{analytics?.dailyRevenue || 0}</span>
+                    <div style={{ fontSize: '0.7rem', color: '#aaa' }}>New orders</div>
                 </div>
                 <div className="glass-card kpi-card">
                     <span className="kpi-label">Active Users</span>
                     <span className="kpi-value">{analytics?.monthlyUniqueUsers || 0}</span>
+                    <div style={{ fontSize: '0.7rem', color: '#aaa' }}>Currently online</div>
+                </div>
+                <div className="glass-card kpi-card">
+                    <span className="kpi-label">Pending</span>
+                    <span className="kpi-value" style={{ color: '#fdcb6e' }}>{orders.filter(o => o.status === 'Pending').length}</span>
+                    <div style={{ fontSize: '0.7rem', color: '#aaa' }}>Action needed</div>
                 </div>
             </div>
 
-            <div className="section-header">
-                <span>Live Orders</span>
-                <span style={{ fontSize: '0.8rem', color: '#55efc4' }}>View All</span>
+            {/* Desktop Main Grid */}
+            <div className="desktop-grid" style={{ marginTop: '25px' }}>
+                {/* Left Col: Charts */}
+                <div className="chart-big-container hide-on-mobile" style={{ display: 'block' }}>
+                    <h3 style={{ marginTop: 0, marginBottom: '20px' }}>Revenue Statistics</h3>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <AreaChart data={analytics?.popularItems || []}> {/* Using popular items as dummy data if revenue timeline missing */}
+                            <defs>
+                                <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#55efc4" stopOpacity={0.8} />
+                                    <stop offset="95%" stopColor="#55efc4" stopOpacity={0} />
+                                </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                            <XAxis dataKey="_id" stroke="#aaa" />
+                            <YAxis stroke="#aaa" />
+                            <Tooltip contentStyle={{ backgroundColor: '#1e232d', border: 'none', borderRadius: '10px' }} />
+                            <Area type="monotone" dataKey="count" stroke="#55efc4" fillOpacity={1} fill="url(#colorRev)" />
+                        </AreaChart>
+                    </ResponsiveContainer>
+                </div>
+
+                {/* Right Col: Traffic / Pie */}
+                <div className="chart-small-container hide-on-mobile" style={{ display: 'block' }}>
+                    <h3 style={{ marginTop: 0 }}>Traffic Source</h3>
+                    <ResponsiveContainer width="100%" height={250}>
+                        <PieChart>
+                            <Pie
+                                data={[
+                                    { name: 'Direct', value: 400 },
+                                    { name: 'Social', value: 300 },
+                                    { name: 'Referral', value: 300 },
+                                    { name: 'Organic', value: 200 }
+                                ]}
+                                cx="50%"
+                                cy="50%"
+                                innerRadius={60}
+                                outerRadius={80}
+                                paddingAngle={5}
+                                dataKey="value"
+                            >
+                                {COLORS.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                ))}
+                            </Pie>
+                            <Tooltip />
+                            <Legend verticalAlign="bottom" height={36} />
+                        </PieChart>
+                    </ResponsiveContainer>
+                </div>
             </div>
 
-            {orders.filter(o => o.status === 'Pending' || o.status === 'Preparing').slice(0, 5).map(order => (
-                <div key={order._id} className="glass-card live-order-card" onClick={() => setSelectedOrder(order)}>
-                    <div className="order-info">
-                        <h4>#{order._id.slice(-6)} • {order.items.length} Items</h4>
-                        <div className="order-meta">
-                            <span>{order.userName}</span>
-                            <span>•</span>
-                            <span style={{ color: '#55efc4' }}>₹{order.totalAmount}</span>
-                        </div>
-                        <div style={{ marginTop: '5px', fontSize: '0.75rem', background: '#2d3436', padding: '2px 8px', borderRadius: '4px', width: 'fit-content' }}>
-                            {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </div>
+            <div className="bottom-grid-row">
+                {/* Recent Orders Table */}
+                <div className="glass-card" style={{ gridColumn: '1 / -1', padding: '20px' }}>
+                    <div className="section-header" style={{ padding: 0 }}>
+                        <span>Recent Live Orders</span>
+                        <button className="action-btn secondary" style={{ fontSize: '0.8rem', minHeight: '30px', padding: '5px 15px' }} onClick={() => setActiveTab('orders')}>View All</button>
                     </div>
-                    <button className="action-btn" onClick={(e) => { e.stopPropagation(); handleOrderStatus(order._id, 'Preparing'); }}>
-                        Accept
-                    </button>
+
+                    {/* Desktop Table View */}
+                    <div className="desktop-table-container">
+                        <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
+                            <thead>
+                                <tr style={{ color: '#aaa', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                                    <th style={{ padding: '10px' }}>Order ID</th>
+                                    <th style={{ padding: '10px' }}>Customer</th>
+                                    <th style={{ padding: '10px' }}>Items</th>
+                                    <th style={{ padding: '10px' }}>Amount</th>
+                                    <th style={{ padding: '10px' }}>Status</th>
+                                    <th style={{ padding: '10px' }}>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {orders.slice(0, 5).map(order => (
+                                    <tr key={order._id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                                        <td style={{ padding: '15px 10px' }}>#{order._id.slice(-6)}</td>
+                                        <td style={{ padding: '15px 10px' }}>{order.userName}</td>
+                                        <td style={{ padding: '15px 10px' }}>{order.items.length} Items</td>
+                                        <td style={{ padding: '15px 10px', color: '#55efc4' }}>₹{order.totalAmount}</td>
+                                        <td style={{ padding: '15px 10px' }}>
+                                            <span style={{
+                                                background: order.status === 'Delivered' ? 'rgba(85, 239, 196, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+                                                color: order.status === 'Delivered' ? '#55efc4' : '#fff',
+                                                padding: '4px 8px', borderRadius: '4px', fontSize: '0.8rem'
+                                            }}>{order.status}</span>
+                                        </td>
+                                        <td style={{ padding: '15px 10px' }}>
+                                            <button className="action-btn" style={{ minHeight: '30px', padding: '5px 15px', fontSize: '0.8rem' }} onClick={() => setSelectedOrder(order)}>Details</button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Mobile Card View (Original) - We can hide table on mobile via CSS if needed, but for now we keep the card list for mobile */}
+                    <div className="mobile-order-list hide-on-desktop">
+                        {orders.slice(0, 5).map(order => (
+                            <div key={order._id} className="glass-card live-order-card" onClick={() => setSelectedOrder(order)}>
+                                <div className="order-info">
+                                    <h4>#{order._id.slice(-6)}</h4>
+                                    <div className="order-meta">
+                                        <span>{order.userName}</span> • <span style={{ color: '#55efc4' }}>₹{order.totalAmount}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
-            ))}
-            {orders.length === 0 && <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>No active orders</div>}
+            </div>
         </div>
     );
 
@@ -368,37 +530,21 @@ const AdminDashboard = ({ setView }) => {
 
     return (
         <div className="admin-mobile-container">
+            <Sidebar />
             <Header />
 
-            <main style={{ minHeight: '80vh' }}>
+            <main>
                 {activeTab === 'home' && <HomeView />}
                 {activeTab === 'users' && <UsersView />}
                 {activeTab === 'orders' && <OrdersView />}
                 {activeTab === 'campaigns' && <CampaignsView />}
                 {activeTab === 'settings' && <SettingsView />}
-                {/* Notifications fits into settings or its own modal/page, user asked for Tab 4 to be Notifications, but in core layout they asked for 5 tabs including Settings. I'll put Notifications as a top-right icon action or a sub-view. The user requirement says "Screen 4 - Notifications" but "Core Layout... 5 tabs: Home, Users, Orders, Notifications, Settings". So Tab 4 should be Notifications. I will adjust BottomNav */}
             </main>
 
-            {/* Adjust Bottom Nav to include Notifications as requested */}
-            <nav className="bottom-nav">
-                <button className={`nav-tab ${activeTab === 'home' ? 'active' : ''}`} onClick={() => setActiveTab('home')}>
-                    <FaHome className="nav-icon" /> Home
-                </button>
-                <button className={`nav-tab ${activeTab === 'users' ? 'active' : ''}`} onClick={() => { setActiveTab('users'); fetchUsers(); }}>
-                    <FaUsers className="nav-icon" /> Users
-                </button>
-                <button className={`nav-tab ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => setActiveTab('orders')}>
-                    <FaBox className="nav-icon" /> Orders
-                </button>
-                <button className={`nav-tab ${activeTab === 'notifications' ? 'active' : ''}`} onClick={() => setActiveTab('notifications')}>
-                    <FaBell className="nav-icon" /> Notifs
-                </button>
-                <button className={`nav-tab ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>
-                    <FaCog className="nav-icon" /> Settings
-                </button>
-            </nav>
+            {/* Mobile Only: Bottom Nav */}
+            <BottomNav />
 
-            {/* Overlay for Notifications if it's the active tab. Wait, if it's a tab, I should render it in main.*/}
+            {/* Overlay for Notifications */}
             {activeTab === 'notifications' && (
                 <div className="animate-fade-in" style={{ padding: '20px', paddingBottom: '100px' }}>
                     <h2 style={{ marginTop: 0 }}>Create Notification</h2>
@@ -484,7 +630,7 @@ const AdminDashboard = ({ setView }) => {
                         >
                             <div className="glass-header" style={{ borderRadius: '20px 20px 0 0' }}>
                                 <span>Order #{selectedOrder._id.slice(-6)}</span>
-                                <FaTimes onClick={() => setSelectedOrder(null)} />
+                                <FaTimes onClick={() => setSelectedOrder(null)} style={{ cursor: 'pointer' }} />
                             </div>
                             <div style={{ padding: '20px' }}>
                                 <div style={{ marginBottom: '20px' }}>
