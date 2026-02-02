@@ -187,6 +187,29 @@ const AdminOrders = ({ setView }) => {
     };
 
 
+    // Search Logic
+    const getFilteredOrders = () => {
+        if (!searchTerm) return orders;
+        const term = searchTerm.toLowerCase();
+        return orders.filter(order =>
+            order._id.toLowerCase().includes(term) ||
+            order.userName.toLowerCase().includes(term) ||
+            (order.status && order.status.toLowerCase().includes(term))
+        );
+    };
+
+    const getNextStatus = (currentStatus) => {
+        const flow = ['Pending', 'Preparing', 'Ready', 'Out for Delivery', 'Delivered'];
+        const index = flow.indexOf(currentStatus);
+        if (index === -1 || index === flow.length - 1) return null;
+        return flow[index + 1];
+    };
+
+    const handleProcessNext = (order) => {
+        const next = getNextStatus(order.status);
+        if (next) handleUpdateStatus(order._id, next);
+    };
+
     const SidebarItem = ({ id, label, icon }) => (
         <button
             className={`nav-item ${activeTab === id ? 'active' : ''}`}
@@ -236,10 +259,10 @@ const AdminOrders = ({ setView }) => {
                         <input
                             type="text"
                             className="top-search-input"
-                            placeholder="Type to search..."
-                            value={activeTab === 'users' ? searchTerm : ''}
+                            placeholder="Search orders, users..."
+                            value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            disabled={activeTab !== 'users'}
+                        // Removed disabled attribute
                         />
                     </div>
                     <div className="top-bar-actions">
@@ -404,40 +427,54 @@ const AdminOrders = ({ setView }) => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {orders.map(order => (
-                                            <tr key={order._id}>
-                                                <td>#{order._id.substring(order._id.length - 6)}</td>
-                                                <td>{order.userName}</td>
-                                                <td>{new Date(order.createdAt).toLocaleDateString()}</td>
-                                                <td style={{ fontWeight: 'bold' }}>₹{order.totalAmount}</td>
-                                                <td>
-                                                    <span className={`status-badge ${order.status === 'Delivered' ? 'success' :
-                                                            order.status === 'Cancelled' ? 'danger' : 'pending'
-                                                        }`}>
-                                                        {order.status}
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <div className="action-btn-group">
-                                                        <button
-                                                            className="table-btn btn-blue"
-                                                            onClick={() => handleUpdateStatus(order._id, 'Delivered')}
-                                                            disabled={order.status === 'Delivered' || order.status === 'Cancelled'}
+                                        {getFilteredOrders().map(order => {
+                                            const nextStatus = getNextStatus(order.status);
+                                            return (
+                                                <tr key={order._id}>
+                                                    <td>#{order._id.substring(order._id.length - 6)}</td>
+                                                    <td>{order.userName}</td>
+                                                    <td>{new Date(order.createdAt).toLocaleDateString()}</td>
+                                                    <td style={{ fontWeight: 'bold' }}>₹{order.totalAmount}</td>
+                                                    <td>
+                                                        <select
+                                                            value={order.status}
+                                                            onChange={(e) => handleUpdateStatus(order._id, e.target.value)}
+                                                            className={`status-badge ${order.status === 'Delivered' ? 'success' :
+                                                                    order.status === 'Cancelled' ? 'danger' : 'pending'
+                                                                }`}
+                                                            style={{ border: 'none', cursor: 'pointer' }}
                                                         >
-                                                            Process
-                                                        </button>
-                                                        <button
-                                                            className="table-btn btn-red"
-                                                            onClick={() => handleRefund(order._id)}
-                                                            disabled={order.status === 'Delivered' || order.status === 'Cancelled'}
-                                                        >
-                                                            Cancel
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                        {orders.length === 0 && <tr><td colSpan="6" style={{ textAlign: 'center' }}>No orders found</td></tr>}
+                                                            <option value="Pending">Pending</option>
+                                                            <option value="Preparing">Preparing</option>
+                                                            <option value="Ready">Ready</option>
+                                                            <option value="Out for Delivery">Out for Delivery</option>
+                                                            <option value="Delivered">Delivered</option>
+                                                            <option value="Cancelled">Cancelled</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <div className="action-btn-group">
+                                                            <button
+                                                                className="table-btn btn-blue"
+                                                                onClick={() => handleProcessNext(order)}
+                                                                disabled={!nextStatus}
+                                                                title={nextStatus ? `Advance to ${nextStatus}` : 'Order Completed'}
+                                                            >
+                                                                {nextStatus ? `➡ ${nextStatus}` : '✅ Completed'}
+                                                            </button>
+                                                            <button
+                                                                className="table-btn btn-red"
+                                                                onClick={() => handleRefund(order._id)}
+                                                                disabled={order.status === 'Delivered' || order.status === 'Cancelled'}
+                                                            >
+                                                                Cancel
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            )
+                                        })}
+                                        {getFilteredOrders().length === 0 && <tr><td colSpan="6" style={{ textAlign: 'center' }}>No orders found</td></tr>}
                                     </tbody>
                                 </table>
                             </div>
@@ -463,7 +500,8 @@ const AdminOrders = ({ setView }) => {
                                     <tbody>
                                         {users.filter(user =>
                                             user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                            (user.phone && user.phone.includes(searchTerm))
+                                            (user.phone && user.phone.includes(searchTerm)) ||
+                                            (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase()))
                                         ).map(user => (
                                             <tr key={user._id}>
                                                 <td>
