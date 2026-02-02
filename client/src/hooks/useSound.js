@@ -82,38 +82,36 @@ export const useSound = () => {
                     break;
 
                 case 'scan':
-                    // Complex Sci-fi 'Fabricating' Sound
-                    // Oscillator 1: Base drone/sweep
-                    osc.type = 'sawtooth';
-                    osc.frequency.setValueAtTime(100, now);
-                    osc.frequency.linearRampToValueAtTime(600, now + 1.0); // Power up sweep
+                    // New "Fabricator" Activation Sound
+                    // Clear, futuristic power-up
+
+                    // Layer 1: The "Hum" (Low Triangle)
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(200, now);
+                    osc.frequency.exponentialRampToValueAtTime(600, now + 0.6); // Power up
 
                     gain.gain.setValueAtTime(0, now);
-                    gain.gain.linearRampToValueAtTime(0.2, now + 0.1);
-                    gain.gain.setValueAtTime(0.2, now + 0.8);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 1.0);
+                    gain.gain.linearRampToValueAtTime(0.3, now + 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
 
                     osc.start(now);
-                    osc.stop(now + 1.0);
+                    osc.stop(now + 0.6);
 
-                    // Oscillator 2: High frequency jitter/texture
+                    // Layer 2: The "Sparkle" (High Sine with modulation)
                     const osc2 = ctx.createOscillator();
                     const gain2 = ctx.createGain();
                     osc2.connect(gain2);
                     gain2.connect(masterGain);
 
-                    osc2.type = 'square';
-                    osc2.frequency.setValueAtTime(400, now);
-                    // Rapid frequency modulation for "data processing" feel
-                    for (let i = 0; i < 10; i++) {
-                        osc2.frequency.setValueAtTime(400 + (Math.random() * 500), now + (i * 0.1));
-                    }
+                    osc2.type = 'sine';
+                    osc2.frequency.setValueAtTime(800, now);
+                    osc2.frequency.exponentialRampToValueAtTime(2000, now + 0.6); // High pitch zip
 
-                    gain2.gain.setValueAtTime(0.05, now);
-                    gain2.gain.linearRampToValueAtTime(0, now + 1.0);
+                    gain2.gain.setValueAtTime(0.1, now);
+                    gain2.gain.linearRampToValueAtTime(0, now + 0.5); // Fade out quicker
 
                     osc2.start(now);
-                    osc2.stop(now + 1.0);
+                    osc2.stop(now + 0.6);
                     break;
 
                 case 'error':

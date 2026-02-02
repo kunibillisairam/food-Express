@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import './AdminOrders.css';
 import API_BASE_URL from '../config';
 import NotificationSender from '../components/NotificationSender';
 import CampaignManager from './CampaignManager'; // Integrated Campaign Manager
@@ -202,28 +203,18 @@ const AdminOrders = ({ setView }) => {
     );
 
     return (
-        <div className="admin-orders-container fade-in" style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', color: 'white' }}>
-            <div className="header-flex" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                <h2 className="page-title" style={{ fontSize: '2.5rem', margin: 0 }}>🏢 Admin HQ</h2>
+        <div className="admin-orders-container fade-in">
+            <div className="header-flex">
+                <h2 className="page-title">🏢 Admin HQ</h2>
                 <button className="nav-btn" onClick={() => setView('home')}>Exit to App</button>
             </div>
 
-            <div className="admin-tabs" style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+            <div className="admin-tabs">
                 {['analytics', 'orders', 'users', 'campaigns', 'notifications'].map(tab => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
-                        style={{
-                            padding: '0.8rem 2rem',
-                            background: activeTab === tab ? '#6c5ce7' : 'rgba(255,255,255,0.1)',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '30px',
-                            cursor: 'pointer',
-                            fontWeight: 'bold',
-                            textTransform: 'capitalize',
-                            transition: 'all 0.3s'
-                        }}
+                        className={`tab-btn ${activeTab === tab ? 'active' : ''}`}
                     >
                         {tab}
                     </button>
@@ -266,105 +257,54 @@ const AdminOrders = ({ setView }) => {
                     )}
 
                     {activeTab === 'orders' && (
-                        <div className="orders-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1rem', paddingBottom: '2rem' }}>
+                        <div className="orders-grid">
                             {orders.length === 0 ? <p>No active orders.</p> : orders.map(order => (
                                 <motion.div
                                     key={order._id}
                                     layout
-                                    className="order-card"
-                                    style={{
-                                        position: 'relative',
-                                        background: 'white',
-                                        borderRadius: '12px',
-                                        padding: '1rem',
-                                        boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
-                                        borderLeft: `5px solid ${order.status === 'Cancelled' ? '#e74c3c' : '#2ecc71'}`
-                                    }}
+                                    className={`order-card ${order.status === 'Cancelled' ? 'cancelled' : ''}`}
                                 >
-                                    <div className="order-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.8rem', color: '#2d3436' }}>
+                                    <div className="order-header">
                                         <div>
-                                            <h3 style={{ margin: 0, fontSize: '1rem' }}>#{order._id.substring(order._id.length - 6)}</h3>
-                                            <small style={{ color: '#636e72', fontSize: '0.7rem' }}>{order.userName} • {new Date(order.createdAt).toLocaleString()}</small>
+                                            <h3 className="order-id">#{order._id.substring(order._id.length - 6)}</h3>
+                                            <small className="order-meta">{order.userName} • {new Date(order.createdAt).toLocaleString()}</small>
                                         </div>
                                         <div style={{ textAlign: 'right' }}>
                                             <div style={{ fontWeight: 'bold', fontSize: '1rem', color: '#2d3436' }}>₹{order.totalAmount}</div>
                                         </div>
                                     </div>
 
-                                    <div className="order-items-container" style={{ background: '#f5f6fa', padding: '8px', borderRadius: '6px', margin: '0.5rem 0', maxHeight: '150px', overflowY: 'auto' }}>
+                                    <div className="order-items-scroll">
                                         {order.items.map((item, idx) => (
-                                            <div key={idx} className="order-item-row" style={{
-                                                display: 'flex',
-                                                justifyContent: 'space-between',
-                                                alignItems: 'center',
-                                                padding: '4px 0',
-                                                borderBottom: idx !== order.items.length - 1 ? '1px solid #dcdde1' : 'none',
-                                                color: '#2f3640',
-                                                fontSize: '0.8rem'
-                                            }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                    <span style={{
-                                                        background: '#2f3542',
-                                                        color: '#fff',
-                                                        width: '18px',
-                                                        height: '18px',
-                                                        borderRadius: '50%',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        fontSize: '0.65rem',
-                                                        fontWeight: 'bold'
-                                                    }}>
-                                                        {item.quantity}
-                                                    </span>
+                                            <div key={idx} className="order-item-row">
+                                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                    <span className="item-badge">{item.quantity}</span>
                                                     <span style={{ fontWeight: '600' }}>{item.name}</span>
                                                 </div>
-                                                <span style={{ fontWeight: 'bold', fontSize: '0.75rem' }}>{item.price ? `₹${item.price}` : ''}</span>
+                                                <span style={{ fontWeight: 'bold' }}>{item.price ? `₹${item.price}` : ''}</span>
                                             </div>
                                         ))}
                                     </div>
 
-                                    <div className="order-actions-advanced" style={{ marginTop: '0.8rem', paddingTop: '0.5rem', borderTop: '1px solid #eee' }}>
-                                        {/* Dropdown for specific status */}
-                                        <div style={{ marginBottom: '8px' }}>
-                                            <select
-                                                value={order.status}
-                                                onChange={(e) => handleUpdateStatus(order._id, e.target.value)}
-                                                style={{
-                                                    width: '100%',
-                                                    padding: '5px',
-                                                    borderRadius: '4px',
-                                                    border: '1px solid #ced6e0',
-                                                    cursor: 'pointer',
-                                                    background: 'white',
-                                                    color: '#2f3542',
-                                                    fontSize: '0.8rem'
-                                                }}
-                                            >
-                                                <option value="Pending">🕒 Pending</option>
-                                                <option value="Preparing">🍳 Cooking</option>
-                                                <option value="Ready">🥡 Ready</option>
-                                                <option value="Out for Delivery">🚀 Out for Delivery</option>
-                                                <option value="Delivered">✅ Delivered</option>
-                                                <option value="Cancelled">🚫 Cancelled</option>
-                                            </select>
-                                        </div>
+                                    <div style={{ marginTop: '0.8rem', paddingTop: '0.5rem', borderTop: '1px solid #eee' }}>
+                                        <select
+                                            value={order.status}
+                                            onChange={(e) => handleUpdateStatus(order._id, e.target.value)}
+                                            className="status-select"
+                                        >
+                                            <option value="Pending">🕒 Pending</option>
+                                            <option value="Preparing">🍳 Cooking</option>
+                                            <option value="Ready">🥡 Ready</option>
+                                            <option value="Out for Delivery">🚀 Out for Delivery</option>
+                                            <option value="Delivered">✅ Delivered</option>
+                                            <option value="Cancelled">🚫 Cancelled</option>
+                                        </select>
 
-                                        <div style={{ display: 'flex', gap: '8px' }}>
+                                        <div className="order-actions-row">
                                             <button
                                                 onClick={() => handleRefund(order._id)}
                                                 disabled={order.status === 'Cancelled' || order.status === 'Delivered'}
-                                                style={{
-                                                    flex: 1,
-                                                    padding: '0.5rem',
-                                                    background: order.status === 'Cancelled' ? '#dfe6e9' : '#ff7675',
-                                                    color: order.status === 'Cancelled' ? '#b2bec3' : 'white',
-                                                    border: 'none',
-                                                    borderRadius: '6px',
-                                                    cursor: order.status === 'Cancelled' || order.status === 'Delivered' ? 'not-allowed' : 'pointer',
-                                                    fontWeight: 'bold',
-                                                    fontSize: '0.75rem',
-                                                }}
+                                                className={`btn-action btn-cancel ${order.status === 'Cancelled' || order.status === 'Delivered' ? 'btn-disabled' : ''}`}
                                             >
                                                 ❌ Cancel
                                             </button>
@@ -372,17 +312,7 @@ const AdminOrders = ({ setView }) => {
                                             <button
                                                 onClick={() => handleUpdateStatus(order._id, 'Delivered')}
                                                 disabled={order.status === 'Cancelled' || order.status === 'Delivered'}
-                                                style={{
-                                                    flex: 1,
-                                                    padding: '0.5rem',
-                                                    background: order.status === 'Delivered' ? '#dfe6e9' : '#2ed573',
-                                                    color: order.status === 'Delivered' ? '#b2bec3' : 'white',
-                                                    border: 'none',
-                                                    borderRadius: '6px',
-                                                    cursor: order.status === 'Cancelled' || order.status === 'Delivered' ? 'not-allowed' : 'pointer',
-                                                    fontWeight: 'bold',
-                                                    fontSize: '0.75rem',
-                                                }}
+                                                className={`btn-action btn-complete ${order.status === 'Cancelled' || order.status === 'Delivered' ? 'btn-disabled' : ''}`}
                                             >
                                                 ✨ Complete
                                             </button>
@@ -395,27 +325,27 @@ const AdminOrders = ({ setView }) => {
 
                     {activeTab === 'users' && (
                         <div className="users-view">
-                            <div className="table-responsive" style={{ overflowX: 'auto' }}>
-                                <table style={{ width: '100%', borderCollapse: 'collapse', color: 'white' }}>
+                            <div className="users-table-container">
+                                <table className="users-table">
                                     <thead>
-                                        <tr style={{ borderBottom: '1px solid #555' }}>
-                                            <th style={{ padding: '1rem', textAlign: 'left' }}>User</th>
-                                            <th style={{ padding: '1rem', textAlign: 'left' }}>Contact</th>
-                                            <th style={{ padding: '1rem', textAlign: 'left' }}>Wallet</th>
-                                            <th style={{ padding: '1rem', textAlign: 'left' }}>Status</th>
-                                            <th style={{ padding: '1rem', textAlign: 'left' }}>Actions</th>
+                                        <tr>
+                                            <th>User</th>
+                                            <th>Contact</th>
+                                            <th>Wallet</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {users.map(user => (
-                                            <tr key={user._id} style={{ borderBottom: '1px solid #333' }}>
-                                                <td style={{ padding: '1rem' }}>
+                                            <tr key={user._id}>
+                                                <td data-label="User">
                                                     <div style={{ fontWeight: 'bold' }}>{user.username}</div>
                                                     <small style={{ opacity: 0.7 }}>{user.rank}</small>
                                                 </td>
-                                                <td style={{ padding: '1rem' }}>{user.phone || user.email}</td>
-                                                <td style={{ padding: '1rem', color: '#2ecc71', fontWeight: 'bold' }}>₹{user.walletBalance}</td>
-                                                <td style={{ padding: '1rem' }}>
+                                                <td data-label="Contact">{user.phone || user.email}</td>
+                                                <td data-label="Wallet" style={{ color: '#2ecc71', fontWeight: 'bold' }}>₹{user.walletBalance}</td>
+                                                <td data-label="Status">
                                                     <span style={{
                                                         padding: '0.3rem 0.8rem',
                                                         borderRadius: '20px',
@@ -425,38 +355,40 @@ const AdminOrders = ({ setView }) => {
                                                         {user.isBlocked ? 'Blocked' : 'Active'}
                                                     </span>
                                                 </td>
-                                                <td style={{ padding: '1rem' }}>
-                                                    <button
-                                                        onClick={() => setManagingUser(user)}
-                                                        style={{ marginRight: '0.5rem', background: '#9b59b6', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '5px', color: 'white', cursor: 'pointer' }}
-                                                    >
-                                                        💰 Manage
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleEditClick(user)}
-                                                        style={{ marginRight: '0.5rem', background: '#9b59b6', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '5px', color: 'white', cursor: 'pointer' }}
-                                                    >
-                                                        ✏️ Edit
-                                                    </button>
-                                                    <button
-                                                        onClick={() => fetchUserOrders(user.username)}
-                                                        style={{ marginRight: '0.5rem', background: '#3498db', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '5px', color: 'white', cursor: 'pointer' }}
-                                                    >
-                                                        History
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleResetPassword(user._id)}
-                                                        style={{ marginRight: '0.5rem', background: '#f1c40f', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '5px', color: '#2c3e50', cursor: 'pointer', fontWeight: 'bold' }}
-                                                        title="Reset Password to 'password123'"
-                                                    >
-                                                        🔑 Reset
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleBlockUser(user._id, user.isBlocked)}
-                                                        style={{ background: user.isBlocked ? '#2ecc71' : '#e74c3c', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '5px', color: 'white', cursor: 'pointer' }}
-                                                    >
-                                                        {user.isBlocked ? 'Unblock' : 'Block'}
-                                                    </button>
+                                                <td>
+                                                    <div className="user-actions">
+                                                        <button
+                                                            onClick={() => setManagingUser(user)}
+                                                            className="user-btn btn-manage"
+                                                        >
+                                                            💰 Manage
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleEditClick(user)}
+                                                            className="user-btn btn-edit"
+                                                        >
+                                                            ✏️ Edit
+                                                        </button>
+                                                        <button
+                                                            onClick={() => fetchUserOrders(user.username)}
+                                                            className="user-btn btn-history"
+                                                        >
+                                                            📜 History
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleResetPassword(user._id)}
+                                                            className="user-btn btn-reset"
+                                                            title="Reset Password"
+                                                        >
+                                                            🔑 Reset
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleBlockUser(user._id, user.isBlocked)}
+                                                            className={`user-btn ${user.isBlocked ? 'btn-unblock' : 'btn-block'}`}
+                                                        >
+                                                            {user.isBlocked ? '🔓 Unblock' : '🚫 Block'}
+                                                        </button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))}

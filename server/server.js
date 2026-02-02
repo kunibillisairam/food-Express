@@ -270,6 +270,26 @@ app.put('/api/users/:id/reset-password', async (req, res) => {
 app.put('/api/users/:id', async (req, res) => {
     try {
         const { username, phone, walletBalance, rank, isBlocked } = req.body;
+        const userId = req.params.id;
+
+        // Check for duplicates (if username or phone is being updated)
+        if (username || phone) {
+            const query = { $or: [] };
+            if (username) query.$or.push({ username });
+            if (phone) query.$or.push({ phone });
+
+            if (query.$or.length > 0) {
+                const existing = await User.findOne({
+                    ...query,
+                    _id: { $ne: userId } // Exclude current user
+                });
+
+                if (existing) {
+                    if (existing.username === username) return res.status(400).json({ message: "Username already taken" });
+                    if (existing.phone === phone) return res.status(400).json({ message: "Phone number already in use" });
+                }
+            }
+        }
 
         const updateData = {};
         if (username) updateData.username = username;
@@ -278,12 +298,17 @@ app.put('/api/users/:id', async (req, res) => {
         if (rank) updateData.rank = rank;
         if (isBlocked !== undefined) updateData.isBlocked = isBlocked;
 
-        const user = await User.findByIdAndUpdate(req.params.id, updateData, { new: true });
+        const user = await User.findByIdAndUpdate(userId, updateData, { new: true });
 
         if (!user) return res.status(404).json({ message: 'User not found' });
 
         res.json({ success: true, user });
     } catch (err) {
+        // Handle MongoDB duplicate key error specifically
+        if (err.code === 11000) {
+            const field = Object.keys(err.keyPattern)[0];
+            return res.status(400).json({ message: `${field} already exists` });
+        }
         res.status(500).json({ error: err.message });
     }
 });

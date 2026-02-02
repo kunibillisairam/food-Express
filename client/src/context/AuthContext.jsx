@@ -13,6 +13,16 @@ export const AuthProvider = ({ children }) => {
             const parsedUser = JSON.parse(storedUser);
             setUser(parsedUser);
 
+            // Fetch latest user data from server to sync wallet/credits
+            axios.get(`${API_BASE_URL}/api/users/${parsedUser.username}`)
+                .then(res => {
+                    const freshUser = res.data;
+                    setUser(freshUser);
+                    localStorage.setItem('user', JSON.stringify(freshUser));
+                    console.log("✅ User data synced with server");
+                })
+                .catch(err => console.warn("Background user sync failed", err));
+
             // Sync FCM Token immediately if user is already logged in (keeps token fresh)
             const syncToken = async () => {
                 const { requestForToken } = await import('../firebase');
