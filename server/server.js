@@ -1254,6 +1254,51 @@ app.post('/api/coupons', async (req, res) => {
 
         const newCoupon = new Coupon(couponData);
         const savedCoupon = await newCoupon.save();
+
+        // ----------------------------------------------------
+        // NOTIFICATION: Notify all users about the new coupon
+        // ----------------------------------------------------
+        try {
+            // Fetch users with FCM tokens
+            // Optimization: In a real app with millions of users, you'd use a topic 'coupons' instead.
+            // But for now, we iterate tokens as per existing patterns.
+            const users = await User.find({
+                $or: [{ fcmToken: { $exists: true } }, { fcmTokens: { $exists: true, $not: { $size: 0 } } }]
+            }).select('fcmToken fcmTokens');
+
+            let tokens = [];
+            users.forEach(u => {
+                if (u.fcmTokens && u.fcmTokens.length > 0) tokens.push(...u.fcmTokens);
+                if (u.fcmToken) tokens.push(u.fcmToken);
+            });
+
+            // Clean tokens
+            tokens = [...new Set(tokens)].filter(t => t && t.length > 10);
+
+            if (tokens.length > 0 && admin.apps.length > 0) {
+                const message = {
+                    tokens: tokens,
+                    notification: {
+                        title: '🎉 New Coupon Alert!',
+                        body: `Use code ${savedCoupon.code} to get ${savedCoupon.discountType === 'percentage' ? savedCoupon.discountValue + '%' : '₹' + savedCoupon.discountValue} OFF!`
+                    },
+                    data: {
+                        type: 'coupon_new',
+                        code: savedCoupon.code,
+                        description: savedCoupon.description || ''
+                    }
+                };
+
+                const response = await admin.messaging().sendEachForMulticast(message);
+                console.log(`[Coupon Notification] Sent to ${response.successCount} devices.`);
+            }
+        } catch (nErr) {
+            console.error("Coupon Notification Error:", nErr);
+        }
+
+        // Emit Socket Event for Real-time Admin/User UI Update
+        if (io) io.emit('coupons-updated');
+
         res.status(201).json(savedCoupon);
     } catch (err) {
         if (err.code === 11000) {
@@ -1274,10 +1319,14 @@ app.put('/api/coupons/:id', async (req, res) => {
             updates.code = updates.code.toUpperCase();
         }
 
-        const coupon = await Coupon.findByIdAndUpdate(id, updates, { new: true });
+        const coupon = await Coupon.findByIdAndUpdate(id, updates, { new: true, runValidators: true });
         if (!coupon) {
             return res.status(404).json({ message: 'Coupon not found' });
         }
+
+        // Emit Socket Event
+        if (io) io.emit('coupons-updated');
+
         res.json(coupon);
     } catch (err) {
         if (err.code === 11000) {
@@ -1295,6 +1344,10 @@ app.delete('/api/coupons/:id', async (req, res) => {
         if (!coupon) {
             return res.status(404).json({ message: 'Coupon not found' });
         }
+
+        // Emit Socket Event
+        if (io) io.emit('coupons-updated');
+
         res.json({ message: 'Coupon deleted successfully' });
     } catch (err) {
         res.status(500).json({ error: err.message });

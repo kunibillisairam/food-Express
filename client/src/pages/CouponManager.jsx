@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { io } from 'socket.io-client';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import config from '../config';
@@ -44,6 +45,27 @@ export default function CouponManager() {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        // Initialize Socket for Real-time Updates
+        const socket = io(config.API_BASE_URL);
+
+        socket.on('connect', () => {
+            console.log('[CouponManager] Socket Connected:', socket.id);
+        });
+
+        socket.on('coupons-updated', () => {
+            console.log('[CouponManager] Update received, refreshing...');
+            fetchCoupons();
+            // Optional: Toast is handled by the action initiator usually, 
+            // but for multi-admin sync, a toast is nice.
+            // toast('Coupon list updated', { icon: '🔄' });
+        });
+
+        return () => {
+            socket.disconnect();
+        };
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
