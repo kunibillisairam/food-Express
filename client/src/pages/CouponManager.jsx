@@ -192,6 +192,7 @@ export default function CouponManager() {
                 >
                     <h2>{editingCoupon ? 'Edit Coupon' : 'Create New Coupon'}</h2>
                     <form onSubmit={handleSubmit} className="coupon-form">
+                        {/* Row 1: Basic Info */}
                         <div className="form-row">
                             <div className="form-group">
                                 <label>Coupon Code*</label>
@@ -213,9 +214,7 @@ export default function CouponManager() {
                                     <option value="fixed">Fixed Amount (₹)</option>
                                 </select>
                             </div>
-                        </div>
 
-                        <div className="form-row">
                             <div className="form-group">
                                 <label>Discount Value*</label>
                                 <input
@@ -228,7 +227,10 @@ export default function CouponManager() {
                                     placeholder={formData.discountType === 'percentage' ? '10' : '100'}
                                 />
                             </div>
+                        </div>
 
+                        {/* Row 2: Limits & Conditions */}
+                        <div className="form-row">
                             <div className="form-group">
                                 <label>Min Order Amount (₹)</label>
                                 <input
@@ -240,35 +242,35 @@ export default function CouponManager() {
                                     placeholder="0"
                                 />
                             </div>
-                        </div>
 
-                        {formData.discountType === 'percentage' && (
                             <div className="form-group">
-                                <label>Max Discount Amount (₹) - Optional</label>
+                                <label>Max Discount (₹)</label>
                                 <input
                                     type="number"
                                     name="maxDiscountAmount"
-                                    value={formData.maxDiscountAmount}
+                                    value={formData.maxDiscountAmount || ''}
                                     onChange={handleInputChange}
                                     min="0"
-                                    placeholder="Leave empty for no limit"
+                                    placeholder="Optional"
+                                    disabled={formData.discountType !== 'percentage'}
                                 />
                             </div>
-                        )}
 
-                        <div className="form-row">
                             <div className="form-group">
-                                <label>Usage Limit - Optional</label>
+                                <label>Total Usage Limit</label>
                                 <input
                                     type="number"
                                     name="usageLimit"
-                                    value={formData.usageLimit}
+                                    value={formData.usageLimit || ''}
                                     onChange={handleInputChange}
                                     min="1"
-                                    placeholder="Leave empty for unlimited"
+                                    placeholder="Unlimited"
                                 />
                             </div>
+                        </div>
 
+                        {/* Row 3: User Limits & Validity */}
+                        <div className="form-row">
                             <div className="form-group">
                                 <label>Per User Limit*</label>
                                 <input
@@ -280,9 +282,7 @@ export default function CouponManager() {
                                     required
                                 />
                             </div>
-                        </div>
 
-                        <div className="form-row">
                             <div className="form-group">
                                 <label>Valid From*</label>
                                 <input
