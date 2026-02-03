@@ -1,4 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
+// Favorites Feature Implemented
 import { AuthContext } from '../context/AuthContext';
 import { CartContext } from '../context/CartContext';
 import { FaUser, FaMapMarkerAlt, FaSignOutAlt, FaGift, FaWallet, FaQuestionCircle, FaListAlt, FaMotorcycle, FaCreditCard, FaMobileAlt, FaUniversity, FaArrowLeft, FaCheckCircle, FaLocationArrow, FaRocket, FaStar, FaAward, FaHeart } from 'react-icons/fa';

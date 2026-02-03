@@ -1,4 +1,5 @@
 const admin = require('firebase-admin');
+// Favorites System & Coupon Manager Updated
 
 // Initialize Firebase Admin (Wrapped to prevent crash if key is missing)
 // Initialize Firebase Admin
