@@ -154,6 +154,9 @@ const AdminDashboard = ({ setView }) => {
                 <div className={`sidebar-nav-item ${activeTab === 'broadcast' ? 'active' : ''}`} onClick={() => setActiveTab('broadcast')}>
                     <FaBell /> Broadcast
                 </div>
+                <div className={`sidebar-nav-item ${activeTab === 'coupons' ? 'active' : ''}`} onClick={() => setActiveTab('coupons')}>
+                    <FaTicketAlt /> Coupons
+                </div>
                 <div className={`sidebar-nav-item ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>
                     <FaCog /> Settings
                 </div>
@@ -630,6 +633,7 @@ const AdminDashboard = ({ setView }) => {
                 {activeTab === 'orders' && <OrdersView />}
                 {activeTab === 'campaigns' && <CampaignsView />}
                 {activeTab === 'broadcast' && <BroadcastView />}
+                {activeTab === 'coupons' && <CouponManager />}
                 {activeTab === 'settings' && <SettingsView />}
             </main>
 
