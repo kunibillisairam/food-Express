@@ -34,7 +34,9 @@ export default function CouponManager() {
     const fetchCoupons = async () => {
         try {
             const response = await axios.get(`${config.API_BASE_URL}/api/coupons`);
-            setCoupons(response.data);
+            // Handle both [coupons] and { data: [coupons] } formats
+            const couponsData = Array.isArray(response.data) ? response.data : (response.data.data || []);
+            setCoupons(Array.isArray(couponsData) ? couponsData : []);
             setLoading(false);
         } catch (error) {
             console.error('Error fetching coupons:', error);
@@ -343,7 +345,7 @@ export default function CouponManager() {
                 <h2>All Coupons ({coupons.length})</h2>
                 {loading ? (
                     <p className="loading-text">Loading coupons...</p>
-                ) : coupons.length === 0 ? (
+                ) : !Array.isArray(coupons) || coupons.length === 0 ? (
                     <p className="empty-text">No coupons created yet</p>
                 ) : (
                     <div className="coupons-grid">

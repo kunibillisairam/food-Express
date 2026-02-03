@@ -357,7 +357,7 @@ const AdminOrders = ({ setView }) => {
 
                             {/* Charts Row */}
                             <div className="charts-row">
-                                <div className="chart-card">
+                                <div className="chart-card" style={{ height: '300px' }}>
                                     <div className="card-header">
                                         <div className="card-title">Revenue & Traffic</div>
                                         <button className="table-btn btn-purple">Last Month Summary</button>
@@ -378,7 +378,7 @@ const AdminOrders = ({ setView }) => {
                                         </AreaChart>
                                     </ResponsiveContainer>
                                 </div>
-                                <div className="chart-card">
+                                <div className="chart-card" style={{ height: '300px' }}>
                                     <div className="card-header">
                                         <div className="card-title">Traffic Source</div>
                                     </div>

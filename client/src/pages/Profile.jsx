@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { FaUser, FaMapMarkerAlt, FaSignOutAlt, FaGift, FaWallet, FaQuestionCircle, FaListAlt, FaMotorcycle, FaCreditCard, FaMobileAlt, FaUniversity, FaArrowLeft, FaCheckCircle, FaLocationArrow, FaRocket, FaStar, FaAward } from 'react-icons/fa';
+import { CartContext } from '../context/CartContext';
+import { FaUser, FaMapMarkerAlt, FaSignOutAlt, FaGift, FaWallet, FaQuestionCircle, FaListAlt, FaMotorcycle, FaCreditCard, FaMobileAlt, FaUniversity, FaArrowLeft, FaCheckCircle, FaLocationArrow, FaRocket, FaStar, FaAward, FaHeart } from 'react-icons/fa';
 import axios from 'axios';
 import API_BASE_URL from '../config';
 import { requestForToken } from '../firebase';
@@ -10,6 +11,7 @@ import HolographicCard from '../components/HolographicCard';
 
 const Profile = ({ setView }) => {
     const { user, logout, updateUser } = useContext(AuthContext);
+    const { addToCart } = useContext(CartContext);
     const [address, setAddress] = useState(user?.address || '');
     const [isEditingAddress, setIsEditingAddress] = useState(false);
     const [orders, setOrders] = useState([]);
@@ -945,7 +947,7 @@ const Profile = ({ setView }) => {
                     <div className="profile-main-content px-4">
                         {/* Navigation Tabs */}
                         <div className="profile-tabs" style={{ display: 'flex', overflowX: 'auto', gap: '15px', padding: '10px 0', borderBottom: '1px solid #eee', marginBottom: '20px' }}>
-                            {['profile', 'wallet', 'rewards', 'orders', 'address', 'help'].map(tab => (
+                            {['profile', 'wallet', 'rewards', 'favorites', 'orders', 'address', 'help'].map(tab => (
                                 <button
                                     key={tab}
                                     onClick={() => setActiveTab(tab)}
@@ -1036,6 +1038,40 @@ const Profile = ({ setView }) => {
                                         </button>
                                     </div>
                                 </div>
+                            </div>
+                        )}
+
+                        {/* FAVORITES TAB */}
+                        {activeTab === 'favorites' && (
+                            <div className="fade-in">
+                                <div className="section-header" style={{ marginBottom: '25px' }}>
+                                    <div className="back-btn-hover" onClick={() => setActiveTab('profile')} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#ff4757', fontWeight: 'bold', marginBottom: '15px', cursor: 'pointer' }}>
+                                        <FaArrowLeft /> Back
+                                    </div>
+                                    <h2 style={{ fontSize: '1.5rem', fontWeight: '800' }}>My Favorites ❤️</h2>
+                                    <p style={{ color: '#747d8c' }}>Your personalized menu of loved items</p>
+                                </div>
+
+                                {user?.favorites?.length > 0 ? (
+                                    <div className="food-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '2rem' }}>
+                                        {foodData.filter(f => user.favorites.includes(f.id)).map(item => (
+                                            <HolographicCard
+                                                key={item.id}
+                                                item={item}
+                                                handleAdd={(item) => addToCart(item)}
+                                                setCategory={() => { }}
+                                                rating={0}
+                                            />
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div style={{ textAlign: 'center', padding: '60px', background: 'white', borderRadius: '20px', border: '1px dashed #ddd' }}>
+                                        <FaHeart style={{ fontSize: '3rem', color: '#eee', marginBottom: '15px' }} />
+                                        <h3 style={{ margin: 0, color: '#999' }}>No favorites yet</h3>
+                                        <p style={{ color: '#bbb', fontSize: '0.9rem' }}>Mark items as favorite to see them here.</p>
+                                        <button className="nav-btn mt-4" onClick={() => setView('home')}>Explore Food</button>
+                                    </div>
+                                )}
                             </div>
                         )}
 
