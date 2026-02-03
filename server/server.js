@@ -502,6 +502,40 @@ app.put('/api/users/:id', async (req, res) => {
     }
 });
 
+// GET /api/users/:username/favorites -> Get user favorites
+app.get('/api/users/:username/favorites', async (req, res) => {
+    try {
+        const { username } = req.params;
+        const user = await User.findOne({ username });
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        res.json(user.favorites || []);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// POST /api/users/favorites/toggle -> Toggle favorite status
+app.post('/api/users/favorites/toggle', async (req, res) => {
+    try {
+        const { username, foodId } = req.body;
+        const user = await User.findOne({ username });
+
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        const id = Number(foodId);
+        if (user.favorites.includes(id)) {
+            user.favorites = user.favorites.filter(fav => fav !== id);
+        } else {
+            user.favorites.push(id);
+        }
+
+        await user.save();
+        res.json(user.favorites);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // POST /api/admin/users/:id/transaction (Manage User Economy)
 app.post('/api/admin/users/:id/transaction', async (req, res) => {
     try {

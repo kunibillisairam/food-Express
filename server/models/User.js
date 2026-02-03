@@ -36,7 +36,10 @@ const userSchema = new mongoose.Schema({
     isReferralRewardClaimed: { type: Boolean, default: false },
 
     // Personal Info
-    dob: { type: Date, default: null }
+    dob: { type: Date, default: null },
+
+    // Favorites
+    favorites: { type: [Number], default: [] }
 }, { timestamps: true });
 
 // Password Hashing Middleware

@@ -208,7 +208,8 @@ The Coupon model is stored in MongoDB with the following indexes:
 
 ### Modified:
 - `server/server.js` (Added coupon routes and import)
-- `client/src/pages/AdminDashboard.jsx` (Added Broadcast section with sub-tabs)
+- `client/src/pages/AdminOrders.jsx` (Active Admin Dashboard - Added Broadcast section with sub-tabs)
+- `client/src/pages/AdminDashboard.jsx` (Deprecated/Unused file)
 
 ## Testing Checklist
 

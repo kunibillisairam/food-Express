@@ -4,6 +4,7 @@ import './AdminOrders.css';
 import API_BASE_URL from '../config';
 import NotificationSender from '../components/NotificationSender';
 import CampaignManager from './CampaignManager';
+import CouponManager from './CouponManager';
 import toast from 'react-hot-toast';
 import { AuthContext } from '../context/AuthContext';
 import {
@@ -13,7 +14,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     FaHome, FaBox, FaUsers, FaChartLine, FaBullhorn, FaBell, FaSearch,
-    FaUserCircle, FaCog, FaSignOutAlt, FaWallet
+    FaUserCircle, FaCog, FaSignOutAlt, FaWallet, FaTicketAlt
 } from 'react-icons/fa';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
@@ -264,6 +265,7 @@ const AdminOrders = ({ setView }) => {
                     <SidebarItem id="users" label="Users" icon={<FaUsers />} />
                     <SidebarItem id="campaigns" label="Campaigns" icon={<FaBullhorn />} />
                     <SidebarItem id="notifications" label="Broadcast" icon={<FaBell />} />
+                    <SidebarItem id="coupons" label="Coupons" icon={<FaTicketAlt />} />
                 </div>
 
                 <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
@@ -577,6 +579,14 @@ const AdminOrders = ({ setView }) => {
                             <div className="chart-card" style={{ height: 'auto', maxWidth: '600px' }}>
                                 <NotificationSender userId={null} />
                             </div>
+                        </div>
+                    )}
+
+                    {/* Coupons View */}
+                    {activeTab === 'coupons' && (
+                        <div className="fade-in">
+                            <h2 className="section-title">Coupon Management</h2>
+                            <CouponManager />
                         </div>
                     )}
 
