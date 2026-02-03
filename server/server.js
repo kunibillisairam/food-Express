@@ -67,6 +67,7 @@ const Order = require('./models/Order');
 const User = require('./models/User');
 const Review = require('./models/Review');
 const Campaign = require('./models/Campaign');
+const Coupon = require('./models/Coupon');
 const { startCampaignScheduler, sendCampaignNotification, INDIAN_FESTIVALS } = require('./campaignScheduler');
 
 // Email Transporter for Forgot Password OTP
@@ -1099,6 +1100,219 @@ app.post('/api/campaigns/:id/send', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+
+// ==================== COUPON ROUTES ====================
+
+// GET /api/coupons - Get all coupons (Admin)
+app.get('/api/coupons', async (req, res) => {
+    try {
+        const coupons = await Coupon.find().sort({ createdAt: -1 });
+        res.json(coupons);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// GET /api/coupons/active - Get active coupons (User)
+app.get('/api/coupons/active', async (req, res) => {
+    try {
+        const now = new Date();
+        const activeCoupons = await Coupon.find({
+            isActive: true,
+            validFrom: { $lte: now },
+            validUntil: { $gte: now }
+        }).select('-usageCount'); // Hide usage count from users
+        res.json(activeCoupons);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// GET /api/coupons/:code/validate - Validate a coupon code
+app.get('/api/coupons/:code/validate', async (req, res) => {
+    try {
+        const { code } = req.params;
+        const { orderAmount, username } = req.query;
+
+        const coupon = await Coupon.findOne({ code: code.toUpperCase() });
+
+        if (!coupon) {
+            return res.status(404).json({ valid: false, message: 'Invalid coupon code' });
+        }
+
+        // Check if coupon is valid
+        const validityCheck = coupon.isValid();
+        if (!validityCheck.valid) {
+            return res.json({ valid: false, message: validityCheck.reason });
+        }
+
+        // Check per-user limit
+        if (username) {
+            const user = await User.findOne({ username });
+            if (user && user.usedCoupons) {
+                const usageCount = user.usedCoupons.filter(c => c === code.toUpperCase()).length;
+                if (usageCount >= coupon.perUserLimit) {
+                    return res.json({ valid: false, message: 'You have already used this coupon' });
+                }
+            }
+        }
+
+        // Calculate discount if order amount provided
+        if (orderAmount) {
+            const discountResult = coupon.calculateDiscount(parseFloat(orderAmount));
+            if (discountResult.error) {
+                return res.json({ valid: false, message: discountResult.error });
+            }
+            return res.json({
+                valid: true,
+                coupon: {
+                    code: coupon.code,
+                    description: coupon.description,
+                    discountType: coupon.discountType,
+                    discountValue: coupon.discountValue,
+                    minOrderAmount: coupon.minOrderAmount
+                },
+                discount: discountResult.discount,
+                finalAmount: discountResult.finalAmount
+            });
+        }
+
+        res.json({
+            valid: true,
+            coupon: {
+                code: coupon.code,
+                description: coupon.description,
+                discountType: coupon.discountType,
+                discountValue: coupon.discountValue,
+                minOrderAmount: coupon.minOrderAmount
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// POST /api/coupons - Create new coupon (Admin)
+app.post('/api/coupons', async (req, res) => {
+    try {
+        const couponData = req.body;
+
+        // Convert code to uppercase
+        if (couponData.code) {
+            couponData.code = couponData.code.toUpperCase();
+        }
+
+        const newCoupon = new Coupon(couponData);
+        const savedCoupon = await newCoupon.save();
+        res.status(201).json(savedCoupon);
+    } catch (err) {
+        if (err.code === 11000) {
+            return res.status(400).json({ error: 'Coupon code already exists' });
+        }
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// PUT /api/coupons/:id - Update coupon (Admin)
+app.put('/api/coupons/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updates = req.body;
+
+        // Convert code to uppercase if being updated
+        if (updates.code) {
+            updates.code = updates.code.toUpperCase();
+        }
+
+        const coupon = await Coupon.findByIdAndUpdate(id, updates, { new: true });
+        if (!coupon) {
+            return res.status(404).json({ message: 'Coupon not found' });
+        }
+        res.json(coupon);
+    } catch (err) {
+        if (err.code === 11000) {
+            return res.status(400).json({ error: 'Coupon code already exists' });
+        }
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// DELETE /api/coupons/:id - Delete coupon (Admin)
+app.delete('/api/coupons/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const coupon = await Coupon.findByIdAndDelete(id);
+        if (!coupon) {
+            return res.status(404).json({ message: 'Coupon not found' });
+        }
+        res.json({ message: 'Coupon deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// POST /api/coupons/:code/apply - Apply coupon to order (Internal use during order creation)
+app.post('/api/coupons/:code/apply', async (req, res) => {
+    try {
+        const { code } = req.params;
+        const { username, orderAmount } = req.body;
+
+        const coupon = await Coupon.findOne({ code: code.toUpperCase() });
+
+        if (!coupon) {
+            return res.status(404).json({ message: 'Invalid coupon code' });
+        }
+
+        // Validate coupon
+        const validityCheck = coupon.isValid();
+        if (!validityCheck.valid) {
+            return res.status(400).json({ message: validityCheck.reason });
+        }
+
+        // Check per-user limit
+        const user = await User.findOne({ username });
+        if (user && user.usedCoupons) {
+            const usageCount = user.usedCoupons.filter(c => c === code.toUpperCase()).length;
+            if (usageCount >= coupon.perUserLimit) {
+                return res.status(400).json({ message: 'You have already used this coupon' });
+            }
+        }
+
+        // Calculate discount
+        const discountResult = coupon.calculateDiscount(orderAmount);
+        if (discountResult.error) {
+            return res.status(400).json({ message: discountResult.error });
+        }
+
+        // Increment usage count
+        coupon.usageCount += 1;
+        await coupon.save();
+
+        // Add to user's used coupons
+        if (user) {
+            if (!user.usedCoupons) {
+                user.usedCoupons = [];
+            }
+            user.usedCoupons.push(code.toUpperCase());
+            await user.save();
+        }
+
+        res.json({
+            success: true,
+            discount: discountResult.discount,
+            finalAmount: discountResult.finalAmount,
+            coupon: {
+                code: coupon.code,
+                description: coupon.description
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ==================== END COUPON ROUTES ====================
+
 
 // POST /api/notifications/send - Send Direct Message (Admin)
 app.post('/api/notifications/send', async (req, res) => {

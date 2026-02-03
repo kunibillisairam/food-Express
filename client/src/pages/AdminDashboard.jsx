@@ -5,11 +5,12 @@ import API_BASE_URL from '../config';
 import { AuthContext } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
+import CouponManager from './CouponManager';
 import {
     FaHome, FaUsers, FaBox, FaBell, FaCog, FaSearch, FaPlus,
     FaWallet, FaHistory, FaCheck, FaTimes, FaMapMarkerAlt, FaPhoneAlt,
     FaBullhorn, FaGift, FaLock, FaUnlock, FaTrash, FaSignOutAlt,
-    FaChartLine, FaChartPie, FaCreditCard, FaUserPlus
+    FaChartLine, FaChartPie, FaCreditCard, FaUserPlus, FaTicketAlt
 } from 'react-icons/fa';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
@@ -19,6 +20,7 @@ import {
 const AdminDashboard = ({ setView }) => {
     const { user, logout } = useContext(AuthContext);
     const [activeTab, setActiveTab] = useState('home');
+    const [broadcastSubTab, setBroadcastSubTab] = useState('notifications'); // 'notifications' or 'coupons'
     const [loading, setLoading] = useState(false);
 
     // Data States
@@ -149,8 +151,8 @@ const AdminDashboard = ({ setView }) => {
                 <div className={`sidebar-nav-item ${activeTab === 'campaigns' ? 'active' : ''}`} onClick={() => setActiveTab('campaigns')}>
                     <FaBullhorn /> Campaigns
                 </div>
-                <div className={`sidebar-nav-item ${activeTab === 'notifications' ? 'active' : ''}`} onClick={() => setActiveTab('notifications')}>
-                    <FaBell /> Notifications
+                <div className={`sidebar-nav-item ${activeTab === 'broadcast' ? 'active' : ''}`} onClick={() => setActiveTab('broadcast')}>
+                    <FaBell /> Broadcast
                 </div>
                 <div className={`sidebar-nav-item ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>
                     <FaCog /> Settings
@@ -177,7 +179,7 @@ const AdminDashboard = ({ setView }) => {
             <button className={`nav-tab ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => setActiveTab('orders')}>
                 <FaBox className="nav-icon" />
             </button>
-            <button className={`nav-tab ${activeTab === 'notifications' ? 'active' : ''}`} onClick={() => setActiveTab('notifications')}>
+            <button className={`nav-tab ${activeTab === 'broadcast' ? 'active' : ''}`} onClick={() => setActiveTab('broadcast')}>
                 <FaBell className="nav-icon" />
             </button>
             <button className={`nav-tab ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>
@@ -528,25 +530,59 @@ const AdminDashboard = ({ setView }) => {
         </div>
     );
 
-    return (
-        <div className="admin-mobile-container">
-            <Sidebar />
-            <Header />
+    const BroadcastView = () => (
+        <div className="animate-fade-in">
+            {/* Sub-tabs for Broadcast */}
+            <div className="broadcast-tabs" style={{
+                display: 'flex',
+                gap: '10px',
+                marginBottom: '20px',
+                borderBottom: '1px solid rgba(255,255,255,0.1)',
+                paddingBottom: '10px'
+            }}>
+                <button
+                    className={`broadcast-tab ${broadcastSubTab === 'notifications' ? 'active' : ''}`}
+                    onClick={() => setBroadcastSubTab('notifications')}
+                    style={{
+                        background: broadcastSubTab === 'notifications' ? 'rgba(85, 239, 196, 0.2)' : 'rgba(255,255,255,0.05)',
+                        border: broadcastSubTab === 'notifications' ? '1px solid #55efc4' : '1px solid rgba(255,255,255,0.1)',
+                        color: broadcastSubTab === 'notifications' ? '#55efc4' : '#fff',
+                        padding: '10px 20px',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        fontWeight: '600',
+                        transition: 'all 0.3s ease',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
+                    }}
+                >
+                    <FaBell /> Notifications
+                </button>
+                <button
+                    className={`broadcast-tab ${broadcastSubTab === 'coupons' ? 'active' : ''}`}
+                    onClick={() => setBroadcastSubTab('coupons')}
+                    style={{
+                        background: broadcastSubTab === 'coupons' ? 'rgba(85, 239, 196, 0.2)' : 'rgba(255,255,255,0.05)',
+                        border: broadcastSubTab === 'coupons' ? '1px solid #55efc4' : '1px solid rgba(255,255,255,0.1)',
+                        color: broadcastSubTab === 'coupons' ? '#55efc4' : '#fff',
+                        padding: '10px 20px',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        fontWeight: '600',
+                        transition: 'all 0.3s ease',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
+                    }}
+                >
+                    <FaTicketAlt /> Coupons
+                </button>
+            </div>
 
-            <main>
-                {activeTab === 'home' && <HomeView />}
-                {activeTab === 'users' && <UsersView />}
-                {activeTab === 'orders' && <OrdersView />}
-                {activeTab === 'campaigns' && <CampaignsView />}
-                {activeTab === 'settings' && <SettingsView />}
-            </main>
-
-            {/* Mobile Only: Bottom Nav */}
-            <BottomNav />
-
-            {/* Overlay for Notifications */}
-            {activeTab === 'notifications' && (
-                <div className="animate-fade-in" style={{ padding: '20px', paddingBottom: '100px' }}>
+            {/* Notifications Section */}
+            {broadcastSubTab === 'notifications' && (
+                <div style={{ paddingBottom: '100px' }}>
                     <h2 style={{ marginTop: 0 }}>Create Notification</h2>
                     <div className="glass-card" style={{ padding: '20px', marginBottom: '20px' }}>
                         <input className="modern-input" placeholder="Title" style={{ marginBottom: '10px' }} value={notificationForm.title} onChange={e => setNotificationForm({ ...notificationForm, title: e.target.value })} />
@@ -575,6 +611,30 @@ const AdminDashboard = ({ setView }) => {
                     </div>
                 </div>
             )}
+
+            {/* Coupons Section */}
+            {broadcastSubTab === 'coupons' && (
+                <CouponManager />
+            )}
+        </div>
+    );
+
+    return (
+        <div className="admin-mobile-container">
+            <Sidebar />
+            <Header />
+
+            <main>
+                {activeTab === 'home' && <HomeView />}
+                {activeTab === 'users' && <UsersView />}
+                {activeTab === 'orders' && <OrdersView />}
+                {activeTab === 'campaigns' && <CampaignsView />}
+                {activeTab === 'broadcast' && <BroadcastView />}
+                {activeTab === 'settings' && <SettingsView />}
+            </main>
+
+            {/* Mobile Only: Bottom Nav */}
+            <BottomNav />
 
             {/* User Actions Bottom Sheet */}
             <AnimatePresence>
