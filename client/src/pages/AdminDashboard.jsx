@@ -20,7 +20,6 @@ import {
 const AdminDashboard = ({ setView }) => {
     const { user, logout } = useContext(AuthContext);
     const [activeTab, setActiveTab] = useState('home');
-    const [broadcastSubTab, setBroadcastSubTab] = useState('notifications'); // 'notifications' or 'coupons'
     const [loading, setLoading] = useState(false);
 
     // Data States
@@ -535,90 +534,32 @@ const AdminDashboard = ({ setView }) => {
 
     const BroadcastView = () => (
         <div className="animate-fade-in">
-            {/* Sub-tabs for Broadcast */}
-            <div className="broadcast-tabs" style={{
-                display: 'flex',
-                gap: '10px',
-                marginBottom: '20px',
-                borderBottom: '1px solid rgba(255,255,255,0.1)',
-                paddingBottom: '10px'
-            }}>
-                <button
-                    className={`broadcast-tab ${broadcastSubTab === 'notifications' ? 'active' : ''}`}
-                    onClick={() => setBroadcastSubTab('notifications')}
-                    style={{
-                        background: broadcastSubTab === 'notifications' ? 'rgba(85, 239, 196, 0.2)' : 'rgba(255,255,255,0.05)',
-                        border: broadcastSubTab === 'notifications' ? '1px solid #55efc4' : '1px solid rgba(255,255,255,0.1)',
-                        color: broadcastSubTab === 'notifications' ? '#55efc4' : '#fff',
-                        padding: '10px 20px',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        fontWeight: '600',
-                        transition: 'all 0.3s ease',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px'
-                    }}
-                >
-                    <FaBell /> Notifications
-                </button>
-                <button
-                    className={`broadcast-tab ${broadcastSubTab === 'coupons' ? 'active' : ''}`}
-                    onClick={() => setBroadcastSubTab('coupons')}
-                    style={{
-                        background: broadcastSubTab === 'coupons' ? 'rgba(85, 239, 196, 0.2)' : 'rgba(255,255,255,0.05)',
-                        border: broadcastSubTab === 'coupons' ? '1px solid #55efc4' : '1px solid rgba(255,255,255,0.1)',
-                        color: broadcastSubTab === 'coupons' ? '#55efc4' : '#fff',
-                        padding: '10px 20px',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        fontWeight: '600',
-                        transition: 'all 0.3s ease',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px'
-                    }}
-                >
-                    <FaTicketAlt /> Coupons
-                </button>
+            <h2 style={{ marginTop: 0 }}>Create Notification</h2>
+            <div className="glass-card" style={{ padding: '20px', marginBottom: '20px' }}>
+                <input className="modern-input" placeholder="Title" style={{ marginBottom: '10px' }} value={notificationForm.title} onChange={e => setNotificationForm({ ...notificationForm, title: e.target.value })} />
+                <textarea className="modern-input" placeholder="Message" rows={3} style={{ marginBottom: '10px' }} value={notificationForm.message} onChange={e => setNotificationForm({ ...notificationForm, message: e.target.value })} />
+                <div style={{ marginBottom: '10px' }}>
+                    <label style={{ color: '#aaa', fontSize: '0.8rem' }}>Target</label>
+                    <select className="modern-input" style={{ marginTop: '5px' }}>
+                        <option>All Users</option>
+                        <option>Active Users</option>
+                    </select>
+                </div>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                    <button className="action-btn secondary" style={{ flex: 1 }}>Preview</button>
+                    <button className="action-btn" style={{ flex: 1 }} onClick={sendNotification}>Send Now</button>
+                </div>
             </div>
 
-            {/* Notifications Section */}
-            {broadcastSubTab === 'notifications' && (
-                <div style={{ paddingBottom: '100px' }}>
-                    <h2 style={{ marginTop: 0 }}>Create Notification</h2>
-                    <div className="glass-card" style={{ padding: '20px', marginBottom: '20px' }}>
-                        <input className="modern-input" placeholder="Title" style={{ marginBottom: '10px' }} value={notificationForm.title} onChange={e => setNotificationForm({ ...notificationForm, title: e.target.value })} />
-                        <textarea className="modern-input" placeholder="Message" rows={3} style={{ marginBottom: '10px' }} value={notificationForm.message} onChange={e => setNotificationForm({ ...notificationForm, message: e.target.value })} />
-                        <div style={{ marginBottom: '10px' }}>
-                            <label style={{ color: '#aaa', fontSize: '0.8rem' }}>Target</label>
-                            <select className="modern-input" style={{ marginTop: '5px' }}>
-                                <option>All Users</option>
-                                <option>Active Users</option>
-                            </select>
-                        </div>
-                        <div style={{ display: 'flex', gap: '10px' }}>
-                            <button className="action-btn secondary" style={{ flex: 1 }}>Preview</button>
-                            <button className="action-btn" style={{ flex: 1 }} onClick={sendNotification}>Send Now</button>
-                        </div>
-                    </div>
-
-                    <h3>History</h3>
-                    <div className="glass-card" style={{ padding: '15px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                            <span style={{ fontWeight: 'bold' }}>Weekend Sale</span>
-                            <span style={{ fontSize: '0.8rem', color: '#aaa' }}>Yesterday</span>
-                        </div>
-                        <div style={{ fontSize: '0.9rem', color: '#ddd' }}>Get 50% off on all biryanis...</div>
-                        <div style={{ fontSize: '0.8rem', marginTop: '5px', color: '#55efc4' }}>Sent to 1,204 users</div>
-                    </div>
+            <h3>History</h3>
+            <div className="glass-card" style={{ padding: '15px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                    <span style={{ fontWeight: 'bold' }}>Weekend Sale</span>
+                    <span style={{ fontSize: '0.8rem', color: '#aaa' }}>Yesterday</span>
                 </div>
-            )}
-
-            {/* Coupons Section */}
-            {broadcastSubTab === 'coupons' && (
-                <CouponManager />
-            )}
+                <div style={{ fontSize: '0.9rem', color: '#ddd' }}>Get 50% off on all biryanis...</div>
+                <div style={{ fontSize: '0.8rem', marginTop: '5px', color: '#55efc4' }}>Sent to 1,204 users</div>
+            </div>
         </div>
     );
 
