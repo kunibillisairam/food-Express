@@ -5,6 +5,8 @@ import axios from 'axios';
 import API_BASE_URL from '../config';
 import { requestForToken } from '../firebase';
 import MobileNotificationDebug from '../components/MobileNotificationDebug';
+import { foodData } from '../data/foodData';
+import HolographicCard from '../components/HolographicCard';
 
 const Profile = ({ setView }) => {
     const { user, logout, updateUser } = useContext(AuthContext);

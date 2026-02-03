@@ -1,14 +1,46 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useContext } from 'react';
 import { useCartAnimation } from '../context/CartAnimationContext';
+import { AuthContext } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
+import { FaHeart, FaRegHeart } from 'react-icons/fa';
 import './HolographicCard.css';
 
 const HolographicCard = ({ item, handleAdd, setCategory, rating }) => {
     const cardRef = useRef(null);
     const imgRef = useRef(null);
     const { triggerFly } = useCartAnimation();
+    const { user, toggleFavorite } = useContext(AuthContext);
     const [rotation, setRotation] = useState({ x: 0, y: 0 });
     const [isHovered, setIsHovered] = useState(false);
+
+    const isFavorite = user?.favorites?.includes(item.id);
+
+    const handleFavoriteClick = async (e) => {
+        e.stopPropagation();
+        if (!user) {
+            toast.error("Please login to add favorites", {
+                icon: '🔒',
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                },
+            });
+            return;
+        }
+
+        const result = await toggleFavorite(item.id);
+        if (result.success) {
+            toast(result.isFavorite ? "Added to Favorites" : "Removed from Favorites", {
+                icon: result.isFavorite ? '❤️' : '💔',
+                style: {
+                    borderRadius: '10px',
+                    background: '#333',
+                    color: '#fff',
+                },
+            });
+        }
+    };
 
     const handleMouseMove = (e) => {
         if (!cardRef.current) return;
@@ -67,6 +99,27 @@ const HolographicCard = ({ item, handleAdd, setCategory, rating }) => {
                             transform: isHovered ? 'translateZ(30px) scale(1.1)' : 'translateZ(0) scale(1)'
                         }}
                     />
+
+                    {/* Favorite Button */}
+                    <div
+                        className="favorite-btn"
+                        onClick={handleFavoriteClick}
+                        style={{
+                            position: 'absolute',
+                            top: '10px',
+                            right: '10px',
+                            zIndex: 10,
+                            cursor: 'pointer',
+                            fontSize: '1.5rem',
+                            color: isFavorite ? '#ff4757' : 'rgba(255, 255, 255, 0.6)',
+                            transform: isHovered ? 'translateZ(60px)' : 'translateZ(0)',
+                            transition: 'all 0.3s ease',
+                            filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))'
+                        }}
+                    >
+                        {isFavorite ? <FaHeart /> : <FaRegHeart />}
+                    </div>
+
                     {item.offer && (
                         <span
                             className="offer-badge"

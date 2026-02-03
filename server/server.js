@@ -147,10 +147,15 @@ mongoose.connect(MONGO_URI)
     .catch(err => console.error('MongoDB Connection Error:', err));
 
 // Seed Default Admin
+// Seed Default Admin
 async function createDefaultAdmin() {
     try {
-        const adminUser = await User.findOne({ username: 'admin' });
-        if (!adminUser) {
+        // Check if admin exists by username OR phone to prevent duplicate key errors
+        const existingAdmin = await User.findOne({
+            $or: [{ username: 'admin' }, { phone: '0000000000' }]
+        });
+
+        if (!existingAdmin) {
             const newAdmin = new User({
                 username: 'admin',
                 email: 'admin@foodexpress.com', // Placeholder email
@@ -161,13 +166,23 @@ async function createDefaultAdmin() {
             });
             await newAdmin.save();
             console.log('👑 Default Admin User Created (username: admin, password: admin)');
-        } else if (adminUser.role !== 'admin') {
-            adminUser.role = 'admin';
-            await adminUser.save();
-            console.log('👑 Admin role assigned to existing "admin" user');
+        } else {
+            // Ensure they have admin role if they exist
+            if (existingAdmin.role !== 'admin') {
+                existingAdmin.role = 'admin';
+                await existingAdmin.save();
+                console.log('👑 Admin role assigned to existing user found by username/phone');
+            } else {
+                console.log('👑 Default Admin already exists and configured.');
+            }
         }
     } catch (error) {
-        console.error('Error creating default admin:', error);
+        // Ignore duplicate key error if it happens race-condition style
+        if (error.code === 11000) {
+            console.log('👑 Admin creation skipped (Duplicate key detected - likely already exists).');
+        } else {
+            console.error('Error creating default admin:', error);
+        }
     }
 }
 

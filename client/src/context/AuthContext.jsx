@@ -170,6 +170,27 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const toggleFavorite = async (foodId) => {
+        if (!user) {
+            return { success: false, message: "Please login to add favorites" };
+        }
+        try {
+            const res = await axios.post(`${API_BASE_URL}/api/users/favorites/toggle`, {
+                username: user.username,
+                foodId
+            });
+            // Update local state
+            const newFavorites = res.data;
+            const updatedUser = { ...user, favorites: newFavorites };
+            setUser(updatedUser);
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+            return { success: true, isFavorite: newFavorites.includes(Number(foodId)) };
+        } catch (err) {
+            console.error("Failed to toggle favorite", err);
+            return { success: false, message: "Failed to update favorites" };
+        }
+    };
+
     return (
         <AuthContext.Provider value={{
             user,
@@ -179,7 +200,8 @@ export const AuthProvider = ({ children }) => {
             updateUser,
             forgotPassword,
             verifyOtp,
-            resetPassword
+            resetPassword,
+            toggleFavorite
         }}>
             {children}
         </AuthContext.Provider>
