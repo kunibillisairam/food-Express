@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { CartContext } from '../context/CartContext';
 import { AuthContext } from '../context/AuthContext';
 import axios from 'axios';
@@ -33,50 +33,52 @@ const Payment = ({ setView }) => {
     });
     const [errors, setErrors] = useState({});
 
-    const coupons = [
-        { code: 'WELCOME50', discount: 50, desc: 'Flat ₹50 off on first order' },
-        { code: 'ZOMATO20', discount: 20, desc: '20% off up to ₹100' }, // Logic implemented as flat for simplicity or percentage
-        { code: 'SAI100', discount: 100, desc: 'For first time' },
-        { code: 'FREEDEL', discount: 40, desc: 'Free Delivery (Save ₹40)' }
-    ];
+    const [coupons, setCoupons] = useState([]);
 
-    const handleApplyCoupon = () => {
+    useEffect(() => {
+        const fetchCoupons = async () => {
+            try {
+                const res = await axios.get(`${API_BASE_URL}/api/coupons/active`);
+                setCoupons(res.data);
+            } catch (err) {
+                console.error("Failed to fetch coupons", err);
+            }
+        };
+        fetchCoupons();
+    }, []);
+
+    const handleApplyCoupon = async () => {
         if (!coupon) return;
+        setCouponMsg('');
 
-        const found = coupons.find(c => c.code === coupon.toUpperCase());
-        if (found) {
-            // Simple logic for example: 
-            // If percentage-like code (ZOMATO20), let's calculate % but cap it.
-            // For now, let's keep it simple: use the 'discount' value from object as flat amount reduction
-            // or if it's ZOMATO20, calculate 20%.
+        // Basic Check Before Server Call
+        if (!user) {
+            setCouponMsg('Please login to apply coupons');
+            return;
+        }
 
-            let discAmt = found.discount;
+        try {
+            const response = await axios.post(`${API_BASE_URL}/api/coupons/${coupon}/apply`, {
+                username: user.username,
+                orderAmount: totalAmount
+            });
 
-            // Check if coupon is one-time use for user
-            if (found.code === 'SAI100') {
-                if (user && user.usedCoupons && user.usedCoupons.includes('SAI100')) {
-                    setCouponMsg('Only one time for new user');
-                    return;
-                }
+            const { success, discount: discountVal, coupon: couponDetails, message } = response.data;
+
+            if (success) {
+                setDiscount(discountVal);
+                setAppliedCoupon(couponDetails.code);
+                setCouponMsg(`Coupon ${couponDetails.code} applied! You saved ₹${discountVal}`);
+            } else {
+                setDiscount(0);
+                setAppliedCoupon(null);
+                setCouponMsg(message || 'Invalid Coupon');
             }
-
-            if (found.code === 'ZOMATO20') {
-                discAmt = Math.round(totalAmount * 0.2);
-                if (discAmt > 100) discAmt = 100;
-            }
-
-            if (totalAmount < discAmt) {
-                setCouponMsg('Cart value too low for this coupon.');
-                return;
-            }
-
-            setDiscount(discAmt);
-            setAppliedCoupon(found.code);
-            setCouponMsg(`Coupon ${found.code} applied! You saved ₹${discAmt}`);
-        } else {
-            setCouponMsg('Invalid Coupon Code');
+        } catch (err) {
+            console.error("Coupon Apply Error", err);
             setDiscount(0);
             setAppliedCoupon(null);
+            setCouponMsg(err.response?.data?.message || 'Invalid Coupon Code');
         }
     };
 
@@ -670,7 +672,7 @@ const Payment = ({ setView }) => {
                                         <div style={{ background: '#ff4757', color: 'white', fontWeight: 'bold', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem' }}>
                                             {c.code}
                                         </div>
-                                        <div style={{ fontSize: '0.9rem', color: '#555' }}>{c.desc}</div>
+                                        <div style={{ fontSize: '0.9rem', color: '#555' }}>{c.description || c.desc}</div>
                                     </div>
                                 ))}
                             </div>
