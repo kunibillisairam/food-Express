@@ -110,6 +110,7 @@ const Navbar = ({ setView, activeCategory, setCategory, setSearchTerm }) => {
                     <button className="nav-btn" onClick={() => setView('login')}>Login</button>
                 ) : user.role === 'admin' ? (
                     <>
+                        <button className="nav-btn" onClick={() => setView('admin-menu')}>🍔 Menu</button>
                         <button className="nav-btn" onClick={() => setView('admin-orders')}>Admin Orders</button>
                         <button className="nav-btn" onClick={() => setView('campaign-manager')} style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white' }}>🎯 Campaigns</button>
                         <button className="nav-btn" onClick={handleLogout}><FaSignOutAlt /> Logout</button>

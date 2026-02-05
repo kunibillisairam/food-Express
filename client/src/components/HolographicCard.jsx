@@ -91,7 +91,7 @@ const HolographicCard = ({ item, handleAdd, setCategory, rating }) => {
                 <div className="food-img-container" onClick={() => setCategory(item.category)}>
                     <img
                         ref={imgRef}
-                        src={item.image}
+                        src={item.imageUrl || item.image}
                         alt={item.name}
                         className="food-img"
                         loading="lazy"
@@ -120,14 +120,15 @@ const HolographicCard = ({ item, handleAdd, setCategory, rating }) => {
                         {isFavorite ? <FaHeart /> : <FaRegHeart />}
                     </div>
 
-                    {item.offer && (
+                    {(item.offer || item.offerTag?.text) && (
                         <span
                             className="offer-badge"
                             style={{
-                                transform: isHovered ? 'translateZ(50px)' : 'translateZ(0)'
+                                transform: isHovered ? 'translateZ(50px)' : 'translateZ(0)',
+                                backgroundColor: item.offerTag?.color || '#ff4757'
                             }}
                         >
-                            {item.offer}
+                            {item.offer || item.offerTag?.text}
                         </span>
                     )}
                 </div>
@@ -150,7 +151,7 @@ const HolographicCard = ({ item, handleAdd, setCategory, rating }) => {
                     )}
                     <button className="add-btn" onClick={(e) => {
                         const rect = imgRef.current.getBoundingClientRect();
-                        triggerFly(rect, item.image);
+                        triggerFly(rect, item.imageUrl || item.image);
                         handleAdd(item);
                         toast.success(`${item.name} added to cart!`, {
                             duration: 2000,

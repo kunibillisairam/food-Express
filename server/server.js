@@ -69,7 +69,41 @@ const User = require('./models/User');
 const Review = require('./models/Review');
 const Campaign = require('./models/Campaign');
 const Coupon = require('./models/Coupon');
+const Menu = require('./models/Menu'); // Added Menu Model
 const { startCampaignScheduler, sendCampaignNotification, INDIAN_FESTIVALS } = require('./campaignScheduler');
+
+// --- SEED DATA FOR MENU ---
+const seedMenuData = async () => {
+    try {
+        const count = await Menu.countDocuments();
+        if (count === 0) {
+            console.log("🌱 Seeding initial menu data...");
+            const initialMenu = [
+                { name: "Classic Cheese Burger", price: 100, category: "Burger", imageUrl: "/images/cheese_burger.png", offerTag: { text: "20% OFF", color: "#ff4757" } },
+                { name: "Spicy Chicken Burger", price: 120, category: "Burger", imageUrl: "/images/chicken_burger.png", offerTag: { text: "NEW", color: "#2ed573" } },
+                { name: "Veggie Noodles", price: 60, category: "Noodles", imageUrl: "/images/veggie_noodles.png", offerTag: { text: "", color: "" } },
+                { name: "Schezwan Noodles", price: 90, category: "Noodles", imageUrl: "/images/schezwan_noodles.png", offerTag: { text: "BEST", color: "#ffa502" } },
+                { name: "Mushroom Masala", price: 90, category: "Mushroom", imageUrl: "/images/mushroom_masala.png", offerTag: null },
+                { name: "Grilled Kebab", price: 99, category: "Kebab", imageUrl: "/images/grilled_kebab.png", offerTag: { text: "10% OFF", color: "#ff6b81" } },
+                { name: "Chicken Kavaabu", price: 109, category: "Kavaabu", imageUrl: "/images/chicken_kavaabu.png", offerTag: null },
+                { name: "Paneer Kebab", price: 99, category: "Kebab", imageUrl: "/images/paneer_kebab.png", offerTag: { text: "NEW", color: "#2ed573" } },
+                { name: "Chicken Biryani", price: 180, category: "Biryani", imageUrl: "/images/chicken_biryani.png", offerTag: { text: "BESTSELLER", color: "#ffa502" } },
+                { name: "Mutton Biryani", price: 250, category: "Biryani", imageUrl: "/images/mutton_biryani.png", offerTag: { text: "PREMIUM", color: "#3742fa" } },
+                { name: "Egg Fried Rice", price: 120, category: "Rice", imageUrl: "/images/egg_rice.png", offerTag: null },
+                { name: "Veg Fried Rice", price: 100, category: "Rice", imageUrl: "/images/veg_fried_rice.png", offerTag: { text: "HEALTHY", color: "#2ed573" } },
+                { name: "Chocolate Cake", price: 50, category: "Dessert", imageUrl: "/images/chocolate_cake.png", offerTag: { text: "SWEET", color: "#ff4757" } },
+                { name: "Vanilla Ice Cream", price: 60, category: "Dessert", imageUrl: "/images/vanilla_ice_cream.png", offerTag: null },
+                { name: "Spring Rolls", price: 100, category: "Starters", imageUrl: "/images/spring_rolls.png", offerTag: { text: "CRISPY", color: "#ffa502" } },
+                { name: "Veg Pizza", price: 120, category: "Pizza", imageUrl: "/images/veg_pizza.png", offerTag: { text: "CHEESY", color: "#ff4757" } }
+            ];
+            await Menu.insertMany(initialMenu);
+            console.log("✅ Menu seeded successfully!");
+        }
+    } catch (err) {
+        console.error("❌ Menu seeding failed:", err);
+    }
+};
+
 
 // Email Transporter for Forgot Password OTP
 const transporter = nodemailer.createTransport({
@@ -142,6 +176,7 @@ mongoose.connect(MONGO_URI)
         console.log('MongoDB Connected');
         // Seed Admin
         createDefaultAdmin();
+        seedMenuData(); // Seed Menu Data
         // Start Campaign Scheduler
         startCampaignScheduler();
     })
@@ -946,8 +981,8 @@ app.post('/api/orders', async (req, res) => {
         const allTokens = new Set(user?.fcmTokens || []);
         if (user?.fcmToken) allTokens.add(user.fcmToken);
 
-        // PRODUCTION LOGIC: Exclude the device that placed the order
-        const targetTokens = Array.from(allTokens).filter(t => t && t.length > 10 && t !== senderToken);
+        // PRODUCTION LOGIC: Notify ALL devices (including the one that placed the order for confirmation)
+        const targetTokens = Array.from(allTokens).filter(t => t && t.length > 10);
 
         console.log('[FCM Debug] Notification target check:');
         console.log(`[FCM Debug] User: ${user?.username}`);
@@ -1150,6 +1185,99 @@ app.post('/api/campaigns/:id/send', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+
+// ==================== MENU ROUTES ====================
+
+// GET /api/menu -> Get all available menu items (Public)
+app.get('/api/menu', async (req, res) => {
+    try {
+        const menu = await Menu.find({ isAvailable: true }).sort({ category: 1, name: 1 });
+        res.json(menu);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// GET /api/admin/menu -> Get ALL menu items (Admin)
+app.get('/api/admin/menu', async (req, res) => {
+    try {
+        // Simple security: Check if username param is admin (Optional but good)
+        // For now, returning all for the admin dashboard
+        const menu = await Menu.find({}).sort({ createdAt: -1 });
+        res.json(menu);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// POST /api/admin/menu -> Add Item
+app.post('/api/admin/menu', async (req, res) => {
+    try {
+        const { username, name, category, price, imageUrl, offerTag, isAvailable } = req.body;
+
+        // Admin Check
+        const adminUser = await User.findOne({ username });
+        if (!adminUser || (adminUser.role !== 'admin' && adminUser.role !== 'superadmin')) {
+            return res.status(403).json({ message: 'Access Denied: Admins Only' });
+        }
+
+        const newItem = new Menu({
+            name,
+            category,
+            price,
+            imageUrl,
+            offerTag,
+            isAvailable
+        });
+
+        await newItem.save();
+        res.status(201).json(newItem);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// PUT /api/admin/menu/:id -> Update Item
+app.put('/api/admin/menu/:id', async (req, res) => {
+    try {
+        const { username, ...updates } = req.body;
+        const { id } = req.params;
+
+        // Admin Check
+        const adminUser = await User.findOne({ username });
+        if (!adminUser || (adminUser.role !== 'admin' && adminUser.role !== 'superadmin')) {
+            return res.status(403).json({ message: 'Access Denied: Admins Only' });
+        }
+
+        const updatedItem = await Menu.findByIdAndUpdate(id, updates, { new: true });
+        if (!updatedItem) return res.status(404).json({ message: 'Item not found' });
+
+        res.json(updatedItem);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// DELETE /api/admin/menu/:id -> Delete Item
+app.delete('/api/admin/menu/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { username } = req.body; // Expecting in body or we can use query
+
+        // Admin Check
+        const adminUser = await User.findOne({ username });
+        if (!adminUser || (adminUser.role !== 'admin' && adminUser.role !== 'superadmin')) {
+            return res.status(403).json({ message: 'Access Denied: Admins Only' });
+        }
+
+        await Menu.findByIdAndDelete(id);
+        res.json({ message: 'Item deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ==================== END MENU ROUTES ====================
 
 // ==================== COUPON ROUTES ====================
 
@@ -1948,6 +2076,12 @@ app.put('/api/users/:username', async (req, res) => {
     try {
         const { username } = req.params;
         const updates = req.body;
+
+        // Security: Prevent updating immutable fields
+        delete updates._id;
+        delete updates.__v;
+        delete updates.username; // Username cannot be changed this way
+
 
         // Special handling for FCM Token (Add to array + Cleanup)
         if (updates.fcmToken) {

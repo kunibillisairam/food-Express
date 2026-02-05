@@ -16,6 +16,7 @@ import DeliveryTracker from './pages/DeliveryTracker';
 import Fabricator from './pages/Fabricator';
 import DeliveryDashboard from './pages/DeliveryDashboard';
 import CampaignManager from './pages/CampaignManager';
+import AdminMenuManager from './pages/AdminMenuManager';
 import Company from './pages/Company';
 
 import Footer from './components/Footer';
@@ -148,6 +149,7 @@ const Main = () => {
       case 'fabricator': return <Fabricator setView={handleViewChange} />;
       case 'delivery-partner': return <DeliveryDashboard setView={handleViewChange} />;
       case 'campaign-manager': return <CampaignManager setView={handleViewChange} />;
+      case 'admin-menu': return <AdminMenuManager setView={handleViewChange} />;
       case 'company': return <Company />;
       default: return <Home activeCategory={category} setCategory={setCategory} setView={handleViewChange} />;
     }

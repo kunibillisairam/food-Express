@@ -17,6 +17,28 @@ const Home = ({ activeCategory, setCategory, searchTerm, setSearchTerm, setView 
     const [isStandalone, setIsStandalone] = useState(false);
     const [ratings, setRatings] = useState({});
 
+    // Dynamic Menu Data
+    const [foodItems, setFoodItems] = useState([]);
+    const [derivedCategories, setDerivedCategories] = useState(["All"]);
+
+    // Fetch Menu Data
+    useEffect(() => {
+        const fetchMenu = async () => {
+            try {
+                const res = await axios.get(`${API_BASE_URL}/api/menu`);
+                setFoodItems(res.data);
+
+                // Derive unique categories
+                const uniqueCats = ["All", ...new Set(res.data.map(item => item.category))];
+                setDerivedCategories(uniqueCats);
+            } catch (err) {
+                console.error("Failed to fetch menu", err);
+                // Fallback to local data if sensitive (Optional)
+            }
+        };
+        fetchMenu();
+    }, []);
+
     // Fetch ratings summary
     useEffect(() => {
         const fetchRatings = async () => {
@@ -68,7 +90,7 @@ const Home = ({ activeCategory, setCategory, searchTerm, setSearchTerm, setView 
 
 
     // Filter logic
-    const filteredFood = foodData.filter(item => {
+    const filteredFood = foodItems.filter(item => {
         const matchesCategory = activeCategory === 'All' || item.category === activeCategory;
         const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
         return matchesCategory && matchesSearch;
@@ -97,7 +119,7 @@ const Home = ({ activeCategory, setCategory, searchTerm, setSearchTerm, setView 
                 </div>
 
                 <div className="categories">
-                    {categories.map(cat => (
+                    {derivedCategories.map(cat => (
                         <button
                             key={cat}
                             className={`cat-btn ${activeCategory === cat ? 'active' : ''}`}
