@@ -62,22 +62,8 @@ const couponSchema = new mongoose.Schema({
     createdBy: {
         type: String,
         default: 'admin'
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
-    updatedAt: {
-        type: Date,
-        default: Date.now
     }
-});
-
-// Update the updatedAt timestamp before saving
-couponSchema.pre('save', function (next) {
-    this.updatedAt = Date.now();
-    next();
-});
+}, { timestamps: true });
 
 // Method to check if coupon is valid
 couponSchema.methods.isValid = function () {
