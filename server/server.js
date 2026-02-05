@@ -1254,6 +1254,7 @@ app.post('/api/coupons', async (req, res) => {
 
         const newCoupon = new Coupon(couponData);
         const savedCoupon = await newCoupon.save();
+        console.log('[Coupon Created]', savedCoupon);
 
         // ----------------------------------------------------
         // NOTIFICATION: Notify all users about the new coupon
@@ -1301,6 +1302,7 @@ app.post('/api/coupons', async (req, res) => {
 
         res.status(201).json(savedCoupon);
     } catch (err) {
+        console.error('[Coupon Creation Error]', err);
         if (err.code === 11000) {
             return res.status(400).json({ error: 'Coupon code already exists' });
         }
