@@ -29,8 +29,8 @@ const Cart = ({ setView }) => {
                     <p style={{ textAlign: 'center', color: '#888', padding: '2rem' }}>Waiting for fleet members to add cargo...</p>
                 ) : (
                     cart.map(item => (
-                        <div key={item.id} className="cart-item">
-                            <img src={item.image} alt={item.name} />
+                        <div key={item._id || item.id} className="cart-item">
+                            <img src={item.imageUrl || item.image} alt={item.name} />
                             <div style={{ fontWeight: 600, fontSize: '1rem' }}>
                                 {item.name}
                             </div>
@@ -38,7 +38,7 @@ const Cart = ({ setView }) => {
                                 ₹{item.price}
                             </div>
                             <div className="qty-controls">
-                                <button className="qty-btn" onClick={() => removeFromCart(item.id)}>−</button>
+                                <button className="qty-btn" onClick={() => removeFromCart(item._id || item.id)}>−</button>
                                 <span style={{ minWidth: '20px', textAlign: 'center', fontSize: '0.9rem' }}>{item.qty}</span>
                                 <button className="qty-btn" onClick={() => addToCart(item)}>+</button>
                             </div>

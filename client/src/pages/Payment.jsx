@@ -176,7 +176,7 @@ const Payment = ({ setView }) => {
                     name: item.name || 'Unnamed Item',
                     price: (item.price || 0).toString(),
                     quantity: item.qty || 1,
-                    image: item.image || ''
+                    image: item.imageUrl || item.image || ''
                 })),
                 totalAmount: finalAmount,
                 status: 'Pending',

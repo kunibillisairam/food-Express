@@ -127,10 +127,11 @@ export const CartProvider = ({ children }) => {
 
     const addToCart = (item) => {
         setCart((prevCart) => {
-            const existing = prevCart.find((i) => i.id === item.id);
+            const itemId = item._id || item.id;
+            const existing = prevCart.find((i) => (i._id || i.id) === itemId);
             if (existing) {
                 return prevCart.map((i) =>
-                    i.id === item.id ? { ...i, qty: i.qty + 1 } : i
+                    (i._id || i.id) === itemId ? { ...i, qty: i.qty + 1 } : i
                 );
             }
             return [...prevCart, { ...item, qty: 1 }];
@@ -139,13 +140,13 @@ export const CartProvider = ({ children }) => {
 
     const removeFromCart = (id) => {
         setCart((prevCart) => {
-            const existing = prevCart.find((i) => i.id === id);
+            const existing = prevCart.find((i) => (i._id || i.id) === id);
             if (!existing) return prevCart;
             if (existing.qty === 1) {
-                return prevCart.filter((i) => i.id !== id);
+                return prevCart.filter((i) => (i._id || i.id) !== id);
             }
             return prevCart.map((i) =>
-                i.id === id ? { ...i, qty: i.qty - 1 } : i
+                (i._id || i.id) === id ? { ...i, qty: i.qty - 1 } : i
             );
         });
     };
