@@ -14,7 +14,7 @@ export default function CampaignBanner() {
 
     const fetchActiveCampaigns = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/api/campaigns/active`);
+            const response = await axios.get(`${config}/api/campaigns/active`);
             setCampaigns(Array.isArray(response.data) ? response.data : []);
             setLoading(false);
         } catch (error) {

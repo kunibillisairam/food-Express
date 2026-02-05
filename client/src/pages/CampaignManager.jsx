@@ -32,7 +32,7 @@ export default function CampaignManager() {
 
     const fetchCampaigns = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/api/campaigns`);
+            const response = await axios.get(`${config}/api/campaigns`);
             setCampaigns(response.data);
             setLoading(false);
         } catch (error) {
@@ -43,7 +43,7 @@ export default function CampaignManager() {
 
     const fetchFestivals = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/api/campaigns/festivals`);
+            const response = await axios.get(`${config}/api/campaigns/festivals`);
             setFestivals(response.data);
         } catch (error) {
             console.error('Error fetching festivals:', error);
@@ -54,9 +54,9 @@ export default function CampaignManager() {
         e.preventDefault();
         try {
             if (editingCampaign) {
-                await axios.put(`${config.API_BASE_URL}/api/campaigns/${editingCampaign._id}`, formData);
+                await axios.put(`${config}/api/campaigns/${editingCampaign._id}`, formData);
             } else {
-                await axios.post(`${config.API_BASE_URL}/api/campaigns`, formData);
+                await axios.post(`${config}/api/campaigns`, formData);
             }
             fetchCampaigns();
             resetForm();
@@ -69,7 +69,7 @@ export default function CampaignManager() {
     const handleDelete = async (id) => {
         if (confirm('Are you sure you want to delete this campaign?')) {
             try {
-                await axios.delete(`${config.API_BASE_URL}/api/campaigns/${id}`);
+                await axios.delete(`${config}/api/campaigns/${id}`);
                 fetchCampaigns();
             } catch (error) {
                 console.error('Error deleting campaign:', error);
@@ -81,7 +81,7 @@ export default function CampaignManager() {
     const handleSendNotification = async (id) => {
         if (confirm('Send notification to all users for this campaign?')) {
             try {
-                await axios.post(`${config.API_BASE_URL}/api/campaigns/${id}/send`);
+                await axios.post(`${config}/api/campaigns/${id}/send`);
                 alert('Notification sent successfully!');
                 fetchCampaigns();
             } catch (error) {

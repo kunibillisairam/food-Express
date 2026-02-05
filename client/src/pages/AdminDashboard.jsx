@@ -256,7 +256,7 @@ const AdminDashboard = ({ setView }) => {
             {/* Desktop Main Grid */}
             <div className="desktop-grid" style={{ marginTop: '25px' }}>
                 {/* Left Col: Charts */}
-                <div className="chart-big-container hide-on-mobile" style={{ display: 'block' }}>
+                <div className="chart-big-container hide-on-mobile" style={{ display: 'block', minWidth: 0 }}>
                     <h3 style={{ marginTop: 0, marginBottom: '20px' }}>Revenue Statistics</h3>
                     <ResponsiveContainer width="100%" height={300}>
                         <AreaChart data={analytics?.popularItems || []}> {/* Using popular items as dummy data if revenue timeline missing */}
@@ -276,7 +276,7 @@ const AdminDashboard = ({ setView }) => {
                 </div>
 
                 {/* Right Col: Traffic / Pie */}
-                <div className="chart-small-container hide-on-mobile" style={{ display: 'block' }}>
+                <div className="chart-small-container hide-on-mobile" style={{ display: 'block', minWidth: 0 }}>
                     <h3 style={{ marginTop: 0 }}>Traffic Source</h3>
                     <ResponsiveContainer width="100%" height={250}>
                         <PieChart>

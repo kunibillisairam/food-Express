@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
-import config from '../config';
+import API_BASE_URL from '../config';
 import toast from 'react-hot-toast';
 import { FaPlus, FaEdit, FaTrash, FaToggleOn, FaToggleOff, FaCopy, FaPercentage, FaRupeeSign } from 'react-icons/fa';
 import './CouponManager.css';
@@ -34,7 +34,7 @@ export default function CouponManager() {
 
     const fetchCoupons = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/api/coupons`);
+            const response = await axios.get(`${API_BASE_URL}/api/coupons`);
             // Handle both [coupons] and { data: [coupons] } formats
             const couponsData = Array.isArray(response.data) ? response.data : (response.data.data || []);
             setCoupons(Array.isArray(couponsData) ? couponsData : []);
@@ -48,7 +48,7 @@ export default function CouponManager() {
 
     useEffect(() => {
         // Initialize Socket for Real-time Updates
-        const socket = io(config.API_BASE_URL);
+        const socket = io(API_BASE_URL);
 
         socket.on('connect', () => {
             console.log('[CouponManager] Socket Connected:', socket.id);
@@ -84,10 +84,10 @@ export default function CouponManager() {
             };
 
             if (editingCoupon) {
-                await axios.put(`${config.API_BASE_URL}/api/coupons/${editingCoupon._id}`, submitData);
+                await axios.put(`${API_BASE_URL}/api/coupons/${editingCoupon._id}`, submitData);
                 toast.success('Coupon updated successfully!');
             } else {
-                await axios.post(`${config.API_BASE_URL}/api/coupons`, submitData);
+                await axios.post(`${API_BASE_URL}/api/coupons`, submitData);
                 toast.success('Coupon created successfully!');
             }
 
@@ -103,7 +103,7 @@ export default function CouponManager() {
         if (!window.confirm('Are you sure you want to delete this coupon?')) return;
 
         try {
-            await axios.delete(`${config.API_BASE_URL}/api/coupons/${id}`);
+            await axios.delete(`${API_BASE_URL}/api/coupons/${id}`);
             toast.success('Coupon deleted successfully!');
             fetchCoupons();
         } catch (error) {
@@ -160,7 +160,7 @@ export default function CouponManager() {
 
     const toggleCouponStatus = async (coupon) => {
         try {
-            await axios.put(`${config.API_BASE_URL}/api/coupons/${coupon._id}`, {
+            await axios.put(`${API_BASE_URL}/api/coupons/${coupon._id}`, {
                 ...coupon,
                 isActive: !coupon.isActive
             });
