@@ -754,7 +754,7 @@ app.put('/api/orders/:id/status', async (req, res) => {
                 }
 
                 // Refund wallet balance if paymentMethod was wallet
-                if (order.paymentMethod === 'wallet') {
+                if (order.paymentMethod.toLowerCase() === 'wallet') {
                     user.walletBalance = (user.walletBalance || 0) + order.totalAmount;
                     user.transactions.push({
                         type: 'Credit',
@@ -846,6 +846,8 @@ app.post('/api/orders', async (req, res) => {
         const { userName, items, totalAmount, couponCode, address, paymentMethod, useXp, senderToken } = req.body;
         console.log(`[Order] Received order from ${userName}, Address: ${address}, Method: ${paymentMethod}, Use XP: ${useXp}`);
 
+        const randomOrderId = Math.floor(100000 + Math.random() * 900000).toString();
+
         // Use case-insensitive lookup for safety
         const user = await User.findOne({ username: { $regex: new RegExp("^" + userName + "$", "i") } });
         let earnedXp = 0;
@@ -902,6 +904,24 @@ app.post('/api/orders', async (req, res) => {
                     description: `Earned ${earnedCredits} CR from Order XP`
                 });
             }
+
+            // --- WALLET DEDUCTION LOGIC ---
+            if (paymentMethod.toLowerCase() === 'wallet') {
+                if ((user.walletBalance || 0) < finalAmount) {
+                    return res.status(400).json({ message: 'Insufficient wallet balance' });
+                }
+                user.walletBalance -= finalAmount;
+                user.transactions.push({
+                    type: 'Debit',
+                    amount: finalAmount,
+                    description: `Paid for order #${randomOrderId}`, // Note: randomOrderId is defined below, might need move or use temp placeholder? 
+                    // Ah, randomOrderId is defined at line 945. I should move this logic OR defining logic up.
+                    // Better: Just use generic description "Paid for order" or generate ID earlier.
+                    date: new Date()
+                });
+            }
+            // ------------------------------
+
             await user.save();
         }
 
@@ -942,7 +962,7 @@ app.post('/api/orders', async (req, res) => {
         }
         // ----------------------------------
 
-        const randomOrderId = Math.floor(100000 + Math.random() * 900000).toString();
+
 
         const newOrder = new Order({
             userName,
