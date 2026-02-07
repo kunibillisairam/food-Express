@@ -108,7 +108,8 @@ export default function CouponManager() {
             fetchCoupons();
         } catch (error) {
             console.error('Error deleting coupon:', error);
-            toast.error('Failed to delete coupon');
+            const errorMsg = error.response?.data?.message || error.response?.data?.error || 'Failed to delete coupon';
+            toast.error(errorMsg);
         }
     };
 

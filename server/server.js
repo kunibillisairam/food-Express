@@ -1492,16 +1492,26 @@ app.put('/api/coupons/:id', async (req, res) => {
 app.delete('/api/coupons/:id', async (req, res) => {
     try {
         const { id } = req.params;
+        console.log(`[Coupon Delete] Request to delete coupon with ID: ${id}`);
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            console.log(`[Coupon Delete] Invalid ID format: ${id}`);
+            return res.status(400).json({ error: 'Invalid Coupon ID format' });
+        }
+
         const coupon = await Coupon.findByIdAndDelete(id);
         if (!coupon) {
-            return res.status(404).json({ message: 'Coupon not found' });
+            console.log(`[Coupon Delete] Coupon not found: ${id}`);
+            return res.status(404).json({ error: 'Coupon not found' });
         }
 
         // Emit Socket Event
         if (io) io.emit('coupons-updated');
 
+        console.log(`[Coupon Delete] Successfully deleted coupon: ${coupon.code}`);
         res.json({ message: 'Coupon deleted successfully' });
     } catch (err) {
+        console.error(`[Coupon Delete Error]`, err);
         res.status(500).json({ error: err.message });
     }
 });
