@@ -30,32 +30,24 @@ const StarfieldBackground = () => {
             }
         };
 
-        const drawStars = (scrollOffset) => {
+        const drawStars = () => {
+            const scrollOffset = window.scrollY;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Draw a subtle dark gradient phase
-            const grad = ctx.createRadialGradient(
-                canvas.width / 2, canvas.height / 2, 0,
-                canvas.width / 2, canvas.height / 2, canvas.width
-            );
-            grad.addColorStop(0, '#0a0a12');
-            grad.addColorStop(1, '#000000');
-            ctx.fillStyle = grad;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             stars.forEach(star => {
                 // Parallax calculation
-                const parallaxY = (star.y + (scrollOffset * star.speed)) % canvas.height;
+                let y = star.y + (scrollOffset * star.speed);
+                if (y > canvas.height) y = y % canvas.height;
 
                 ctx.beginPath();
-                ctx.arc(star.x, parallaxY, star.size, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
+                ctx.arc(star.x, y, star.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(0.8, Math.max(0.1, star.opacity))})`;
                 ctx.fill();
 
-                // Twinkle effect
-                star.opacity += (Math.random() - 0.5) * 0.05;
-                if (star.opacity < 0.1) star.opacity = 0.1;
-                if (star.opacity > 0.8) star.opacity = 0.8;
+                // Twinkle effect (simplified)
+                if (Math.random() > 0.9) {
+                    star.opacity = Math.random();
+                }
             });
         };
 

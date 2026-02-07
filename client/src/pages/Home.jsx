@@ -10,6 +10,7 @@ import Hero from '../components/Hero';
 import AppDownloadSection from '../components/AppDownloadSection';
 import { AuthContext } from '../context/AuthContext';
 import CampaignBanner from '../components/CampaignBanner';
+import SkeletonCard from '../components/SkeletonCard';
 
 const Home = ({ activeCategory, setCategory, searchTerm, setSearchTerm, setView }) => {
     const { user } = useContext(AuthContext);
@@ -20,20 +21,47 @@ const Home = ({ activeCategory, setCategory, searchTerm, setSearchTerm, setView 
     // Dynamic Menu Data
     const [foodItems, setFoodItems] = useState([]);
     const [derivedCategories, setDerivedCategories] = useState(["All"]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     // Fetch Menu Data
     useEffect(() => {
         const fetchMenu = async () => {
+            // Check for cached menu
+            const cachedMenu = localStorage.getItem("menu");
+            if (cachedMenu) {
+                try {
+                    const parsedMenu = JSON.parse(cachedMenu);
+                    if (Array.isArray(parsedMenu) && parsedMenu.length > 0) {
+                        setFoodItems(parsedMenu);
+                        const uniqueCats = ["All", ...new Set(parsedMenu.map(item => item.category))];
+                        setDerivedCategories(uniqueCats);
+                        setLoading(false); // Show cached content immediately
+                    }
+                } catch (e) {
+                    console.error("Error parsing cached menu", e);
+                }
+            }
+
             try {
                 const res = await axios.get(`${API_BASE_URL}/api/menu`);
                 setFoodItems(res.data);
 
+                // Save to cache
+                localStorage.setItem("menu", JSON.stringify(res.data));
+
                 // Derive unique categories
                 const uniqueCats = ["All", ...new Set(res.data.map(item => item.category))];
                 setDerivedCategories(uniqueCats);
+                setError(null);
             } catch (err) {
                 console.error("Failed to fetch menu", err);
-                // Fallback to local data if sensitive (Optional)
+                // Only show error if we have no data (no cache)
+                if (!cachedMenu) {
+                    setError("Failed to load menu. Please check your connection.");
+                }
+            } finally {
+                setLoading(false);
             }
         };
         fetchMenu();
@@ -139,22 +167,48 @@ const Home = ({ activeCategory, setCategory, searchTerm, setSearchTerm, setView 
                     </div>
                 )}
 
-                <div className="food-grid">
-                    {filteredFood.map(item => (
-                        <HolographicCard
-                            key={item.id}
-                            item={item}
-                            handleAdd={handleAdd}
-                            setCategory={setCategory}
-                            rating={ratings[item.id] || 0}
-                        />
-                    ))}
-                </div>
-
-                {filteredFood.length === 0 && (
-                    <div style={{ textAlign: 'center', fontSize: '1.2rem', color: '#888', marginTop: '3rem' }}>
-                        No items found. Try a different search.
+                {error ? (
+                    <div style={{ textAlign: 'center', color: '#ff4757', padding: '2rem' }}>
+                        <p style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>{error}</p>
+                        <button
+                            onClick={() => window.location.reload()}
+                            style={{
+                                padding: '0.8rem 1.5rem',
+                                background: '#333',
+                                color: '#fff',
+                                border: '1px solid #ff4757',
+                                borderRadius: '8px',
+                                cursor: 'pointer',
+                                fontSize: '1rem'
+                            }}
+                        >
+                            Retry Connection
+                        </button>
                     </div>
+                ) : (
+                    <>
+                        <div className="food-grid">
+                            {loading ? (
+                                [...Array(8)].map((_, i) => <SkeletonCard key={i} />)
+                            ) : (
+                                filteredFood.map(item => (
+                                    <HolographicCard
+                                        key={item.id}
+                                        item={item}
+                                        handleAdd={handleAdd}
+                                        setCategory={setCategory}
+                                        rating={ratings[item.id] || 0}
+                                    />
+                                ))
+                            )}
+                        </div>
+
+                        {!loading && filteredFood.length === 0 && (
+                            <div style={{ textAlign: 'center', fontSize: '1.2rem', color: '#888', marginTop: '3rem' }}>
+                                No items found. Try a different search.
+                            </div>
+                        )}
+                    </>
                 )}
 
                 {showAppSection && <AppDownloadSection />}

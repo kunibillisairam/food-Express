@@ -1211,6 +1211,8 @@ app.post('/api/campaigns/:id/send', async (req, res) => {
 // GET /api/menu -> Get all available menu items (Public)
 app.get('/api/menu', async (req, res) => {
     try {
+        // Cache for 5 minutes (300 seconds)
+        res.set('Cache-Control', 'public, max-age=300');
         const menu = await Menu.find({ isAvailable: true }).sort({ category: 1, name: 1 });
         res.json(menu);
     } catch (err) {
